@@ -1,0 +1,47 @@
+
+@import url(https://cdn.tiye.me/favored-fonts/main-fonts.css);
+
+body {
+  margin: 0;
+  overscroll-behavior-y: none;
+}
+
+body * {
+  box-sizing: border-box;
+  flex-shrink: 0;
+}
+
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background-color: hsla(0,0%,100%);
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: hsla(200,100%,76%,0.8);
+}
+
+::-webkit-scrollbar-corner {
+  background-color: transparent;
+}
+
+::-webkit-resizer {
+  background-color:transparent;
+}
+
+.hover-item {
+  cursor: pointer;
+}
+.hover-item:hover {
+  background-color: hsl(350,0%,95%);
+}
+
+.expr-area {
+  border-color: hsl(0,0%,92%);
+}
+.expr-area:hover {
+  border-color: hsl(0,0%,88%);
+}
