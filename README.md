@@ -1,30 +1,10 @@
 
-Respo workflow in Calcit-js
+IR viewer
 ----
 
-> Respo web page based on calcit-js.
+> for reading `program-ir.json` file generated from calcit-runner.
 
-Demo http://repo.calcit-lang.org/respo-calcit-workflow/ .
-
-### Usages
-
-To develop:
-
-```bash
-cr --emit-js # watching
-
-yarn # to install vite
-yarn vite # watching and running on localhost:3000
-```
-
-calcit-js is using [Calcit Editor](https://github.com/Cirru/calcit-editor).
-
-To build:
-
-```bash
-yarn vite build
-http-server dist/
-```
+Demo http://repo.calcit-lang.org/calcit-ir-viewer/ .
 
 ### Workflow
 
