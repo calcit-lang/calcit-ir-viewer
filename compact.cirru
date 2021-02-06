@@ -46,6 +46,9 @@
                 comp-code (get f "\"args") false
               div ({}) (<> $ str "\"Code:")
                 comp-code (get f "\"code") false
+        |calcit-proc? $ quote
+          defn calcit-proc? (x)
+            and (map? x) (= "\"proc" $ get x "\"kind")
         |comp-imports $ quote
           defcomp comp-imports (imports)
             div
@@ -95,6 +98,8 @@
                       , expr
               (calcit-symbol? expr)
                 comp-symbol expr
+              (calcit-proc? expr)
+                <> "\"Proc" $ {} (:color $ hsl 0 80 50) (:margin "\"0 4px") (:white-space :pre-line) (:display :inline-block)
               (calcit-keyword? expr)
                 <> (str "\":" $ get expr "\"val")
                   {} (:color $ hsl 200 80 40) (:margin "\"0 4px") (:white-space :pre-line) (:display :inline-block)
