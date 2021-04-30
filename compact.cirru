@@ -31,7 +31,7 @@
                     div
                       {} $ :style
                         {} (:overflow :auto) (:min-width "\"12%")
-                      , & $ ->> defs (set->list) (sort compare-string)
+                      , & $ -> defs (set->list) (sort compare-string)
                         map $ fn (name)
                           div
                             {} (:class-name "\"hover-item")
@@ -95,7 +95,7 @@
                   :max-height "\"20%"
                   :overflow :auto
                   :padding "\"0 8px"
-              , & $ ->> imports (to-pairs) (set->list)
+              , & $ -> imports (to-pairs) (set->list)
                 map $ fn (pair)
                   let[] (name info) pair $ div
                     {} $ :style
@@ -111,7 +111,7 @@
         |calcit-fn? $ quote
           defn calcit-fn? (x)
             and (map? x)
-              = (get x "\"kind") "\"fn"
+              = "\"fn" $ get x "\"kind"
         |comp-code $ quote
           defcomp comp-code (expr last?)
             cond
@@ -123,22 +123,35 @@
                       if
                         and
                           <= (count expr) 2
-                          every? calcit-symbol? expr
+                          every? expr calcit-symbol?
                         {} $ :display :inline-block
                       if last? $ {} (:display :inline-block)
                   , & $ let
                       size $ count expr
-                    map-indexed
-                      fn (idx x)
-                        comp-code x $ = (inc idx) size
-                      , expr
+                    map-indexed expr $ fn (idx x)
+                      comp-code x $ = (inc idx) size
               (calcit-symbol? expr) (comp-symbol expr)
               (calcit-proc? expr)
-                <> "\"Proc" $ {}
-                  :color $ hsl 0 80 50
-                  :margin "\"0 4px"
-                  :white-space :pre-line
-                  :display :inline-block
+                <> (get expr "\"name")
+                  {}
+                    :color $ hsl 0 80 50
+                    :margin "\"0 4px"
+                    :white-space :pre-line
+                    :display :inline-block
+              (calcit-fn? expr)
+                <> (get expr "\"name")
+                  {}
+                    :color $ hsl 0 80 50
+                    :margin "\"0 4px"
+                    :white-space :pre-line
+                    :display :inline-block
+              (calcit-syntax? expr)
+                <> (get expr "\"name")
+                  {}
+                    :color $ hsl 0 80 50
+                    :margin "\"0 4px"
+                    :white-space :pre-line
+                    :display :inline-block
               (calcit-keyword? expr)
                 <>
                   str "\":" $ get expr "\"val"
@@ -178,7 +191,7 @@
                       , & $ if (empty? ns-names)
                         [] $ div ({})
                           <> "\"No namespaces" $ {} (:font-family ui/font-fancy)
-                        ->> ns-names (set->list) (sort compare-string)
+                        -> ns-names (set->list) (sort compare-string)
                           map $ fn (name)
                             div
                               {}
@@ -202,6 +215,11 @@
                         <> $ str "\"No file slected: " selected
                 comp-preview $ :preview store
                 when dev? $ comp-reel (>> states :reel) reel ({})
+        |calcit-syntax? $ quote
+          defn calcit-syntax? (x)
+            and
+              map? $ with-log x
+              = (get x "\"kind") "\"syntax"
         |comp-header $ quote
           defcomp comp-header () $ div
             {} $ :style
@@ -234,10 +252,10 @@
                     case-default
                       -> expr (get "\"resolved") (get "\"kind")
                       , nil
-                      "\"resolvedLocal" $ {}
-                        :color $ hsl 200 80 70
-                      "\"notResolved" $ {}
-                        :color $ hsl 150 80 70
+                        "\"resolvedLocal" $ {}
+                          :color $ hsl 200 80 70
+                        "\"notResolved" $ {}
+                          :color $ hsl 150 80 70
                 div ({})
                   <> (get expr "\"ns")
                     {} (:font-size 8)
