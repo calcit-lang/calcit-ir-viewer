@@ -7,7 +7,7 @@
     |app.comp.container $ {}
       :ns $ quote
         ns app.comp.container $ :require ([] respo-ui.core :as ui)
-          [] respo.core :refer $ [] defcomp defeffect <> >> div button textarea span input
+          [] respo.core :refer $ [] defcomp defeffect <> >> div button textarea span input pre
           [] respo.comp.space :refer $ [] =<
           [] reel.comp.reel :refer $ [] comp-reel
           [] respo-md.comp.md :refer $ [] comp-md
@@ -146,12 +146,14 @@
                     :margin "\"0 4px"
                     :white-space :pre-line
                     :display :inline-block
-              true $ <> (str expr)
-                {}
-                  :color $ hsl 200 80 60
-                  :margin "\"0 4px"
-                  :white-space :pre
-                  :display :inline-block
+              true $ pre
+                {} $ :style
+                  {}
+                    :color $ hsl 200 80 60
+                    :margin "\"0 4px"
+                    :white-space :pre
+                    :display :inline-block
+                <> $ pr-str expr
         |comp-file $ quote
           defcomp comp-file (states file)
             let
@@ -226,7 +228,7 @@
         |calcit-fn? $ quote
           defn calcit-fn? (x)
             and (map? x)
-              = "\"fn" $ get x :kind
+              = :fn $ get x :kind
         |comp-symbol $ quote
           defcomp comp-symbol (expr)
             let
@@ -262,16 +264,15 @@
         |calcit-proc? $ quote
           defn calcit-proc? (x)
             and (map? x)
-              = "\"proc" $ get x :kind
+              = :proc $ get x :kind
         |calcit-symbol? $ quote
           defn calcit-symbol? (x)
             and (map? x)
               = :symbol $ get x :kind
         |calcit-syntax? $ quote
           defn calcit-syntax? (x)
-            and
-              map? $ w-log x
-              = (get x :kind) "\"syntax"
+            and (map? x)
+              = (get x :kind) :syntax
         |comp-fn $ quote
           defcomp comp-fn (f)
             div ({})
