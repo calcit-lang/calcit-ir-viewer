@@ -2,7 +2,7 @@
 IR viewer
 ----
 
-> for reading `program-ir.json` file generated from calcit-runner.
+> for reading `program-ir.cirru` file generated from calcit-runner.
 
 Demo http://repo.calcit-lang.org/calcit-ir-viewer/ .
 
