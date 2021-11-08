@@ -19,28 +19,6 @@
           defn calcit-keyword? (x)
             and (map? x)
               = "\"keyword" $ get x :kind
-        |comp-imports $ quote
-          defcomp comp-imports (imports)
-            div
-              {} $ :style
-                merge ui/expand ui/column $ {}
-                  :border-top $ str "\"1px solid " (hsl 0 0 90)
-                  :max-height "\"20%"
-                  :overflow :auto
-                  :padding "\"0 8px"
-              , & $ -> imports (.to-list)
-                map $ fn (pair)
-                  let[] (name info) pair $ div
-                    {} $ :style
-                      merge ui/row $ {} (:line-height "\"1.6")
-                    div
-                      {} $ :style
-                        {} $ :min-width "\"12%"
-                      <> name
-                    div
-                      {} $ :style
-                        merge ui/expand $ {} (:font-family ui/font-normal)
-                      <> info
         |comp-container $ quote
           defcomp comp-container (reel)
             let
@@ -186,8 +164,6 @@
                       let
                           declaration $ get-in file ([] :defs selected)
                         if (calcit-fn? declaration) (comp-fn declaration) (comp-code declaration false)
-                =< nil 8
-                comp-imports $ get file "\"import"
         |comp-header $ quote
           defcomp comp-header () $ div
             {} $ :style
@@ -309,7 +285,7 @@
     |app.main $ {}
       :ns $ quote
         ns app.main $ :require
-          [] respo.core :refer $ [] render! clear-cache! realize-ssr!
+          [] respo.core :refer $ [] render! clear-cache!
           [] app.comp.container :refer $ [] comp-container
           [] app.updater :refer $ [] updater
           [] app.schema :as schema
@@ -317,12 +293,11 @@
           [] reel.core :refer $ [] reel-updater refresh-reel
           [] reel.schema :as reel-schema
           [] app.config :as config
+          "\"./calcit.build-errors" :default build-errors
+          "\"bottom-tip" :default hud!
       :defs $ {}
         |render-app! $ quote
-          defn render-app! (renderer)
-            renderer mount-target (comp-container @*reel) (\ dispatch! % %2)
-        |ssr? $ quote
-          def ssr? $ some? (js/document.querySelector |meta.respo-ssr)
+          defn render-app! () $ render! mount-target (comp-container @*reel) dispatch!
         |persist-storage! $ quote
           defn persist-storage! () $ .setItem js/localStorage (:storage-key config/site)
             js/JSON.stringify $ to-cirru-edn (:store @*reel)
@@ -333,9 +308,8 @@
         |main! $ quote
           defn main! () (load-console-formatter!)
             println "\"Running mode:" $ if config/dev? "\"dev" "\"release"
-            if ssr? $ render-app! realize-ssr!
-            render-app! render!
-            add-watch *reel :changes $ fn (reel prev) (render-app! render!)
+            render-app!
+            add-watch *reel :changes $ fn (reel prev) (render-app!)
             listen-devtools! |a dispatch!
             .addEventListener js/window |beforeunload $ fn (event) (persist-storage!)
             repeat! 60 persist-storage!
@@ -353,9 +327,12 @@
               println "\"Dispatch:" op
             reset! *reel $ reel-updater updater @*reel op op-data
         |reload! $ quote
-          defn reload! () (clear-cache!) (remove-watch *reel :changes)
-            add-watch *reel :changes $ fn (reel prev) (render-app! render!)
-            reset! *reel $ refresh-reel @*reel schema/store updater
+          defn reload! () $ if (nil? build-errors)
+            do (remove-watch *reel :changes) (clear-cache!)
+              add-watch *reel :changes $ fn (reel prev) (render-app!)
+              reset! *reel $ refresh-reel @*reel schema/store updater
+              hud! "\"ok~" "\"Ok"
+            hud! "\"error" build-errors
         |repeat! $ quote
           defn repeat! (duration cb)
             js/setTimeout
