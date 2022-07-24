@@ -269,7 +269,7 @@
             (exists? js/process) (= "\"true" js/process.env.cdn)
             :else false
         |dev? $ quote
-          def dev? $ = "\"dev" (get-env "\"mode")
+          def dev? $ = "\"dev" (get-env "\"mode" "\"release")
         |site $ quote
           def site $ {} (:title "\"Calcit") (:icon "\"http://cdn.tiye.me/logo/mvc-works.png") (:storage-key "\"calcit-ir-viewer")
       :ns $ quote (ns app.config)
