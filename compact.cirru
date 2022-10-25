@@ -30,25 +30,16 @@
           defcomp comp-code (expr last?)
             cond
                 keyword? expr
-                <> (str expr)
-                  {}
-                    :color $ hsl 200 80 40
-                    :margin "\"0 4px"
-                    :white-space :pre-line
-                    :display :inline-block
+                <> (str expr) css-code-keyword
               (calcit-keyword? expr)
                 <>
                   str "\":" $ get expr :val
-                  {}
-                    :color $ hsl 200 80 40
-                    :margin "\"0 4px"
-                    :white-space :pre-line
-                    :display :inline-block
+                  , css-code-keyword
               (list? expr)
                 div
-                  {} (:class-name "\"expr-area")
+                  {}
+                    :class-name $ str-spaced "\"expr-area" css-code-expr
                     :style $ merge
-                      {} (:border-width "\"1px 0 0 1px") (:margin-left "\"12px") (:font-family ui/font-code) (:margin-bottom "\"2px") (:margin-top "\"2px") (:vertical-align :top) (:border-style :solid) (:border-radius "\"4px")
                       if
                         and
                           <= (count expr) 2
@@ -61,33 +52,13 @@
                       comp-code x $ = (inc idx) size
               (calcit-symbol? expr) (comp-symbol expr)
               (calcit-proc? expr)
-                <> (get expr :name)
-                  {}
-                    :color $ hsl 0 80 50
-                    :margin "\"0 4px"
-                    :white-space :pre-line
-                    :display :inline-block
+                <> (get expr :name) css-code-proc
               (calcit-fn? expr)
-                <> (get expr :name)
-                  {}
-                    :color $ hsl 0 80 50
-                    :margin "\"0 4px"
-                    :white-space :pre-line
-                    :display :inline-block
+                <> (get expr :name) css-code-fn
               (calcit-syntax? expr)
-                <> (get expr :name)
-                  {}
-                    :color $ hsl 0 80 50
-                    :margin "\"0 4px"
-                    :white-space :pre-line
-                    :display :inline-block
+                <> (get expr :name) css-code-syntax
               true $ pre
-                {} $ :style
-                  {}
-                    :color $ hsl 200 80 60
-                    :margin "\"0 4px"
-                    :white-space :pre
-                    :display :inline-block
+                {} $ :class-name css-code-default
                 <> $ pr-str expr
         |comp-container $ quote
           defcomp comp-container (reel)
@@ -98,16 +69,16 @@
                 state $ either (:data states)
                   {} $ :selected nil
               div
-                {} $ :style (merge ui/global ui/fullscreen ui/column)
+                {} $ :class-name (str-spaced css/global css/fullscreen css/column)
                 memof-call comp-header
                 div
-                  {} $ :style (merge ui/expand ui/row)
+                  {} $ :class-name (str-spaced css/expand css/row)
                   let
                       ns-names $ if
                         some-in? store $ [] :ir :files
                         keys $ get-in store ([] :ir :files)
                         #{}
-                    when dev? $ js/console.log store
+                    ; when dev? $ js/console.log store
                     div
                       {} $ :style
                         {} (:padding "\"8 0px") (:width "\"20%") (:overflow :auto)
@@ -147,11 +118,11 @@
                   {} $ :selected nil
                 selected $ :selected state
               div
-                {} $ :style (merge ui/expand ui/column)
+                {} $ :class-name (str-spaced css/expand css/column)
                 let
                     defs $ keys (get file :defs)
                   div
-                    {} $ :style (merge ui/expand ui/row)
+                    {} $ :class-name (str-spaced css/expand css/row)
                     div
                       {} $ :style
                         {} (:overflow :auto) (:min-width "\"12%")
@@ -201,22 +172,10 @@
           defcomp comp-preview (data)
             if (some? data)
               div
-                {} $ :style
-                  {} (:position :absolute) (:bottom 0) (:right 0)
-                    :background-color $ hsl 0 0 100 0.6
-                    :font-family ui/font-code
-                    :white-space :pre
-                    :border $ str "\"1px solid " (hsl 0 0 90)
-                    :font-size 12
-                    :line-height "\"20px"
-                    :padding 8
+                {} $ :class-name css-preview-tip
                 div $ {}
                   :innerText $ trim (format-cirru-edn data)
-                div $ {} (:inner-text "\"×")
-                  :style $ {} (:position :absolute) (:top 4) (:right 4)
-                    :color $ hsl 0 80 60
-                    :cursor :pointer
-                    :font-size 14
+                div $ {} (:inner-text "\"×") (:class-name css-preview-close)
                   :on-click $ fn (e d!) (d! :preview nil)
               div $ {}
         |comp-symbol $ quote
@@ -224,8 +183,7 @@
             let
                 resolved-ns $ get-in expr ([] :resolved :ns)
               div
-                {} $ :style
-                  merge ui/column $ {} (:display :inline-flex) (:margin "\"0px 4px") (:padding "\"0 4px") (:line-height "\"1.2")
+                {} $ :class-name (str-spaced css/column css-code-symbol)
                 div
                   {}
                     :style $ merge
@@ -240,26 +198,88 @@
                         "\"notResolved" $ {}
                           :color $ hsl 150 80 70
                 div ({})
-                  <> (get expr :ns)
-                    {} (:font-size 8)
-                      :color $ hsl 0 0 80
-                      :font-family ui/font-normal
+                  <> (get expr :ns) css-code-symbol-ns
                   =< 4 nil
                   if
                     /= (get expr :ns) resolved-ns
-                    span $ {}
-                      :style $ {} (:font-size "\"8px") (:white-space :nowrap) (:font-family ui/font-normal)
-                        :color $ hsl 0 80 70
-                      :inner-text resolved-ns
+                    span $ {} (:class-name css-code-symbol-resolved-ns) (:inner-text resolved-ns)
+        |css-code-default $ quote
+          defstyle css-code-default $ {}
+            "\"$0" $ {}
+              :color $ hsl 200 80 60
+              :margin "\"0 4px"
+              :white-space :pre
+              :display :inline-block
+        |css-code-expr $ quote
+          defstyle css-code-expr $ {}
+            "\"$0" $ {} (:border-width "\"1px 0 0 1px") (:margin-left "\"12px") (:font-family ui/font-code) (:margin-bottom "\"2px") (:margin-top "\"2px") (:vertical-align :top) (:border-style :solid) (:border-radius "\"4px")
+        |css-code-fn $ quote
+          defstyle css-code-fn $ {}
+            "\"$0" $ {}
+              :color $ hsl 0 80 50
+              :margin "\"0 4px"
+              :white-space :pre-line
+              :display :inline-block
+        |css-code-keyword $ quote
+          defstyle css-code-keyword $ {}
+            "\"$0" $ {}
+              :color $ hsl 200 80 40
+              :margin "\"0 4px"
+              :white-space :pre-line
+              :display :inline-block
+        |css-code-proc $ quote
+          defstyle css-code-proc $ {}
+            "\"$0" $ {}
+              :color $ hsl 0 80 50
+              :margin "\"0 4px"
+              :white-space :pre-line
+              :display :inline-block
+        |css-code-symbol $ quote
+          defstyle css-code-symbol $ {}
+            "\"$0" $ {} (:display :inline-flex) (:margin "\"0px 4px") (:padding "\"0 4px") (:line-height "\"1.2")
+        |css-code-symbol-ns $ quote
+          defstyle css-code-symbol-ns $ {}
+            "\"$0" $ {} (:font-size 8)
+              :color $ hsl 0 0 80
+              :font-family ui/font-normal
+        |css-code-symbol-resolved-ns $ quote
+          defstyle css-code-symbol-resolved-ns $ {}
+            "\"$0" $ {} (:font-size "\"8px") (:white-space :nowrap) (:font-family ui/font-normal)
+              :color $ hsl 0 80 70
+        |css-code-syntax $ quote
+          defstyle css-code-syntax $ {}
+            "\"$0" $ {}
+              :color $ hsl 0 80 50
+              :margin "\"0 4px"
+              :white-space :pre-line
+              :display :inline-block
+        |css-preview-close $ quote
+          defstyle css-preview-close $ {}
+            "\"$0" $ {} (:position :absolute) (:top 4) (:right 4)
+              :color $ hsl 0 80 60
+              :cursor :pointer
+              :font-size 14
+        |css-preview-tip $ quote
+          defstyle css-preview-tip $ {}
+            "\"$0" $ {} (:position :absolute) (:bottom 0) (:right 0)
+              :background-color $ hsl 0 0 100 0.6
+              :font-family ui/font-code
+              :white-space :pre
+              :border $ str "\"1px solid " (hsl 0 0 90)
+              :font-size 12
+              :line-height "\"20px"
+              :padding 8
       :ns $ quote
-        ns app.comp.container $ :require ([] respo-ui.core :as ui)
-          [] respo.core :refer $ [] defcomp defeffect <> >> div button textarea span input pre
-          [] respo.comp.space :refer $ [] =<
-          [] reel.comp.reel :refer $ [] comp-reel
-          [] respo-md.comp.md :refer $ [] comp-md
-          [] app.config :refer $ [] dev?
-          [] memof.alias :refer $ [] memof-call
-          [] respo.util.format :refer $ [] hsl
+        ns app.comp.container $ :require (respo-ui.core :as ui)
+          respo.core :refer $ defcomp defeffect <> >> div button textarea span input pre
+          respo.comp.space :refer $ =<
+          reel.comp.reel :refer $ comp-reel
+          respo-md.comp.md :refer $ comp-md
+          app.config :refer $ dev?
+          memof.alias :refer $ memof-call
+          respo.util.format :refer $ hsl
+          respo.css :refer $ defstyle
+          respo-ui.css :as css
     |app.config $ {}
       :defs $ {}
         |cdn? $ quote
