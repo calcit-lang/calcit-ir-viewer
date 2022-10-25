@@ -84,8 +84,10 @@
                         {} (:padding "\"8 0px") (:width "\"20%") (:overflow :auto)
                           :border-right $ str "\"1px solid " (hsl 0 0 90)
                       , & $ if (empty? ns-names)
-                        [] $ div ({})
-                          <> "\"No namespaces" $ {} (:font-family ui/font-fancy)
+                        [] $ div
+                          {} $ :style
+                            {} $ :padding "\"0 12px"
+                          <> "\"No namespaces" css/font-fancy
                         -> ns-names (.to-list) (sort &compare)
                           map $ fn (name)
                             div
@@ -106,7 +108,9 @@
                       comp-file (>> states selected)
                         get-in store $ [] :ir :files selected
                       div
-                        {} $ :style ui/expand
+                        {}
+                          :class-name $ str-spaced css/expand css/font-fancy
+                          :style $ {} (:padding "\"0 8px")
                         <> $ str "\"No file slected: " selected
                 comp-preview $ :preview store
                 when dev? $ comp-reel (>> states :reel) reel ({})
@@ -159,15 +163,21 @@
               {}
                 :border-bottom $ str "\"1px solid " (hsl 0 0 90)
                 :padding 8
-            input $ {} (:type "\"file")
-              :on-change $ fn (e d!)
-                let
-                    file $ -> (:event e) .-target .-files (aget 0)
-                    fr $ "js/new FileReader"
-                  -> (:event e) .-target $ aset "\"value" nil
-                  aset fr "\"onload" $ fn (event)
-                    d! :ir-data $ parse-cirru-edn (-> event .-target .-result)
-                  .!readAsText fr file
+            div
+              {} (:class-name css-file-button)
+                :on-click $ fn (e d!)
+                  -> e :event .-currentTarget .-children .-0 $ .!click
+              input $ {} (:type "\"file")
+                :style $ {} (:opacity 0.2) (:width 0) (:top 0) (:position :absolute) (:pointer-events :none)
+                :on-change $ fn (e d!)
+                  let
+                      file $ -> (:event e) .-target .-files (aget 0)
+                      fr $ "js/new FileReader"
+                    -> (:event e) .-target $ aset "\"value" nil
+                    aset fr "\"onload" $ fn (event)
+                      d! :ir-data $ parse-cirru-edn (-> event .-target .-result)
+                    .!readAsText fr file
+              div ({}) (<> "\"Pick IR file")
         |comp-preview $ quote
           defcomp comp-preview (data)
             if (some? data)
@@ -253,6 +263,21 @@
               :margin "\"0 4px"
               :white-space :pre-line
               :display :inline-block
+        |css-file-button $ quote
+          defstyle css-file-button $ {}
+            "\"$0" $ {} (:width 120) (:position :relative) (:border-radius 8)
+              :background-color $ hsl 200 90 72
+              :text-align :center
+              :color :white
+              :font-family ui/font-fancy
+              :font-size 18
+              :line-height "\"32px"
+              :cursor :pointer
+              :transition-duration "\"300ms"
+            "\"$0:hover" $ {}
+              :box-shadow $ str "\"1px 1px 4px " (hsl 0 0 0 0.2)
+              :background-color $ hsl 200 90 76
+            "\"$0:active" $ {} (:transition-duration "\"0ms") (:transform "\"scale(1.02)")
         |css-preview-close $ quote
           defstyle css-preview-close $ {}
             "\"$0" $ {} (:position :absolute) (:top 4) (:right 4)
