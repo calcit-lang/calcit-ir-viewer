@@ -31,17 +31,3 @@ body * {
 ::-webkit-resizer {
   background-color:transparent;
 }
-
-.hover-item {
-  cursor: pointer;
-}
-.hover-item:hover {
-  background-color: hsl(350,0%,95%);
-}
-
-.expr-area {
-  border-color: hsl(0,0%,92%);
-}
-.expr-area:hover {
-  border-color: hsl(0,0%,88%);
-}
