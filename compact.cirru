@@ -11,6 +11,16 @@
             defn calcit-fn? (x)
               and (map? x)
                 = :fn $ get x :kind
+        |calcit-import? $ %{} :CodeEntry (:doc |)
+          :code $ quote
+            defn calcit-import? (x)
+              and (map? x)
+                = (get x :kind) :import
+        |calcit-local? $ %{} :CodeEntry (:doc |)
+          :code $ quote
+            defn calcit-local? (x)
+              and (map? x)
+                = :local $ get x :kind
         |calcit-macro? $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn calcit-macro? (x)
@@ -26,6 +36,11 @@
             defn calcit-proc? (x)
               and (map? x)
                 = :proc $ get x :kind
+        |calcit-registered? $ %{} :CodeEntry (:doc |)
+          :code $ quote
+            defn calcit-registered? (x)
+              and (map? x)
+                = :registered $ get x :kind
         |calcit-symbol? $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn calcit-symbol? (x)
@@ -66,6 +81,9 @@
                         size $ count expr
                       map-indexed expr $ fn (idx x)
                         comp-code x $ = (inc idx) size
+                (calcit-import? expr) (comp-import expr)
+                (calcit-local? expr) (comp-local expr)
+                (calcit-registered? expr) (comp-registered expr)
                 (calcit-symbol? expr) (comp-symbol expr)
                 (calcit-proc? expr)
                   <> (get expr :name) css-code-proc
@@ -91,7 +109,7 @@
                     {} $ :selected nil
                 div
                   {} $ :class-name (str-spaced css/global css/fullscreen css/column)
-                  memof-call comp-header
+                  memof1-call comp-header
                   div
                     {} $ :class-name (str-spaced css/expand css/row)
                     let
@@ -206,6 +224,30 @@
                           d! :ir-data $ parse-cirru-edn (-> event .-target .-result)
                       .!readAsText fr file
                 div ({}) (<> "\"Pick IR file")
+        |comp-import $ %{} :CodeEntry (:doc |)
+          :code $ quote
+            defcomp comp-import (expr)
+              div
+                {}
+                  :class-name $ str-spaced css/column css-code-symbol
+                  :style $ merge
+                    {} $ :display :inline-flex
+                  :on-click $ fn (e d!) (d! :preview expr)
+                <> $ get expr :def
+                <>
+                  str $ :ns expr
+                  , style-import-ns
+        |comp-local $ %{} :CodeEntry (:doc |)
+          :code $ quote
+            defcomp comp-local (expr)
+              div
+                {} $ :class-name (str-spaced css/column css-code-symbol)
+                div
+                  {}
+                    :style $ merge
+                      {} $ :display :inline-block
+                    :on-click $ fn (e d!) (d! :preview expr)
+                  <> $ get expr :val
         |comp-macro $ %{} :CodeEntry (:doc |)
           :code $ quote
             defcomp comp-macro (f)
@@ -230,6 +272,17 @@
                   div $ {} (:inner-text "\"×") (:class-name css-preview-close)
                     :on-click $ fn (e d!) (d! :preview nil)
                 div $ {}
+        |comp-registered $ %{} :CodeEntry (:doc |)
+          :code $ quote
+            defcomp comp-registered (expr)
+              div
+                {} $ :class-name (str-spaced css/column css-code-symbol)
+                div
+                  {}
+                    :style $ merge
+                      {} $ :display :inline-block
+                    :on-click $ fn (e d!) (d! :preview expr)
+                  <> $ get expr :alias
         |comp-symbol $ %{} :CodeEntry (:doc |)
           :code $ quote
             defcomp comp-symbol (expr)
@@ -371,6 +424,12 @@
                 :font-size 12
                 :line-height "\"20px"
                 :padding 8
+        |style-import-ns $ %{} :CodeEntry (:doc |)
+          :code $ quote
+            defstyle style-import-ns $ {}
+              "\"&" $ {} (:font-size 10)
+                :color $ hsl 0 0 80
+                :margin-left 4
       :ns $ %{} :CodeEntry (:doc |)
         :code $ quote
           ns app.comp.container $ :require (respo-ui.core :as ui)
@@ -379,7 +438,7 @@
             reel.comp.reel :refer $ comp-reel
             respo-md.comp.md :refer $ comp-md
             app.config :refer $ dev?
-            memof.alias :refer $ memof-call
+            memof.once :refer $ memof1-call
             respo.util.format :refer $ hsl
             respo.css :refer $ defstyle
             respo-ui.css :as css
