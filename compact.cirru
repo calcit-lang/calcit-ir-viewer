@@ -45,6 +45,11 @@
             defn calcit-proc? (x)
               and (map? x)
                 = :proc $ get x :kind
+        |calcit-raw-code? $ %{} :CodeEntry (:doc |)
+          :code $ quote
+            defn calcit-raw-code? (x)
+              and (map? x)
+                = (get x :kind) :raw-code
         |calcit-registered? $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn calcit-registered? (x)
@@ -99,6 +104,7 @@
                   <> (get expr :name) css-code-fn
                 (calcit-syntax? expr) (comp-syntax expr)
                 (calcit-method? expr) (comp-method expr)
+                (calcit-raw-code? expr) (comp-raw-code expr)
                 true $ pre
                   {} $ :class-name css-code-default
                   <> $ to-lispy-string expr
@@ -297,6 +303,14 @@
                   :style $ {} (:display :inline-flex) (:line-height "\"1.2")
                 <> (get expr :name) css-code-proc
                 <> "\"proc" style-tiny-hint
+        |comp-raw-code $ %{} :CodeEntry (:doc |)
+          :code $ quote
+            defcomp comp-raw-code (expr)
+              div
+                {} (:class-name css/column)
+                  :style $ {} (:display :inline-flex) (:line-height 1.2)
+                <> $ :code expr
+                <> "\"js raw" style-tiny-hint
         |comp-registered $ %{} :CodeEntry (:doc |)
           :code $ quote
             defcomp comp-registered (expr)
@@ -339,7 +353,7 @@
         |css-code-expr $ %{} :CodeEntry (:doc |)
           :code $ quote
             defstyle css-code-expr $ {}
-              "\"$0" $ {} (:border-width "\"1px 0 0 1px") (:margin-left "\"12px") (:font-family ui/font-code) (:margin-bottom "\"2px") (:margin-top "\"2px") (:vertical-align :top) (:border-style :solid) (:border-radius "\"4px")
+              "\"$0" $ {} (:border-width "\"1px 0 0 1px") (:margin-left "\"14px") (:padding-left "\"2px") (:font-family ui/font-code) (:margin-bottom "\"2px") (:margin-top "\"4px") (:vertical-align :top) (:border-style :solid) (:border-radius "\"8px")
         |css-code-fn $ %{} :CodeEntry (:doc |)
           :code $ quote
             defstyle css-code-fn $ {}
@@ -399,7 +413,9 @@
           :code $ quote
             defstyle css-expr-area $ {}
               "\"&" $ {} (:border-color "\"hsl(0,0%,92%)")
-              "\"&:hover" $ {} (:border-color "\"hsl(0,0%,88%)")
+              "\"&:hover" $ {} (:border-color "\"hsl(0,0%,70%)")
+              (str "\"&:has(." css-code-expr "\":hover)")
+                {} $ :border-color "\"hsl(0,0%,92%)"
         |css-file-button $ %{} :CodeEntry (:doc |)
           :code $ quote
             defstyle css-file-button $ {}
