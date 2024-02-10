@@ -16,6 +16,15 @@
             defn calcit-import? (x)
               and (map? x)
                 = (get x :kind) :import
+        |calcit-literal? $ %{} :CodeEntry (:doc |)
+          :code $ quote
+            defn calcit-literal? (x)
+              let
+                  ret $ or (number? x) (string? x) (bool? x)
+                    and (map? x)
+                      includes? (#{} :symbol :number :tag :proc :syntax :local :registered) (get x :kind)
+                ; println "\"DETECTHING:" x ret
+                , ret
         |calcit-local? $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn calcit-local? (x)
@@ -73,9 +82,9 @@
                       :style $ merge
                         if
                           and
-                            <= (count expr) 2
-                            every? expr calcit-symbol?
-                          {} $ :display :inline-block
+                            <= (count expr) 3
+                            every? expr calcit-literal?
+                          {} $ :display :inline-flex
                         if last? $ {} (:display :inline-block)
                     , & $ let
                         size $ count expr
@@ -85,16 +94,11 @@
                 (calcit-local? expr) (comp-local expr)
                 (calcit-registered? expr) (comp-registered expr)
                 (calcit-symbol? expr) (comp-symbol expr)
-                (calcit-proc? expr)
-                  <> (get expr :name) css-code-proc
+                (calcit-proc? expr) (comp-proc expr)
                 (calcit-fn? expr)
                   <> (get expr :name) css-code-fn
-                (calcit-syntax? expr)
-                  <> (get expr :name) css-code-syntax
-                (calcit-method? expr)
-                  <>
-                    str "\"." $ get expr :method
-                    , css-code-method
+                (calcit-syntax? expr) (comp-syntax expr)
+                (calcit-method? expr) (comp-method expr)
                 true $ pre
                   {} $ :class-name css-code-default
                   <> $ to-lispy-string expr
@@ -241,13 +245,13 @@
           :code $ quote
             defcomp comp-local (expr)
               div
-                {} $ :class-name (str-spaced css/column css-code-symbol)
-                div
-                  {}
-                    :style $ merge
-                      {} $ :display :inline-block
-                    :on-click $ fn (e d!) (d! :preview expr)
-                  <> $ get expr :val
+                {}
+                  :class-name $ str-spaced css/column css-code-symbol
+                  :style $ merge
+                    {} $ :display :inline-flex
+                  :on-click $ fn (e d!) (d! :preview expr)
+                <> $ get expr :val
+                <> "\"local" style-tiny-hint
         |comp-macro $ %{} :CodeEntry (:doc |)
           :code $ quote
             defcomp comp-macro (f)
@@ -261,6 +265,19 @@
                 div ({})
                   <> $ str "\"Code:"
                   comp-code (get f :code) false
+        |comp-method $ %{} :CodeEntry (:doc |)
+          :code $ quote
+            defcomp comp-method (expr)
+              div
+                {} (:class-name css/column)
+                  :style $ {} (:display :inline-flex) (:line-height "\"1.2")
+                  :on-click $ fn (e d!) (d! :preview expr)
+                <>
+                  str "\"." $ get expr :method
+                  , css-code-method
+                <>
+                  str "\"method " $ :behavior expr
+                  , style-tiny-hint
         |comp-preview $ %{} :CodeEntry (:doc |)
           :code $ quote
             defcomp comp-preview (data)
@@ -272,6 +289,14 @@
                   div $ {} (:inner-text "\"×") (:class-name css-preview-close)
                     :on-click $ fn (e d!) (d! :preview nil)
                 div $ {}
+        |comp-proc $ %{} :CodeEntry (:doc |)
+          :code $ quote
+            defcomp comp-proc (expr)
+              div
+                {} (:class-name css/column)
+                  :style $ {} (:display :inline-flex) (:line-height "\"1.2")
+                <> (get expr :name) css-code-proc
+                <> "\"proc" style-tiny-hint
         |comp-registered $ %{} :CodeEntry (:doc |)
           :code $ quote
             defcomp comp-registered (expr)
@@ -286,29 +311,23 @@
         |comp-symbol $ %{} :CodeEntry (:doc |)
           :code $ quote
             defcomp comp-symbol (expr)
-              let
-                  resolved-ns $ get-in expr ([] :resolved :ns)
-                div
-                  {} $ :class-name (str-spaced css/column css-code-symbol)
-                  div
-                    {}
-                      :style $ merge
-                        {} $ :display :inline-block
-                      :on-click $ fn (e d!) (d! :preview expr)
-                    <> (get expr :val)
-                      case-default
-                        -> expr (get "\"resolved") (get :kind)
-                        , nil
-                          "\"resolvedLocal" $ {}
-                            :color $ hsl 200 80 70
-                          "\"notResolved" $ {}
-                            :color $ hsl 150 80 70
-                  div ({})
-                    <> (get expr :ns) css-code-symbol-ns
-                    =< 4 nil
-                    if
-                      /= (get expr :ns) resolved-ns
-                      span $ {} (:class-name css-code-symbol-resolved-ns) (:inner-text resolved-ns)
+              div
+                {}
+                  :class-name $ str-spaced css/column css-code-symbol
+                  :style $ merge
+                    {} $ :display :inline-flex
+                  :on-click $ fn (e d!) (d! :preview expr)
+                <> $ :val expr
+                div ({})
+                  <> (get expr :ns) css-code-symbol-ns
+        |comp-syntax $ %{} :CodeEntry (:doc |)
+          :code $ quote
+            defcomp comp-syntax (expr)
+              div
+                {} (:class-name css/column)
+                  :style $ {} (:display :inline-flex) (:line-height "\"1.2")
+                <> (get expr :name) css-code-syntax
+                <> "\"syntax" style-tiny-hint
         |css-code-default $ %{} :CodeEntry (:doc |)
           :code $ quote
             defstyle css-code-default $ {}
@@ -430,6 +449,11 @@
               "\"&" $ {} (:font-size 10)
                 :color $ hsl 0 0 80
                 :margin-left 4
+        |style-tiny-hint $ %{} :CodeEntry (:doc |)
+          :code $ quote
+            defstyle style-tiny-hint $ {}
+              "\"&" $ {} (:font-size 10) (:margin-left 8) (:line-height "\"16px")
+                :color $ hsl 0 0 80
       :ns $ %{} :CodeEntry (:doc |)
         :code $ quote
           ns app.comp.container $ :require (respo-ui.core :as ui)
