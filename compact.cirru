@@ -70,6 +70,25 @@
             defn calcit-tag? (x)
               and (map? x)
                 = "\"tag" $ get x :kind
+        |comp-bookmarks $ %{} :CodeEntry (:doc |)
+          :code $ quote
+            defcomp comp-bookmarks (bookmarks pointer)
+              list-> ({})
+                -> bookmarks $ map-indexed
+                  fn (idx b)
+                    [] idx $ tag-match b
+                        :bookmark ns definition
+                        div
+                          {}
+                            :on-click $ fn (e d!)
+                              d! $ :: :point-to idx
+                            :class-name $ str-spaced style-bookmark
+                              if (= pointer idx) style-bookmark-selected
+                          <> $ str ns "\"/" definition
+                          comp-close $ {} (:class-name style-close)
+                            :on-click $ fn (e d!)
+                              d! $ :: :remove-bookmark idx
+                      _ $ eprintln "\"unknown bookmark" b
         |comp-code $ %{} :CodeEntry (:doc |)
           :code $ quote
             defcomp comp-code (expr last?)
@@ -115,89 +134,103 @@
                   store $ :store reel
                   states $ :states store
                   cursor $ either (:cursor states) ([])
-                  state $ either (:data states)
-                    {} $ :selected nil
                 div
                   {} $ :class-name (str-spaced css/global css/fullscreen css/column)
                   memof1-call comp-header
-                  div
-                    {} $ :class-name (str-spaced css/expand css/row)
-                    let
-                        ns-names $ if
-                          some-in? store $ [] :ir :files
-                          keys $ get-in store ([] :ir :files)
-                          #{}
-                      ; when dev? $ js/console.log store
-                      div
-                        {} $ :style
-                          {} (:padding "\"8 0px") (:width "\"20%") (:overflow :auto)
-                            :border-right $ str "\"1px solid " (hsl 0 0 90)
-                        , & $ if (empty? ns-names)
-                          [] $ div
-                            {} $ :style
-                              {} $ :padding "\"0 12px"
-                            <> "\"No namespaces" css/font-fancy
-                          -> ns-names (.to-list) (sort &compare)
-                            map $ fn (name)
-                              div
-                                {}
-                                  :on-click $ fn (e d!)
-                                    d! cursor $ assoc state :selected name
-                                  :style $ if
-                                    = name $ :selected state
-                                    {} $ :background-color (hsl 0 0 94)
-                                  :class-name $ str-spaced css-pad8 css-hover-item css/font-code!
-                                <> name
-                    let
-                        selected $ :selected state
-                        has-file? $ some-in? store ([] :ir :files selected)
-                      if has-file?
-                        comp-file (>> states selected)
-                          get-in store $ [] :ir :files selected
-                        div
-                          {}
-                            :class-name $ str-spaced css/expand css/font-fancy
-                            :style $ {} (:padding "\"0 8px")
-                          <> $ str "\"No file slected: " selected
+                  let
+                      pointer $ :pointer store
+                      bookmarks $ :bookmarks store
+                      bookmark $ get bookmarks pointer
+                    tag-match bookmark
+                        :bookmark ns definition
+                        do (println ns definition)
+                          div
+                            {} $ :class-name (str-spaced css/row css/expand)
+                            comp-file-entry (>> states :file-entry)
+                              get-in store $ [] :ir :files
+                            comp-bookmarks bookmarks pointer
+                            div
+                              {} (:class-name css/expand)
+                                :style $ {} (:padding-bottom 120)
+                              let
+                                  declaration $ get-in store ([] :ir :files ns :defs definition)
+                                if (calcit-fn? declaration) (comp-fn declaration)
+                                  if (calcit-macro? declaration) (comp-macro declaration)
+                                    div
+                                      {} $ :class-name css-pad8
+                                      comp-code declaration false
+                      _ $ eprintln "\"unknown bookmark data" bookmark
                   comp-preview $ :preview store
                   when dev? $ comp-reel (>> states :reel) reel ({})
+                  when dev? $ comp-inspect "\"Store" store
+                    {} $ :bottom 0
         |comp-file $ %{} :CodeEntry (:doc |)
           :code $ quote
-            defcomp comp-file (states file)
+            defcomp comp-file (ns file selected-def)
+              div
+                {}
+                  :class-name $ str-spaced css/expand css/column
+                  :style $ {}
+                    :border-top $ str-spaced "\"2px solid" (hsl 0 0 80)
+                let
+                    defs $ keys (get file :defs)
+                  list->
+                    {} $ :class-name (str-spaced css/expand css/column)
+                    -> defs (.to-list) (sort &compare)
+                      map $ fn (name)
+                        [] name $ div
+                          {}
+                            :class-name $ str-spaced css-pad8 css-hover-item css/font-code!
+                            :style $ if (= name selected-def)
+                              {} $ :background-color (hsl 0 0 95)
+                            :on-click $ fn (e d!)
+                              d! $ :: :new-bookmark (:: :bookmark ns name)
+                          <> name
+        |comp-file-entry $ %{} :CodeEntry (:doc |)
+          :code $ quote
+            defn comp-file-entry (states files)
               let
                   cursor $ :cursor states
                   state $ either (:data states)
                     {} $ :selected nil
-                  selected $ :selected state
                 div
-                  {} $ :class-name (str-spaced css/expand css/column)
+                  {} (:class-name css/column)
+                    :style $ {} (:width 400)
                   let
-                      defs $ keys (get file :defs)
+                      ns-names $ if (some? files) (keys files) (#{})
+                    ; when dev? $ js/console.log store
                     div
-                      {} $ :class-name (str-spaced css/expand css/row)
-                      div
-                        {} $ :style
-                          {} (:overflow :auto) (:min-width "\"12%")
-                        , & $ -> defs (.to-list) (sort &compare)
+                      {} (:class-name css/expand)
+                        :style $ {} (:padding "\"8 0px") (:overflow :auto)
+                          :border-right $ str "\"1px solid " (hsl 0 0 90)
+                      , & $ if (empty? ns-names)
+                        [] $ div
+                          {} $ :style
+                            {} $ :padding "\"0 12px"
+                          <> "\"No namespaces" css/font-fancy
+                        -> ns-names (.to-list) (sort &compare)
                           map $ fn (name)
                             div
                               {}
-                                :class-name $ str-spaced css-pad8 css-hover-item css/font-code!
-                                :style $ if (= name selected)
-                                  {} $ :background-color (hsl 0 0 95)
                                 :on-click $ fn (e d!)
                                   d! cursor $ assoc state :selected name
+                                :style $ if
+                                  = name $ :selected state
+                                  {} $ :background-color (hsl 0 0 94)
+                                :class-name $ str-spaced css-pad8 css-hover-item css/font-code!
                               <> name
+                  let
+                      selected $ :selected state
+                      has-file? $ some-in? files ([] selected)
+                    if has-file?
+                      comp-file selected
+                        get-in files $ [] selected
+                        , nil
                       div
-                        {} (:class-name css/expand)
-                          :style $ {} (:padding-bottom 120)
-                        let
-                            declaration $ get-in file ([] :defs selected)
-                          if (calcit-fn? declaration) (comp-fn declaration)
-                            if (calcit-macro? declaration) (comp-macro declaration)
-                              div
-                                {} $ :class-name css-pad8
-                                comp-code declaration false
+                        {}
+                          :class-name $ str-spaced css/expand css/font-fancy
+                          :style $ {} (:padding "\"0 8px")
+                        <> $ str "\"No file slected: " selected
         |comp-fn $ %{} :CodeEntry (:doc |)
           :code $ quote
             defcomp comp-fn (f)
@@ -244,9 +277,16 @@
                     {} $ :display :inline-flex
                   :on-click $ fn (e d!) (d! :preview expr)
                 <> $ get expr :def
-                <>
-                  str $ :ns expr
-                  , style-import-ns
+                div
+                  {} $ :class-name css/row-middle
+                  <>
+                    str $ :ns expr
+                    , style-import-ns
+                  a $ {} (:class-name css/link) (:inner-text "\"goto")
+                    :style $ {} (:font-size 10)
+                    :on-click $ fn (e d!)
+                      d! $ :: :new-bookmark
+                        :: :bookmark (:ns expr) (:def expr)
         |comp-local $ %{} :CodeEntry (:doc |)
           :code $ quote
             defcomp comp-local (expr)
@@ -459,6 +499,23 @@
                 :font-size 12
                 :line-height "\"20px"
                 :padding 8
+        |style-bookmark $ %{} :CodeEntry (:doc |)
+          :code $ quote
+            defstyle style-bookmark $ {}
+              "\"&" $ {} (:cursor :pointer) (:padding "\"0 8px") (:position :relative)
+              "\"&:hover" $ {}
+                :background-color $ hsl 0 0 98
+              (str "\"&:hover ." style-close)
+                {} $ :opacity 1
+        |style-bookmark-selected $ %{} :CodeEntry (:doc |)
+          :code $ quote
+            defstyle style-bookmark-selected $ {}
+              "\"&" $ {}
+                :background-color $ hsl 0 0 96
+        |style-close $ %{} :CodeEntry (:doc |)
+          :code $ quote
+            defstyle style-close $ {}
+              "\"&" $ {} (:position :absolute) (:opacity 0) (:right 4) (:top 6) (:font-size 12) (:font-weight 100)
         |style-import-ns $ %{} :CodeEntry (:doc |)
           :code $ quote
             defstyle style-import-ns $ {}
@@ -473,8 +530,9 @@
       :ns $ %{} :CodeEntry (:doc |)
         :code $ quote
           ns app.comp.container $ :require (respo-ui.core :as ui)
-            respo.core :refer $ defcomp defeffect <> >> div button textarea span input pre
+            respo.core :refer $ defcomp defeffect <> >> div button textarea span input pre list-> a
             respo.comp.space :refer $ =<
+            respo.comp.inspect :refer $ comp-inspect
             reel.comp.reel :refer $ comp-reel
             respo-md.comp.md :refer $ comp-md
             app.config :refer $ dev?
@@ -482,6 +540,7 @@
             respo.util.format :refer $ hsl
             respo.css :refer $ defstyle
             respo-ui.css :as css
+            respo-ui.comp :refer $ comp-close
     |app.config $ %{} :FileEntry
       :defs $ {}
         |dev? $ %{} :CodeEntry (:doc |)
@@ -564,8 +623,10 @@
             def store $ {}
               :states $ {}
                 :cursor $ []
-              :ir-data nil
+              :ir nil
               :preview nil
+              :bookmarks $ []
+              :pointer nil
       :ns $ %{} :CodeEntry (:doc |)
         :code $ quote (ns app.schema)
     |app.updater $ %{} :FileEntry
@@ -579,6 +640,14 @@
                 (:ir-data data) (assoc store :ir data)
                 (:preview data) (assoc store :preview data)
                 (:hydrate-storage data) data
+                (:new-bookmark b)
+                  -> store
+                    update :bookmarks $ fn (bs) (prepend bs b)
+                    assoc :pointer 0
+                (:point-to idx) (assoc store :pointer idx)
+                (:remove-bookmark idx)
+                  -> store $ update :bookmarks
+                    fn (bs) (.dissoc bs idx)
                 _ $ do (eprintln "\"unknown op:" op) store
       :ns $ %{} :CodeEntry (:doc |)
         :code $ quote
