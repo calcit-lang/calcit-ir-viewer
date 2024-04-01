@@ -137,29 +137,30 @@
                 div
                   {} $ :class-name (str-spaced css/global css/fullscreen css/column)
                   memof1-call comp-header
-                  let
-                      pointer $ :pointer store
-                      bookmarks $ :bookmarks store
-                      bookmark $ get bookmarks pointer
-                    tag-match bookmark
-                        :bookmark ns definition
-                        do (println ns definition)
-                          div
-                            {} $ :class-name (str-spaced css/row css/expand)
-                            comp-file-entry (>> states :file-entry)
-                              get-in store $ [] :ir :files
-                            comp-bookmarks bookmarks pointer
+                  if-let
+                    pointer $ :pointer store
+                    let
+                        bookmarks $ :bookmarks store
+                        bookmark $ get bookmarks pointer
+                      tag-match bookmark
+                          :bookmark ns definition
+                          do (println ns definition)
                             div
-                              {} (:class-name css/expand)
-                                :style $ {} (:padding-bottom 120)
-                              let
-                                  declaration $ get-in store ([] :ir :files ns :defs definition)
-                                if (calcit-fn? declaration) (comp-fn declaration)
-                                  if (calcit-macro? declaration) (comp-macro declaration)
-                                    div
-                                      {} $ :class-name css-pad8
-                                      comp-code declaration false
-                      _ $ eprintln "\"unknown bookmark data" bookmark
+                              {} $ :class-name (str-spaced css/row css/expand)
+                              comp-file-entry (>> states :file-entry)
+                                get-in store $ [] :ir :files
+                              comp-bookmarks bookmarks pointer
+                              div
+                                {} (:class-name css/expand)
+                                  :style $ {} (:padding-bottom 120)
+                                let
+                                    declaration $ get-in store ([] :ir :files ns :defs definition)
+                                  if (calcit-fn? declaration) (comp-fn declaration)
+                                    if (calcit-macro? declaration) (comp-macro declaration)
+                                      div
+                                        {} $ :class-name css-pad8
+                                        comp-code declaration false
+                        _ $ eprintln "\"unknown bookmark data" bookmark
                   comp-preview $ :preview store
                   when dev? $ comp-reel (>> states :reel) reel ({})
                   when dev? $ comp-inspect "\"Store" store
