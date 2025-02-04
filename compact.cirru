@@ -144,7 +144,7 @@
                         bookmark $ get bookmarks pointer
                       tag-match bookmark
                           :bookmark ns definition
-                          do (println ns definition)
+                          do (; println ns definition)
                             div
                               {} $ :class-name (str-spaced css/row css/expand)
                               comp-file-entry (>> states :file-entry)

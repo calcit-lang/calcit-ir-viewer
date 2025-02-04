@@ -17,18 +17,16 @@ jobs:
         node-version: 20
         cache: 'yarn'
 
-    - uses: calcit-lang/setup-cr@0.0.3
-      with:
-        version: "0.8.45"
+    - uses: calcit-lang/setup-cr@0.0.8
 
     - name: "compiles to js"
       run: >
-        caps --ci && cr --emit-js --once
+        caps --ci && cr js --once
         && yarn && yarn vite build --base=./
 
     - name: Deploy to server
       id: deploy
-      uses: Pendect/action-rsyncer@v1.1.0
+      uses: Pendect/action-rsyncer@v2.0.0
       env:
         DEPLOY_KEY: ${{secrets.rsync_private_key}}
       with:
