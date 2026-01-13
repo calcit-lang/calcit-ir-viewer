@@ -307,6 +307,13 @@
                     :on-click $ fn (e d!)
                       d! $ :: :new-bookmark
                         :: :bookmark (:ns expr) (:def expr)
+                when
+                  some? $ :type-hint expr
+                  div
+                    {} $ :class-name css/row-middle
+                    <>
+                      str |type: $ format-cirru-edn (:type-hint expr)
+                      , style-tiny-hint
           :examples $ []
         |comp-local $ %{} :CodeEntry (:doc |)
           :code $ quote

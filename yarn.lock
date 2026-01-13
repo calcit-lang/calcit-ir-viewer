@@ -2,29 +2,29 @@
 # yarn lockfile v1
 
 
-"@calcit/procs@^0.10.4":
-  version "0.10.4"
-  resolved "https://registry.yarnpkg.com/@calcit/procs/-/procs-0.10.4.tgz#bcb58256a450b6ec891a64d150c959f229408ae7"
-  integrity sha512-JljJactqBWQYI3Wcg4a//eRZmry/Pb2gwgHN8OZeMld27krImDoWUYdhtW9wc27lxsBmO0mGW6ubyIwK1c5xhg==
+"@calcit/procs@^0.10.7":
+  version "0.10.7"
+  resolved "https://registry.yarnpkg.com/@calcit/procs/-/procs-0.10.7.tgz#22802873ff98280b062ae313877d9b44816e5a5f"
+  integrity sha512-cARYS++6wIf6du+US+O9lNU6aft1fhjHES9+sNLtPltoAsKCbNS2BSv/6emDHSa/56eftzMMa7+A+BWVbWYFag==
   dependencies:
     "@calcit/ternary-tree" "0.0.25"
-    "@cirru/parser.ts" "^0.0.6"
-    "@cirru/writer.ts" "^0.1.5"
+    "@cirru/parser.ts" "^0.0.7"
+    "@cirru/writer.ts" "^0.1.7"
 
 "@calcit/ternary-tree@0.0.25":
   version "0.0.25"
   resolved "https://registry.yarnpkg.com/@calcit/ternary-tree/-/ternary-tree-0.0.25.tgz#d467cbd9a7f89ff1fdb590e5d1551aefa6a03492"
   integrity sha512-BxAAq6v7dZJDYSMX5kBVQ/eSYX7czjOS1cHM25js4yD+Q2I61RxxhD7iBaGlfNJvmgPmvYJQA5nxNmN2TEXq7A==
 
-"@cirru/parser.ts@^0.0.6":
-  version "0.0.6"
-  resolved "https://registry.yarnpkg.com/@cirru/parser.ts/-/parser.ts-0.0.6.tgz#b95a84e02273fcbd71ff100925782b6f86410234"
-  integrity sha512-qpDNPq+IuuwYjQFI+wzpd3ntbF7lwJs90v1XWyLQbL9Ru4ld4aHxVGwW/9F/QOu5mEGCMXtagCoYDf0HtOpDZg==
+"@cirru/parser.ts@^0.0.7":
+  version "0.0.7"
+  resolved "https://registry.yarnpkg.com/@cirru/parser.ts/-/parser.ts-0.0.7.tgz#855b46d685e6be421e2ad1386506b9a2858c61de"
+  integrity sha512-xi27PFJ9ZbnkjUeLkXkkFOvg5ljqexfbGSGaazndCocnaMpwOGlMIdJDeFSGjViqu/XxsvtZT3er9Qx1lF3NHA==
 
-"@cirru/writer.ts@^0.1.5":
-  version "0.1.5"
-  resolved "https://registry.yarnpkg.com/@cirru/writer.ts/-/writer.ts-0.1.5.tgz#890d96cd4a69609f1682932dad5d2d467abb327e"
-  integrity sha512-QQVFJAOIdUtVJZwT23THZOzumSDXCLMQ0yFz5DzIGlWGXPNBuB7BwUvGtRuiQrzM2XV7ALOWmNsVC7vEOjObQQ==
+"@cirru/writer.ts@^0.1.7":
+  version "0.1.7"
+  resolved "https://registry.yarnpkg.com/@cirru/writer.ts/-/writer.ts-0.1.7.tgz#a4ef2afcf7642418bf4d17ec0a7d344764f4bb96"
+  integrity sha512-9RLV5NNT+NtXoDL6DC3LVWfbhEDCOTnEsvp2pnSDOJubKvnwLYYvo1VxY1pGBoFV5iQUNzUkETeNaEFHGTHZdQ==
 
 "@esbuild/aix-ppc64@0.27.2":
   version "0.27.2"
