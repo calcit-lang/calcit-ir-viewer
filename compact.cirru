@@ -85,7 +85,10 @@
         |comp-bookmarks $ %{} :CodeEntry (:doc |)
           :code $ quote
             defcomp comp-bookmarks (bookmarks pointer)
-              list-> ({})
+              list->
+                {} (:class-name css/column)
+                  :style $ {} (:overflow-y :auto) (:width 300)
+                    :border-right $ str "|1px solid " (hsl 0 0 90)
                 -> bookmarks $ map-indexed
                   fn (idx b)
                     [] idx $ tag-match b
@@ -148,36 +151,37 @@
                   store $ :store reel
                   states $ :states store
                   cursor $ either (:cursor states) ([])
+                  pointer $ either (:pointer store) 0
+                  bookmarks $ :bookmarks store
                 div
                   {} $ :class-name (str-spaced css/global css/fullscreen css/column)
-                  memof1-call comp-header
-                  if-let
-                    pointer $ :pointer store
-                    let
-                        bookmarks $ :bookmarks store
-                        bookmark $ get bookmarks pointer
+                  div
+                    {} $ :class-name (str-spaced css/row css/expand)
+                    comp-file-entry (>> states :file-entry)
+                      get-in store $ [] :ir :files
+                    comp-bookmarks bookmarks pointer
+                    if-let
+                      bookmark $ get bookmarks pointer
                       tag-match bookmark
                           :bookmark ns definition
-                          do (; println ns definition)
-                            div
-                              {} $ :class-name (str-spaced css/row css/expand)
-                              comp-file-entry (>> states :file-entry)
-                                get-in store $ [] :ir :files
-                              comp-bookmarks bookmarks pointer
-                              div
-                                {} (:class-name css/expand)
-                                  :style $ {} (:padding-bottom 120)
-                                let
-                                    declaration $ get-in store ([] :ir :files ns :defs definition)
-                                  if (calcit-fn? declaration) (comp-fn declaration)
-                                    if (calcit-macro? declaration) (comp-macro declaration)
-                                      div
-                                        {} $ :class-name css-pad8
-                                        comp-code declaration false
-                        _ $ eprintln "\"unknown bookmark data" bookmark
+                          div
+                            {} (:class-name css/expand)
+                              :style $ {} (:padding-bottom 120)
+                            let
+                                declaration $ get-in store ([] :ir :files ns :defs definition)
+                              if (calcit-fn? declaration) (comp-fn declaration)
+                                if (calcit-macro? declaration) (comp-macro declaration)
+                                  div
+                                    {} $ :class-name css-pad8
+                                    comp-code declaration false
+                        _ $ div ({})
+                          <> $ str "|unknown bookmark data: " bookmark
+                      div
+                        {} $ :class-name css/expand
+                        <> "|No bookmark selected"
                   comp-preview $ :preview store
                   when dev? $ comp-reel (>> states :reel) reel ({})
-                  when dev? $ comp-inspect "\"Store" store
+                  when dev? $ comp-inspect |Store store
                     {} $ :bottom 0
           :examples $ []
         |comp-file $ %{} :CodeEntry (:doc |)
@@ -186,10 +190,11 @@
               div
                 {}
                   :class-name $ str-spaced css/expand css/column
-                  :style $ {}
-                    :border-top $ str-spaced "\"2px solid" (hsl 0 0 80)
+                  :style $ {} (:overflow-y :auto)
                 let
-                    defs $ keys (get file :defs)
+                    defs $ if (some? file)
+                      keys $ get file :defs
+                      #{}
                   list->
                     {} $ :class-name (str-spaced css/expand css/column)
                     -> defs (.to-list) (sort &compare)
@@ -199,6 +204,7 @@
                             :class-name $ str-spaced css-pad8 css-hover-item css/font-code!
                             :style $ if (= name selected-def)
                               {} $ :background-color (hsl 0 0 95)
+                              {}
                             :on-click $ fn (e d!)
                               d! $ :: :new-bookmark (:: :bookmark ns name)
                           <> name
@@ -209,45 +215,70 @@
               let
                   cursor $ :cursor states
                   state $ either (:data states)
-                    {} $ :selected nil
+                    {} (:selected nil) (:query |)
+                  selected $ :selected state
+                  query $ or (:query state) |
                 div
                   {} (:class-name css/column)
                     :style $ {} (:width 400)
-                  let
-                      ns-names $ if (some? files) (keys files) (#{})
-                    ; when dev? $ js/console.log store
-                    div
-                      {} (:class-name css/expand)
-                        :style $ {} (:padding "\"8 0px") (:overflow :auto)
-                          :border-right $ str "\"1px solid " (hsl 0 0 90)
-                      , & $ if (empty? ns-names)
-                        [] $ div
-                          {} $ :style
-                            {} $ :padding "\"0 12px"
-                          <> "\"No namespaces" css/font-fancy
+                      :border-right $ str "|1px solid " (hsl 0 0 90)
+                  div
+                    {} $ :style
+                      {} $ :padding 4
+                    input $ {} (:value query) (:placeholder "|Search ns...") (:class-name css/input)
+                      :style $ {} (:width |100%)
+                      :on-input $ fn (e d!)
+                        d! cursor $ assoc state :query (:value e)
+                  div
+                    {} (:class-name css/expand)
+                      :style $ {} (:overflow-y :auto) (:max-height |40%)
+                        :border-bottom $ str "|1px solid " (hsl 0 0 95)
+                    let
+                        ns-names $ if (some? files) (keys files) (#{})
+                      list-> ({})
                         -> ns-names (.to-list) (sort &compare)
+                          filter $ fn (name) (includes? name query)
                           map $ fn (name)
-                            div
+                            [] name $ div
                               {}
                                 :on-click $ fn (e d!)
                                   d! cursor $ assoc state :selected name
-                                :style $ if
-                                  = name $ :selected state
+                                :style $ if (= name selected)
                                   {} $ :background-color (hsl 0 0 94)
+                                  {}
                                 :class-name $ str-spaced css-pad8 css-hover-item css/font-code!
                               <> name
-                  let
-                      selected $ :selected state
-                      has-file? $ some-in? files ([] selected)
-                    if has-file?
+                  div
+                    {} (:class-name css/expand)
+                      :style $ {} (:overflow :hidden)
+                    if (some? selected)
                       comp-file selected
                         get-in files $ [] selected
                         , nil
                       div
-                        {}
-                          :class-name $ str-spaced css/expand css/font-fancy
-                          :style $ {} (:padding "\"0 8px")
-                        <> $ str "\"No file slected: " selected
+                        {} $ :class-name (str-spaced css-pad8 css/font-fancy)
+                        <> "|No NS selected"
+                  div
+                    {} $ :style
+                      {} (:padding 16)
+                        :border-top $ str "|1px solid " (hsl 0 0 90)
+                    div
+                      {} (:class-name css-file-button)
+                        :on-click $ fn (e d!) (-> e :event .-currentTarget .-children .-0 .!click)
+                      input $ {} (:type |file)
+                        :style $ {} (:opacity 0.2) (:width 0) (:top 0) (:position :absolute) (:pointer-events :none)
+                        :on-change $ fn (e d!)
+                          let
+                              file $ -> (:event e) .-target .-files (aget 0)
+                              fr $ new js/FileReader
+                            aset
+                              .-target $ :event e
+                              , |value nil
+                            set! (.-onload fr)
+                              fn (event)
+                                d! :ir-data $ parse-cirru-edn (-> event .-target .-result)
+                            .!readAsText fr file
+                      div ({}) (<> "|Pick IR file")
           :examples $ []
         |comp-fn $ %{} :CodeEntry (:doc |)
           :code $ quote
@@ -327,8 +358,12 @@
                 <> $ get expr :val
                 <> "\"local" style-tiny-hint
                 <>
-                  str |type: $ turn-string
-                    or (get expr :type-info) |unknown
+                  str |type: $ let
+                      t $ or (get expr :type-info) |unknown
+                    if
+                      or (map? t) (list? t)
+                      str t
+                      turn-string t
                   , style-tiny-hint
           :examples $ []
         |comp-macro $ %{} :CodeEntry (:doc |)
@@ -713,7 +748,7 @@
               :ir nil
               :preview nil
               :bookmarks $ []
-              :pointer nil
+              :pointer 0
           :examples $ []
       :ns $ %{} :CodeEntry (:doc |)
         :code $ quote (ns app.schema)
