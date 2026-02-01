@@ -343,7 +343,9 @@
                   div
                     {} $ :class-name css/row-middle
                     <>
-                      str |type: $ format-cirru-edn (:type-hint expr)
+                      str |type: $ let
+                          t $ :type-hint expr
+                        format-type-display $ format-type-info t |
                       , style-tiny-hint
           :examples $ []
         |comp-local $ %{} :CodeEntry (:doc |)
@@ -360,10 +362,7 @@
                 <>
                   str |type: $ let
                       t $ or (get expr :type-info) |unknown
-                    if
-                      or (map? t) (list? t)
-                      str t
-                      turn-string t
+                    format-type-display $ format-type-info t |
                   , style-tiny-hint
           :examples $ []
         |comp-macro $ %{} :CodeEntry (:doc |)
@@ -419,11 +418,21 @@
                     some? $ get expr :arg-types
                     some? $ get expr :return-type
                   <>
-                    str-spaced
-                      trim $ turn-string
-                        format-cirru-edn $ get expr :arg-types
-                      , "|→" $ trim
-                        turn-string $ format-cirru-edn (get expr :return-type)
+                    str
+                      if
+                        some? $ get expr :arg-types
+                        format-type-display $ [] |args:
+                          format-type-info (get expr :arg-types) |
+                        , |
+                      if
+                        some? $ get expr :return-type
+                        str
+                          if
+                            some? $ get expr :arg-types
+                            , &newline |
+                          format-type-display $ [] |return:
+                            format-type-info (get expr :return-type) |
+                        , |
                     , style-tiny-hint
                   <> |
           :examples $ []
@@ -603,6 +612,93 @@
                 :line-height "\"20px"
                 :padding 8
           :examples $ []
+        |format-type-display $ %{} :CodeEntry (:doc |)
+          :code $ quote
+            defn format-type-display (t)
+              if (nil? t) |nil $ if (string? t) t (format-cirru-one-liner t)
+          :examples $ []
+        |format-type-info $ %{} :CodeEntry (:doc |)
+          :code $ quote
+            defn format-type-info (t indent)
+              if (map? t)
+                if
+                  = (get t :type) :fn
+                  let
+                      entries $ []
+                        if
+                          some? $ get t :args
+                          [] |:args $ format-type-info (get t :args) indent
+                        if
+                          some? $ or (get t :return) (get t :return-type)
+                          [] |:return $ format-type-info
+                            or (get t :return) (get t :return-type)
+                            , indent
+                    -> entries
+                      map $ fn (x)
+                        if (nil? x) |nil x
+                      prepend |fn
+                  if
+                    = (get t :type) :tuple
+                    let
+                        entries $ []
+                          if
+                            some? $ get t :tag
+                            [] |:tag $ turn-string (get t :tag)
+                          if
+                            some? $ get t :payload
+                            [] |:payload $ format-type-info (get t :payload) indent
+                      -> entries
+                        map $ fn (x)
+                          if (nil? x) |nil x
+                        prepend |tuple
+                    if
+                      = (get t :type) :record
+                      let
+                          entries $ []
+                            if
+                              some? $ get t :name
+                              [] |:name $ turn-string (get t :name)
+                            if
+                              some? $ get t :fields
+                              [] |:fields $ format-type-info (get t :fields) indent
+                        -> entries
+                          map $ fn (x)
+                            if (nil? x) |nil x
+                          prepend |record
+                      if
+                        = (get t :type) :optional
+                        let
+                            entries $ []
+                              if
+                                some? $ get t :inner
+                                [] |:inner $ format-type-info (get t :inner) indent
+                          -> entries
+                            map $ fn (x)
+                              if (nil? x) |nil x
+                            prepend |optional
+                        if
+                          = (get t :type) :variadic
+                          let
+                              entries $ []
+                                if
+                                  some? $ get t :inner
+                                  [] |:inner $ format-type-info (get t :inner) indent
+                            -> entries
+                              map $ fn (x)
+                                if (nil? x) |nil x
+                              prepend |variadic
+                          -> (keys t) (.to-list) (sort &compare)
+                            map $ fn (k)
+                              [] (turn-string k)
+                                format-type-info (get t k) indent
+                            prepend |{}
+                if (list? t)
+                  -> t
+                    map $ fn (item)
+                      if (nil? item) |nil $ format-type-info item indent
+                    prepend |[]
+                  turn-string t
+          :examples $ []
         |style-bookmark $ %{} :CodeEntry (:doc |)
           :code $ quote
             defstyle style-bookmark $ {}
@@ -633,7 +729,7 @@
         |style-tiny-hint $ %{} :CodeEntry (:doc |)
           :code $ quote
             defstyle style-tiny-hint $ {}
-              "\"&" $ {} (:font-size 10) (:margin-left 8) (:line-height "\"16px")
+              "\"&" $ {} (:font-size 10) (:margin-left 8) (:line-height "\"16px") (:white-space :pre-wrap)
                 :color $ hsl 0 0 80
           :examples $ []
       :ns $ %{} :CodeEntry (:doc |)
@@ -761,7 +857,10 @@
               tag-match op
                   :states cursor s
                   update-states store cursor s
-                (:ir-data data) (assoc store :ir data)
+                (:ir-data data)
+                  -> store (assoc :ir data)
+                    assoc :bookmarks $ []
+                    assoc :pointer 0
                 (:preview data) (assoc store :preview data)
                 (:hydrate-storage data) data
                 (:new-bookmark b)
