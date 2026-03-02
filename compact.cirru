@@ -105,6 +105,10 @@
                               d! $ :: :remove-bookmark idx
                       _ $ eprintln "\"unknown bookmark" b
           :examples $ []
+        |comp-cirru-quote $ %{} :CodeEntry (:doc |)
+          :code $ quote
+            defcomp comp-cirru-quote (expr) (comp-ir-kind expr :cirru-quote)
+          :examples $ []
         |comp-code $ %{} :CodeEntry (:doc |)
           :code $ quote
             defcomp comp-code (expr last?)
@@ -140,6 +144,16 @@
                 (calcit-syntax? expr) (comp-syntax expr)
                 (calcit-method? expr) (comp-method expr)
                 (calcit-raw-code? expr) (comp-raw-code expr)
+                (and (map? expr) (= (get expr :kind) :cirru-quote))
+                  comp-cirru-quote expr
+                (and (map? expr) (= (get expr :kind) :tuple))
+                  comp-tuple expr
+                (and (map? expr) (= (get expr :kind) :struct))
+                  comp-struct expr
+                (and (map? expr) (= (get expr :kind) :enum))
+                  comp-enum expr
+                (and (map? expr) (= (get expr :kind) :record))
+                  comp-record expr
                 true $ pre
                   {} $ :class-name css-code-default
                   <> $ to-lispy-string expr
@@ -184,19 +198,21 @@
                   when dev? $ comp-inspect |Store store
                     {} $ :bottom 0
           :examples $ []
+        |comp-enum $ %{} :CodeEntry (:doc |)
+          :code $ quote
+            defcomp comp-enum (expr) (comp-ir-kind expr :enum)
+          :examples $ []
         |comp-file $ %{} :CodeEntry (:doc |)
           :code $ quote
             defcomp comp-file (ns file selected-def)
               div
-                {}
-                  :class-name $ str-spaced css/expand css/column
-                  :style $ {} (:overflow-y :auto)
+                {} $ :class-name (str-spaced css/column)
                 let
                     defs $ if (some? file)
                       keys $ get file :defs
                       #{}
                   list->
-                    {} $ :class-name (str-spaced css/expand css/column)
+                    {} $ :class-name (str-spaced css/column)
                     -> defs (.to-list) (sort &compare)
                       map $ fn (name)
                         [] name $ div
@@ -219,8 +235,9 @@
                   selected $ :selected state
                   query $ or (:query state) |
                 div
-                  {} (:class-name css/column)
-                    :style $ {} (:width 400)
+                  {}
+                    :class-name $ str-spaced css/column
+                    :style $ {} (:width 400) (:overflow :hidden)
                       :border-right $ str "|1px solid " (hsl 0 0 90)
                   div
                     {} $ :style
@@ -250,7 +267,7 @@
                               <> name
                   div
                     {} (:class-name css/expand)
-                      :style $ {} (:overflow :hidden)
+                      :style $ {} (:overflow-y :auto) (:min-height 0)
                     if (some? selected)
                       comp-file selected
                         get-in files $ [] selected
@@ -339,6 +356,13 @@
                       d! $ :: :new-bookmark
                         :: :bookmark (:ns expr) (:def expr)
                 when
+                  and
+                    some? $ :info expr
+                    some? $ get (:info expr) :kind
+                  <>
+                    str "|import " $ get (:info expr) :kind
+                    , style-tiny-hint
+                when
                   some? $ :type-hint expr
                   div
                     {} $ :class-name css/row-middle
@@ -347,6 +371,16 @@
                           t $ :type-hint expr
                         format-type-display $ format-type-info t |
                       , style-tiny-hint
+          :examples $ []
+        |comp-ir-kind $ %{} :CodeEntry (:doc |)
+          :code $ quote
+            defcomp comp-ir-kind (expr kind)
+              div
+                {} (:class-name css/column)
+                  :style $ {} (:display :inline-flex)
+                  :on-click $ fn (e d!) (d! :preview expr)
+                <> (str "|ir " kind) style-tiny-hint
+                <> (to-lispy-string expr) css-code-default
           :examples $ []
         |comp-local $ %{} :CodeEntry (:doc |)
           :code $ quote
@@ -445,6 +479,10 @@
                 <> $ :code expr
                 <> "\"js raw" style-tiny-hint
           :examples $ []
+        |comp-record $ %{} :CodeEntry (:doc |)
+          :code $ quote
+            defcomp comp-record (expr) (comp-ir-kind expr :record)
+          :examples $ []
         |comp-registered $ %{} :CodeEntry (:doc |)
           :code $ quote
             defcomp comp-registered (expr)
@@ -456,6 +494,10 @@
                       {} $ :display :inline-block
                     :on-click $ fn (e d!) (d! :preview expr)
                   <> $ get expr :alias
+          :examples $ []
+        |comp-struct $ %{} :CodeEntry (:doc |)
+          :code $ quote
+            defcomp comp-struct (expr) (comp-ir-kind expr :struct)
           :examples $ []
         |comp-symbol $ %{} :CodeEntry (:doc |)
           :code $ quote
@@ -478,6 +520,10 @@
                   :style $ {} (:display :inline-flex) (:line-height "\"1.2")
                 <> (get expr :name) css-code-syntax
                 <> "\"syntax" style-tiny-hint
+          :examples $ []
+        |comp-tuple $ %{} :CodeEntry (:doc |)
+          :code $ quote
+            defcomp comp-tuple (expr) (comp-ir-kind expr :tuple)
           :examples $ []
         |css-code-default $ %{} :CodeEntry (:doc |)
           :code $ quote
