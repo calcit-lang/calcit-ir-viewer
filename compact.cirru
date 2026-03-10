@@ -85,7 +85,10 @@
         |comp-bookmarks $ %{} :CodeEntry (:doc |)
           :code $ quote
             defcomp comp-bookmarks (bookmarks pointer)
-              list-> ({})
+              list->
+                {} (:class-name css/column)
+                  :style $ {} (:overflow-y :auto) (:width 300)
+                    :border-right $ str "|1px solid " (hsl 0 0 90)
                 -> bookmarks $ map-indexed
                   fn (idx b)
                     [] idx $ tag-match b
@@ -101,6 +104,10 @@
                             :on-click $ fn (e d!)
                               d! $ :: :remove-bookmark idx
                       _ $ eprintln "\"unknown bookmark" b
+          :examples $ []
+        |comp-cirru-quote $ %{} :CodeEntry (:doc |)
+          :code $ quote
+            defcomp comp-cirru-quote (expr) (comp-ir-kind expr :cirru-quote)
           :examples $ []
         |comp-code $ %{} :CodeEntry (:doc |)
           :code $ quote
@@ -137,6 +144,16 @@
                 (calcit-syntax? expr) (comp-syntax expr)
                 (calcit-method? expr) (comp-method expr)
                 (calcit-raw-code? expr) (comp-raw-code expr)
+                (and (map? expr) (= (get expr :kind) :cirru-quote))
+                  comp-cirru-quote expr
+                (and (map? expr) (= (get expr :kind) :tuple))
+                  comp-tuple expr
+                (and (map? expr) (= (get expr :kind) :struct))
+                  comp-struct expr
+                (and (map? expr) (= (get expr :kind) :enum))
+                  comp-enum expr
+                (and (map? expr) (= (get expr :kind) :record))
+                  comp-record expr
                 true $ pre
                   {} $ :class-name css-code-default
                   <> $ to-lispy-string expr
@@ -148,50 +165,54 @@
                   store $ :store reel
                   states $ :states store
                   cursor $ either (:cursor states) ([])
+                  pointer $ either (:pointer store) 0
+                  bookmarks $ :bookmarks store
                 div
                   {} $ :class-name (str-spaced css/global css/fullscreen css/column)
-                  memof1-call comp-header
-                  if-let
-                    pointer $ :pointer store
-                    let
-                        bookmarks $ :bookmarks store
-                        bookmark $ get bookmarks pointer
+                  div
+                    {} $ :class-name (str-spaced css/row css/expand)
+                    comp-file-entry (>> states :file-entry)
+                      get-in store $ [] :ir :files
+                    comp-bookmarks bookmarks pointer
+                    if-let
+                      bookmark $ get bookmarks pointer
                       tag-match bookmark
                           :bookmark ns definition
-                          do (; println ns definition)
-                            div
-                              {} $ :class-name (str-spaced css/row css/expand)
-                              comp-file-entry (>> states :file-entry)
-                                get-in store $ [] :ir :files
-                              comp-bookmarks bookmarks pointer
-                              div
-                                {} (:class-name css/expand)
-                                  :style $ {} (:padding-bottom 120)
-                                let
-                                    declaration $ get-in store ([] :ir :files ns :defs definition)
-                                  if (calcit-fn? declaration) (comp-fn declaration)
-                                    if (calcit-macro? declaration) (comp-macro declaration)
-                                      div
-                                        {} $ :class-name css-pad8
-                                        comp-code declaration false
-                        _ $ eprintln "\"unknown bookmark data" bookmark
+                          div
+                            {} (:class-name css/expand)
+                              :style $ {} (:padding-bottom 120)
+                            let
+                                declaration $ get-in store ([] :ir :files ns :defs definition)
+                              if (calcit-fn? declaration) (comp-fn declaration)
+                                if (calcit-macro? declaration) (comp-macro declaration)
+                                  div
+                                    {} $ :class-name css-pad8
+                                    comp-code declaration false
+                        _ $ div ({})
+                          <> $ str "|unknown bookmark data: " bookmark
+                      div
+                        {} $ :class-name css/expand
+                        <> "|No bookmark selected"
                   comp-preview $ :preview store
                   when dev? $ comp-reel (>> states :reel) reel ({})
-                  when dev? $ comp-inspect "\"Store" store
+                  when dev? $ comp-inspect |Store store
                     {} $ :bottom 0
+          :examples $ []
+        |comp-enum $ %{} :CodeEntry (:doc |)
+          :code $ quote
+            defcomp comp-enum (expr) (comp-ir-kind expr :enum)
           :examples $ []
         |comp-file $ %{} :CodeEntry (:doc |)
           :code $ quote
             defcomp comp-file (ns file selected-def)
               div
-                {}
-                  :class-name $ str-spaced css/expand css/column
-                  :style $ {}
-                    :border-top $ str-spaced "\"2px solid" (hsl 0 0 80)
+                {} $ :class-name (str-spaced css/column)
                 let
-                    defs $ keys (get file :defs)
+                    defs $ if (some? file)
+                      keys $ get file :defs
+                      #{}
                   list->
-                    {} $ :class-name (str-spaced css/expand css/column)
+                    {} $ :class-name (str-spaced css/column)
                     -> defs (.to-list) (sort &compare)
                       map $ fn (name)
                         [] name $ div
@@ -199,6 +220,7 @@
                             :class-name $ str-spaced css-pad8 css-hover-item css/font-code!
                             :style $ if (= name selected-def)
                               {} $ :background-color (hsl 0 0 95)
+                              {}
                             :on-click $ fn (e d!)
                               d! $ :: :new-bookmark (:: :bookmark ns name)
                           <> name
@@ -209,45 +231,71 @@
               let
                   cursor $ :cursor states
                   state $ either (:data states)
-                    {} $ :selected nil
+                    {} (:selected nil) (:query |)
+                  selected $ :selected state
+                  query $ or (:query state) |
                 div
-                  {} (:class-name css/column)
-                    :style $ {} (:width 400)
-                  let
-                      ns-names $ if (some? files) (keys files) (#{})
-                    ; when dev? $ js/console.log store
-                    div
-                      {} (:class-name css/expand)
-                        :style $ {} (:padding "\"8 0px") (:overflow :auto)
-                          :border-right $ str "\"1px solid " (hsl 0 0 90)
-                      , & $ if (empty? ns-names)
-                        [] $ div
-                          {} $ :style
-                            {} $ :padding "\"0 12px"
-                          <> "\"No namespaces" css/font-fancy
+                  {}
+                    :class-name $ str-spaced css/column
+                    :style $ {} (:width 400) (:overflow :hidden)
+                      :border-right $ str "|1px solid " (hsl 0 0 90)
+                  div
+                    {} $ :style
+                      {} $ :padding 4
+                    input $ {} (:value query) (:placeholder "|Search ns...") (:class-name css/input)
+                      :style $ {} (:width |100%)
+                      :on-input $ fn (e d!)
+                        d! cursor $ assoc state :query (:value e)
+                  div
+                    {} (:class-name css/expand)
+                      :style $ {} (:overflow-y :auto) (:max-height |40%)
+                        :border-bottom $ str "|1px solid " (hsl 0 0 95)
+                    let
+                        ns-names $ if (some? files) (keys files) (#{})
+                      list-> ({})
                         -> ns-names (.to-list) (sort &compare)
+                          filter $ fn (name) (includes? name query)
                           map $ fn (name)
-                            div
+                            [] name $ div
                               {}
                                 :on-click $ fn (e d!)
                                   d! cursor $ assoc state :selected name
-                                :style $ if
-                                  = name $ :selected state
+                                :style $ if (= name selected)
                                   {} $ :background-color (hsl 0 0 94)
+                                  {}
                                 :class-name $ str-spaced css-pad8 css-hover-item css/font-code!
                               <> name
-                  let
-                      selected $ :selected state
-                      has-file? $ some-in? files ([] selected)
-                    if has-file?
+                  div
+                    {} (:class-name css/expand)
+                      :style $ {} (:overflow-y :auto) (:min-height 0)
+                    if (some? selected)
                       comp-file selected
                         get-in files $ [] selected
                         , nil
                       div
-                        {}
-                          :class-name $ str-spaced css/expand css/font-fancy
-                          :style $ {} (:padding "\"0 8px")
-                        <> $ str "\"No file slected: " selected
+                        {} $ :class-name (str-spaced css-pad8 css/font-fancy)
+                        <> "|No NS selected"
+                  div
+                    {} $ :style
+                      {} (:padding 16)
+                        :border-top $ str "|1px solid " (hsl 0 0 90)
+                    div
+                      {} (:class-name css-file-button)
+                        :on-click $ fn (e d!) (-> e :event .-currentTarget .-children .-0 .!click)
+                      input $ {} (:type |file)
+                        :style $ {} (:opacity 0.2) (:width 0) (:top 0) (:position :absolute) (:pointer-events :none)
+                        :on-change $ fn (e d!)
+                          let
+                              file $ -> (:event e) .-target .-files (aget 0)
+                              fr $ new js/FileReader
+                            aset
+                              .-target $ :event e
+                              , |value nil
+                            set! (.-onload fr)
+                              fn (event)
+                                d! :ir-data $ parse-cirru-edn (-> event .-target .-result)
+                            .!readAsText fr file
+                      div ({}) (<> "|Pick IR file")
           :examples $ []
         |comp-fn $ %{} :CodeEntry (:doc |)
           :code $ quote
@@ -308,12 +356,31 @@
                       d! $ :: :new-bookmark
                         :: :bookmark (:ns expr) (:def expr)
                 when
+                  and
+                    some? $ :info expr
+                    some? $ get (:info expr) :kind
+                  <>
+                    str "|import " $ get (:info expr) :kind
+                    , style-tiny-hint
+                when
                   some? $ :type-hint expr
                   div
                     {} $ :class-name css/row-middle
                     <>
-                      str |type: $ format-cirru-edn (:type-hint expr)
+                      str |type: $ let
+                          t $ :type-hint expr
+                        format-type-display $ format-type-info t |
                       , style-tiny-hint
+          :examples $ []
+        |comp-ir-kind $ %{} :CodeEntry (:doc |)
+          :code $ quote
+            defcomp comp-ir-kind (expr kind)
+              div
+                {} (:class-name css/column)
+                  :style $ {} (:display :inline-flex)
+                  :on-click $ fn (e d!) (d! :preview expr)
+                <> (str "|ir " kind) style-tiny-hint
+                <> (to-lispy-string expr) css-code-default
           :examples $ []
         |comp-local $ %{} :CodeEntry (:doc |)
           :code $ quote
@@ -327,8 +394,9 @@
                 <> $ get expr :val
                 <> "\"local" style-tiny-hint
                 <>
-                  str |type: $ turn-string
-                    or (get expr :type-info) |unknown
+                  str |type: $ let
+                      t $ or (get expr :type-info) |unknown
+                    format-type-display $ format-type-info t |
                   , style-tiny-hint
           :examples $ []
         |comp-macro $ %{} :CodeEntry (:doc |)
@@ -384,11 +452,21 @@
                     some? $ get expr :arg-types
                     some? $ get expr :return-type
                   <>
-                    str-spaced
-                      trim $ turn-string
-                        format-cirru-edn $ get expr :arg-types
-                      , "|→" $ trim
-                        turn-string $ format-cirru-edn (get expr :return-type)
+                    str
+                      if
+                        some? $ get expr :arg-types
+                        format-type-display $ [] |args:
+                          format-type-info (get expr :arg-types) |
+                        , |
+                      if
+                        some? $ get expr :return-type
+                        str
+                          if
+                            some? $ get expr :arg-types
+                            , &newline |
+                          format-type-display $ [] |return:
+                            format-type-info (get expr :return-type) |
+                        , |
                     , style-tiny-hint
                   <> |
           :examples $ []
@@ -401,6 +479,10 @@
                 <> $ :code expr
                 <> "\"js raw" style-tiny-hint
           :examples $ []
+        |comp-record $ %{} :CodeEntry (:doc |)
+          :code $ quote
+            defcomp comp-record (expr) (comp-ir-kind expr :record)
+          :examples $ []
         |comp-registered $ %{} :CodeEntry (:doc |)
           :code $ quote
             defcomp comp-registered (expr)
@@ -412,6 +494,10 @@
                       {} $ :display :inline-block
                     :on-click $ fn (e d!) (d! :preview expr)
                   <> $ get expr :alias
+          :examples $ []
+        |comp-struct $ %{} :CodeEntry (:doc |)
+          :code $ quote
+            defcomp comp-struct (expr) (comp-ir-kind expr :struct)
           :examples $ []
         |comp-symbol $ %{} :CodeEntry (:doc |)
           :code $ quote
@@ -434,6 +520,10 @@
                   :style $ {} (:display :inline-flex) (:line-height "\"1.2")
                 <> (get expr :name) css-code-syntax
                 <> "\"syntax" style-tiny-hint
+          :examples $ []
+        |comp-tuple $ %{} :CodeEntry (:doc |)
+          :code $ quote
+            defcomp comp-tuple (expr) (comp-ir-kind expr :tuple)
           :examples $ []
         |css-code-default $ %{} :CodeEntry (:doc |)
           :code $ quote
@@ -568,6 +658,93 @@
                 :line-height "\"20px"
                 :padding 8
           :examples $ []
+        |format-type-display $ %{} :CodeEntry (:doc |)
+          :code $ quote
+            defn format-type-display (t)
+              if (nil? t) |nil $ if (string? t) t (format-cirru-one-liner t)
+          :examples $ []
+        |format-type-info $ %{} :CodeEntry (:doc |)
+          :code $ quote
+            defn format-type-info (t indent)
+              if (map? t)
+                if
+                  = (get t :type) :fn
+                  let
+                      entries $ []
+                        if
+                          some? $ get t :args
+                          [] |:args $ format-type-info (get t :args) indent
+                        if
+                          some? $ or (get t :return) (get t :return-type)
+                          [] |:return $ format-type-info
+                            or (get t :return) (get t :return-type)
+                            , indent
+                    -> entries
+                      map $ fn (x)
+                        if (nil? x) |nil x
+                      prepend |fn
+                  if
+                    = (get t :type) :tuple
+                    let
+                        entries $ []
+                          if
+                            some? $ get t :tag
+                            [] |:tag $ turn-string (get t :tag)
+                          if
+                            some? $ get t :payload
+                            [] |:payload $ format-type-info (get t :payload) indent
+                      -> entries
+                        map $ fn (x)
+                          if (nil? x) |nil x
+                        prepend |tuple
+                    if
+                      = (get t :type) :record
+                      let
+                          entries $ []
+                            if
+                              some? $ get t :name
+                              [] |:name $ turn-string (get t :name)
+                            if
+                              some? $ get t :fields
+                              [] |:fields $ format-type-info (get t :fields) indent
+                        -> entries
+                          map $ fn (x)
+                            if (nil? x) |nil x
+                          prepend |record
+                      if
+                        = (get t :type) :optional
+                        let
+                            entries $ []
+                              if
+                                some? $ get t :inner
+                                [] |:inner $ format-type-info (get t :inner) indent
+                          -> entries
+                            map $ fn (x)
+                              if (nil? x) |nil x
+                            prepend |optional
+                        if
+                          = (get t :type) :variadic
+                          let
+                              entries $ []
+                                if
+                                  some? $ get t :inner
+                                  [] |:inner $ format-type-info (get t :inner) indent
+                            -> entries
+                              map $ fn (x)
+                                if (nil? x) |nil x
+                              prepend |variadic
+                          -> (keys t) (.to-list) (sort &compare)
+                            map $ fn (k)
+                              [] (turn-string k)
+                                format-type-info (get t k) indent
+                            prepend |{}
+                if (list? t)
+                  -> t
+                    map $ fn (item)
+                      if (nil? item) |nil $ format-type-info item indent
+                    prepend |[]
+                  turn-string t
+          :examples $ []
         |style-bookmark $ %{} :CodeEntry (:doc |)
           :code $ quote
             defstyle style-bookmark $ {}
@@ -598,7 +775,7 @@
         |style-tiny-hint $ %{} :CodeEntry (:doc |)
           :code $ quote
             defstyle style-tiny-hint $ {}
-              "\"&" $ {} (:font-size 10) (:margin-left 8) (:line-height "\"16px")
+              "\"&" $ {} (:font-size 10) (:margin-left 8) (:line-height "\"16px") (:white-space :pre-wrap)
                 :color $ hsl 0 0 80
           :examples $ []
       :ns $ %{} :CodeEntry (:doc |)
@@ -713,7 +890,7 @@
               :ir nil
               :preview nil
               :bookmarks $ []
-              :pointer nil
+              :pointer 0
           :examples $ []
       :ns $ %{} :CodeEntry (:doc |)
         :code $ quote (ns app.schema)
@@ -726,7 +903,10 @@
               tag-match op
                   :states cursor s
                   update-states store cursor s
-                (:ir-data data) (assoc store :ir data)
+                (:ir-data data)
+                  -> store (assoc :ir data)
+                    assoc :bookmarks $ []
+                    assoc :pointer 0
                 (:preview data) (assoc store :preview data)
                 (:hydrate-storage data) data
                 (:new-bookmark b)
