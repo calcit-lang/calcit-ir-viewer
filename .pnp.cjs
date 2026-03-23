@@ -28,8 +28,11 @@ const RAW_RUNTIME_STATE =
       [null, {\
         "packageLocation": "./",\
         "packageDependencies": [\
-          ["@calcit/procs", "npm:0.11.7"],\
+          ["@calcit/procs", "npm:0.12.11"],\
           ["bottom-tip", "npm:0.1.5"],\
+          ["cirru-color", "npm:0.2.4"],\
+          ["copy-text-to-clipboard", "npm:3.2.2"],\
+          ["dayjs", "npm:1.11.20"],\
           ["root-workspace-0b6124", "workspace:."],\
           ["vite", "virtual:dc3fc578bfa5e06182a4d2be39ede0bc5b74940b1ffe0d70c26892ab140a4699787750fba175dc306292e80b4aa2c8c5f68c2a821e69b2c37e360c0dff36ff66#npm:8.0.0-beta.16"]\
         ],\
@@ -37,12 +40,12 @@ const RAW_RUNTIME_STATE =
       }]\
     ]],\
     ["@calcit/procs", [\
-      ["npm:0.11.7", {\
-        "packageLocation": "../../../.yarn/berry/cache/@calcit-procs-npm-0.11.7-a8cff93268-10c0.zip/node_modules/@calcit/procs/",\
+      ["npm:0.12.11", {\
+        "packageLocation": "../../../.yarn/berry/cache/@calcit-procs-npm-0.12.11-cac67703ce-10c0.zip/node_modules/@calcit/procs/",\
         "packageDependencies": [\
-          ["@calcit/procs", "npm:0.11.7"],\
+          ["@calcit/procs", "npm:0.12.11"],\
           ["@calcit/ternary-tree", "npm:0.0.25"],\
-          ["@cirru/parser.ts", "npm:0.0.8"],\
+          ["@cirru/parser.ts", "npm:0.0.9"],\
           ["@cirru/writer.ts", "npm:0.1.7"]\
         ],\
         "linkType": "HARD"\
@@ -58,10 +61,10 @@ const RAW_RUNTIME_STATE =
       }]\
     ]],\
     ["@cirru/parser.ts", [\
-      ["npm:0.0.8", {\
-        "packageLocation": "../../../.yarn/berry/cache/@cirru-parser.ts-npm-0.0.8-9b8400220e-10c0.zip/node_modules/@cirru/parser.ts/",\
+      ["npm:0.0.9", {\
+        "packageLocation": "../../../.yarn/berry/cache/@cirru-parser.ts-npm-0.0.9-d7e6fe396b-10c0.zip/node_modules/@cirru/parser.ts/",\
         "packageDependencies": [\
-          ["@cirru/parser.ts", "npm:0.0.8"]\
+          ["@cirru/parser.ts", "npm:0.0.9"]\
         ],\
         "linkType": "HARD"\
       }]\
@@ -398,6 +401,33 @@ const RAW_RUNTIME_STATE =
         "packageLocation": "../../../.yarn/berry/cache/chownr-npm-3.0.0-5275e85d25-10c0.zip/node_modules/chownr/",\
         "packageDependencies": [\
           ["chownr", "npm:3.0.0"]\
+        ],\
+        "linkType": "HARD"\
+      }]\
+    ]],\
+    ["cirru-color", [\
+      ["npm:0.2.4", {\
+        "packageLocation": "../../../.yarn/berry/cache/cirru-color-npm-0.2.4-703bd8209e-10c0.zip/node_modules/cirru-color/",\
+        "packageDependencies": [\
+          ["cirru-color", "npm:0.2.4"]\
+        ],\
+        "linkType": "HARD"\
+      }]\
+    ]],\
+    ["copy-text-to-clipboard", [\
+      ["npm:3.2.2", {\
+        "packageLocation": "../../../.yarn/berry/cache/copy-text-to-clipboard-npm-3.2.2-a4142785c3-10c0.zip/node_modules/copy-text-to-clipboard/",\
+        "packageDependencies": [\
+          ["copy-text-to-clipboard", "npm:3.2.2"]\
+        ],\
+        "linkType": "HARD"\
+      }]\
+    ]],\
+    ["dayjs", [\
+      ["npm:1.11.20", {\
+        "packageLocation": "../../../.yarn/berry/cache/dayjs-npm-1.11.20-98d80a1c92-10c0.zip/node_modules/dayjs/",\
+        "packageDependencies": [\
+          ["dayjs", "npm:1.11.20"]\
         ],\
         "linkType": "HARD"\
       }]\
@@ -1099,8 +1129,11 @@ const RAW_RUNTIME_STATE =
       ["workspace:.", {\
         "packageLocation": "./",\
         "packageDependencies": [\
-          ["@calcit/procs", "npm:0.11.7"],\
+          ["@calcit/procs", "npm:0.12.11"],\
           ["bottom-tip", "npm:0.1.5"],\
+          ["cirru-color", "npm:0.2.4"],\
+          ["copy-text-to-clipboard", "npm:3.2.2"],\
+          ["dayjs", "npm:1.11.20"],\
           ["root-workspace-0b6124", "workspace:."],\
           ["vite", "virtual:dc3fc578bfa5e06182a4d2be39ede0bc5b74940b1ffe0d70c26892ab140a4699787750fba175dc306292e80b4aa2c8c5f68c2a821e69b2c37e360c0dff36ff66#npm:8.0.0-beta.16"]\
         ],\
