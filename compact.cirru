@@ -6,19 +6,19 @@
   :files $ {}
     |app.comp.container $ %{} :FileEntry
       :defs $ {}
-        |calcit-fn? $ %{} :CodeEntry (:doc |)
+        |calcit-fn? $ %{} :CodeEntry (:doc |) (:schema nil)
           :code $ quote
             defn calcit-fn? (x)
               and (map? x)
                 = :fn $ get x :kind
           :examples $ []
-        |calcit-import? $ %{} :CodeEntry (:doc |)
+        |calcit-import? $ %{} :CodeEntry (:doc |) (:schema nil)
           :code $ quote
             defn calcit-import? (x)
               and (map? x)
                 = (get x :kind) :import
           :examples $ []
-        |calcit-literal? $ %{} :CodeEntry (:doc |)
+        |calcit-literal? $ %{} :CodeEntry (:doc |) (:schema nil)
           :code $ quote
             defn calcit-literal? (x)
               let
@@ -28,61 +28,61 @@
                 ; println "\"DETECTHING:" x ret
                 , ret
           :examples $ []
-        |calcit-local? $ %{} :CodeEntry (:doc |)
+        |calcit-local? $ %{} :CodeEntry (:doc |) (:schema nil)
           :code $ quote
             defn calcit-local? (x)
               and (map? x)
                 = :local $ get x :kind
           :examples $ []
-        |calcit-macro? $ %{} :CodeEntry (:doc |)
+        |calcit-macro? $ %{} :CodeEntry (:doc |) (:schema nil)
           :code $ quote
             defn calcit-macro? (x)
               and (map? x)
                 = :macro $ get x :kind
           :examples $ []
-        |calcit-method? $ %{} :CodeEntry (:doc |)
+        |calcit-method? $ %{} :CodeEntry (:doc |) (:schema nil)
           :code $ quote
             defn calcit-method? (x)
               and (map? x)
                 = (get x :kind) :method
           :examples $ []
-        |calcit-proc? $ %{} :CodeEntry (:doc |)
+        |calcit-proc? $ %{} :CodeEntry (:doc |) (:schema nil)
           :code $ quote
             defn calcit-proc? (x)
               and (map? x)
                 = :proc $ get x :kind
           :examples $ []
-        |calcit-raw-code? $ %{} :CodeEntry (:doc |)
+        |calcit-raw-code? $ %{} :CodeEntry (:doc |) (:schema nil)
           :code $ quote
             defn calcit-raw-code? (x)
               and (map? x)
                 = (get x :kind) :raw-code
           :examples $ []
-        |calcit-registered? $ %{} :CodeEntry (:doc |)
+        |calcit-registered? $ %{} :CodeEntry (:doc |) (:schema nil)
           :code $ quote
             defn calcit-registered? (x)
               and (map? x)
                 = :registered $ get x :kind
           :examples $ []
-        |calcit-symbol? $ %{} :CodeEntry (:doc |)
+        |calcit-symbol? $ %{} :CodeEntry (:doc |) (:schema nil)
           :code $ quote
             defn calcit-symbol? (x)
               and (map? x)
                 = :symbol $ get x :kind
           :examples $ []
-        |calcit-syntax? $ %{} :CodeEntry (:doc |)
+        |calcit-syntax? $ %{} :CodeEntry (:doc |) (:schema nil)
           :code $ quote
             defn calcit-syntax? (x)
               and (map? x)
                 = (get x :kind) :syntax
           :examples $ []
-        |calcit-tag? $ %{} :CodeEntry (:doc |)
+        |calcit-tag? $ %{} :CodeEntry (:doc |) (:schema nil)
           :code $ quote
             defn calcit-tag? (x)
               and (map? x)
                 = "\"tag" $ get x :kind
           :examples $ []
-        |comp-bookmarks $ %{} :CodeEntry (:doc |)
+        |comp-bookmarks $ %{} :CodeEntry (:doc |) (:schema nil)
           :code $ quote
             defcomp comp-bookmarks (bookmarks pointer)
               list->
@@ -105,11 +105,11 @@
                               d! $ :: :remove-bookmark idx
                       _ $ eprintln "\"unknown bookmark" b
           :examples $ []
-        |comp-cirru-quote $ %{} :CodeEntry (:doc |)
+        |comp-cirru-quote $ %{} :CodeEntry (:doc |) (:schema nil)
           :code $ quote
             defcomp comp-cirru-quote (expr) (comp-ir-kind expr :cirru-quote)
           :examples $ []
-        |comp-code $ %{} :CodeEntry (:doc |)
+        |comp-code $ %{} :CodeEntry (:doc |) (:schema nil)
           :code $ quote
             defcomp comp-code (expr last?)
               cond
@@ -158,7 +158,7 @@
                   {} $ :class-name css-code-default
                   <> $ to-lispy-string expr
           :examples $ []
-        |comp-container $ %{} :CodeEntry (:doc |)
+        |comp-container $ %{} :CodeEntry (:doc |) (:schema nil)
           :code $ quote
             defcomp comp-container (reel)
               let
@@ -198,11 +198,11 @@
                   when dev? $ comp-inspect |Store store
                     {} $ :bottom 0
           :examples $ []
-        |comp-enum $ %{} :CodeEntry (:doc |)
+        |comp-enum $ %{} :CodeEntry (:doc |) (:schema nil)
           :code $ quote
             defcomp comp-enum (expr) (comp-ir-kind expr :enum)
           :examples $ []
-        |comp-file $ %{} :CodeEntry (:doc |)
+        |comp-file $ %{} :CodeEntry (:doc |) (:schema nil)
           :code $ quote
             defcomp comp-file (ns file selected-def)
               div
@@ -225,7 +225,7 @@
                               d! $ :: :new-bookmark (:: :bookmark ns name)
                           <> name
           :examples $ []
-        |comp-file-entry $ %{} :CodeEntry (:doc |)
+        |comp-file-entry $ %{} :CodeEntry (:doc |) (:schema nil)
           :code $ quote
             defn comp-file-entry (states files)
               let
@@ -297,7 +297,7 @@
                             .!readAsText fr file
                       div ({}) (<> "|Pick IR file")
           :examples $ []
-        |comp-fn $ %{} :CodeEntry (:doc |)
+        |comp-fn $ %{} :CodeEntry (:doc |) (:schema nil)
           :code $ quote
             defcomp comp-fn (f)
               div
@@ -311,7 +311,7 @@
                   <> $ str "\"Code:"
                   comp-code (get f :code) false
           :examples $ []
-        |comp-header $ %{} :CodeEntry (:doc |)
+        |comp-header $ %{} :CodeEntry (:doc |) (:schema nil)
           :code $ quote
             defcomp comp-header () $ div
               {} $ :style
@@ -335,7 +335,7 @@
                       .!readAsText fr file
                 div ({}) (<> "\"Pick IR file")
           :examples $ []
-        |comp-import $ %{} :CodeEntry (:doc |)
+        |comp-import $ %{} :CodeEntry (:doc |) (:schema nil)
           :code $ quote
             defcomp comp-import (expr)
               div
@@ -372,7 +372,7 @@
                         format-type-display $ format-type-info t |
                       , style-tiny-hint
           :examples $ []
-        |comp-ir-kind $ %{} :CodeEntry (:doc |)
+        |comp-ir-kind $ %{} :CodeEntry (:doc |) (:schema nil)
           :code $ quote
             defcomp comp-ir-kind (expr kind)
               div
@@ -382,7 +382,7 @@
                 <> (str "|ir " kind) style-tiny-hint
                 <> (to-lispy-string expr) css-code-default
           :examples $ []
-        |comp-local $ %{} :CodeEntry (:doc |)
+        |comp-local $ %{} :CodeEntry (:doc |) (:schema nil)
           :code $ quote
             defcomp comp-local (expr)
               div
@@ -399,7 +399,7 @@
                     format-type-display $ format-type-info t |
                   , style-tiny-hint
           :examples $ []
-        |comp-macro $ %{} :CodeEntry (:doc |)
+        |comp-macro $ %{} :CodeEntry (:doc |) (:schema nil)
           :code $ quote
             defcomp comp-macro (f)
               div
@@ -413,7 +413,7 @@
                   <> $ str "\"Code:"
                   comp-code (get f :code) false
           :examples $ []
-        |comp-method $ %{} :CodeEntry (:doc |)
+        |comp-method $ %{} :CodeEntry (:doc |) (:schema nil)
           :code $ quote
             defcomp comp-method (expr)
               div
@@ -427,7 +427,7 @@
                   str "\"method " $ :behavior expr
                   , style-tiny-hint
           :examples $ []
-        |comp-preview $ %{} :CodeEntry (:doc |)
+        |comp-preview $ %{} :CodeEntry (:doc |) (:schema nil)
           :code $ quote
             defcomp comp-preview (data)
               if (some? data)
@@ -439,7 +439,7 @@
                     :on-click $ fn (e d!) (d! :preview nil)
                 div $ {}
           :examples $ []
-        |comp-proc $ %{} :CodeEntry (:doc |)
+        |comp-proc $ %{} :CodeEntry (:doc |) (:schema nil)
           :code $ quote
             defcomp comp-proc (expr)
               div
@@ -470,7 +470,7 @@
                     , style-tiny-hint
                   <> |
           :examples $ []
-        |comp-raw-code $ %{} :CodeEntry (:doc |)
+        |comp-raw-code $ %{} :CodeEntry (:doc |) (:schema nil)
           :code $ quote
             defcomp comp-raw-code (expr)
               div
@@ -479,11 +479,11 @@
                 <> $ :code expr
                 <> "\"js raw" style-tiny-hint
           :examples $ []
-        |comp-record $ %{} :CodeEntry (:doc |)
+        |comp-record $ %{} :CodeEntry (:doc |) (:schema nil)
           :code $ quote
             defcomp comp-record (expr) (comp-ir-kind expr :record)
           :examples $ []
-        |comp-registered $ %{} :CodeEntry (:doc |)
+        |comp-registered $ %{} :CodeEntry (:doc |) (:schema nil)
           :code $ quote
             defcomp comp-registered (expr)
               div
@@ -495,11 +495,11 @@
                     :on-click $ fn (e d!) (d! :preview expr)
                   <> $ get expr :alias
           :examples $ []
-        |comp-struct $ %{} :CodeEntry (:doc |)
+        |comp-struct $ %{} :CodeEntry (:doc |) (:schema nil)
           :code $ quote
             defcomp comp-struct (expr) (comp-ir-kind expr :struct)
           :examples $ []
-        |comp-symbol $ %{} :CodeEntry (:doc |)
+        |comp-symbol $ %{} :CodeEntry (:doc |) (:schema nil)
           :code $ quote
             defcomp comp-symbol (expr)
               div
@@ -512,7 +512,7 @@
                 div ({})
                   <> (get expr :ns) css-code-symbol-ns
           :examples $ []
-        |comp-syntax $ %{} :CodeEntry (:doc |)
+        |comp-syntax $ %{} :CodeEntry (:doc |) (:schema nil)
           :code $ quote
             defcomp comp-syntax (expr)
               div
@@ -521,11 +521,11 @@
                 <> (get expr :name) css-code-syntax
                 <> "\"syntax" style-tiny-hint
           :examples $ []
-        |comp-tuple $ %{} :CodeEntry (:doc |)
+        |comp-tuple $ %{} :CodeEntry (:doc |) (:schema nil)
           :code $ quote
             defcomp comp-tuple (expr) (comp-ir-kind expr :tuple)
           :examples $ []
-        |css-code-default $ %{} :CodeEntry (:doc |)
+        |css-code-default $ %{} :CodeEntry (:doc |) (:schema nil)
           :code $ quote
             defstyle css-code-default $ {}
               "\"$0" $ {}
@@ -534,12 +534,12 @@
                 :white-space :pre
                 :display :inline-block
           :examples $ []
-        |css-code-expr $ %{} :CodeEntry (:doc |)
+        |css-code-expr $ %{} :CodeEntry (:doc |) (:schema nil)
           :code $ quote
             defstyle css-code-expr $ {}
               "\"$0" $ {} (:border-width "\"1px 0 0 1px") (:margin-left "\"14px") (:padding-left "\"2px") (:font-family ui/font-code) (:margin-bottom "\"2px") (:margin-top "\"4px") (:vertical-align :top) (:border-style :solid) (:border-radius "\"8px")
           :examples $ []
-        |css-code-fn $ %{} :CodeEntry (:doc |)
+        |css-code-fn $ %{} :CodeEntry (:doc |) (:schema nil)
           :code $ quote
             defstyle css-code-fn $ {}
               "\"$0" $ {}
@@ -548,7 +548,7 @@
                 :white-space :pre-line
                 :display :inline-block
           :examples $ []
-        |css-code-method $ %{} :CodeEntry (:doc |)
+        |css-code-method $ %{} :CodeEntry (:doc |) (:schema nil)
           :code $ quote
             defstyle css-code-method $ {}
               "\"$0" $ {}
@@ -557,7 +557,7 @@
                 :white-space :pre-line
                 :display :inline-block
           :examples $ []
-        |css-code-proc $ %{} :CodeEntry (:doc |)
+        |css-code-proc $ %{} :CodeEntry (:doc |) (:schema nil)
           :code $ quote
             defstyle css-code-proc $ {}
               "\"$0" $ {}
@@ -566,25 +566,25 @@
                 :white-space :pre-line
                 :display :inline-block
           :examples $ []
-        |css-code-symbol $ %{} :CodeEntry (:doc |)
+        |css-code-symbol $ %{} :CodeEntry (:doc |) (:schema nil)
           :code $ quote
             defstyle css-code-symbol $ {}
               "\"$0" $ {} (:display :inline-flex) (:margin "\"0px 4px") (:padding "\"0 4px") (:line-height "\"1.2")
           :examples $ []
-        |css-code-symbol-ns $ %{} :CodeEntry (:doc |)
+        |css-code-symbol-ns $ %{} :CodeEntry (:doc |) (:schema nil)
           :code $ quote
             defstyle css-code-symbol-ns $ {}
               "\"$0" $ {} (:font-size 8)
                 :color $ hsl 0 0 80
                 :font-family ui/font-normal
           :examples $ []
-        |css-code-symbol-resolved-ns $ %{} :CodeEntry (:doc |)
+        |css-code-symbol-resolved-ns $ %{} :CodeEntry (:doc |) (:schema nil)
           :code $ quote
             defstyle css-code-symbol-resolved-ns $ {}
               "\"$0" $ {} (:font-size "\"8px") (:white-space :nowrap) (:font-family ui/font-normal)
                 :color $ hsl 0 80 70
           :examples $ []
-        |css-code-syntax $ %{} :CodeEntry (:doc |)
+        |css-code-syntax $ %{} :CodeEntry (:doc |) (:schema nil)
           :code $ quote
             defstyle css-code-syntax $ {}
               "\"$0" $ {}
@@ -593,7 +593,7 @@
                 :white-space :pre-line
                 :display :inline-block
           :examples $ []
-        |css-code-tag $ %{} :CodeEntry (:doc |)
+        |css-code-tag $ %{} :CodeEntry (:doc |) (:schema nil)
           :code $ quote
             defstyle css-code-tag $ {}
               "\"$0" $ {}
@@ -602,7 +602,7 @@
                 :white-space :pre-line
                 :display :inline-block
           :examples $ []
-        |css-expr-area $ %{} :CodeEntry (:doc |)
+        |css-expr-area $ %{} :CodeEntry (:doc |) (:schema nil)
           :code $ quote
             defstyle css-expr-area $ {}
               "\"&" $ {} (:border-color "\"hsl(0,0%,92%)")
@@ -610,7 +610,7 @@
               (str "\"&:has(." css-code-expr "\":hover)")
                 {} $ :border-color "\"hsl(0,0%,92%)"
           :examples $ []
-        |css-file-button $ %{} :CodeEntry (:doc |)
+        |css-file-button $ %{} :CodeEntry (:doc |) (:schema nil)
           :code $ quote
             defstyle css-file-button $ {}
               "\"$0" $ {} (:width 120) (:position :relative) (:border-radius 8)
@@ -627,18 +627,18 @@
                 :background-color $ hsl 200 90 76
               "\"$0:active" $ {} (:transition-duration "\"0ms") (:transform "\"scale(1.02)")
           :examples $ []
-        |css-hover-item $ %{} :CodeEntry (:doc |)
+        |css-hover-item $ %{} :CodeEntry (:doc |) (:schema nil)
           :code $ quote
             defstyle css-hover-item $ {}
               "\"&" $ {} (:font-size 12) (:cursor :pointer)
               "\"&:hover" $ {} (:background-color "\"hsl(350,0%,95%)")
           :examples $ []
-        |css-pad8 $ %{} :CodeEntry (:doc |)
+        |css-pad8 $ %{} :CodeEntry (:doc |) (:schema nil)
           :code $ quote
             defstyle css-pad8 $ {}
               "\"&" $ {} (:padding "\"0 8px")
           :examples $ []
-        |css-preview-close $ %{} :CodeEntry (:doc |)
+        |css-preview-close $ %{} :CodeEntry (:doc |) (:schema nil)
           :code $ quote
             defstyle css-preview-close $ {}
               "\"$0" $ {} (:position :absolute) (:top 4) (:right 4)
@@ -646,7 +646,7 @@
                 :cursor :pointer
                 :font-size 14
           :examples $ []
-        |css-preview-tip $ %{} :CodeEntry (:doc |)
+        |css-preview-tip $ %{} :CodeEntry (:doc |) (:schema nil)
           :code $ quote
             defstyle css-preview-tip $ {}
               "\"$0" $ {} (:position :absolute) (:bottom 0) (:right 0)
@@ -658,94 +658,90 @@
                 :line-height "\"20px"
                 :padding 8
           :examples $ []
-        |format-type-display $ %{} :CodeEntry (:doc |)
+        |format-type-display $ %{} :CodeEntry (:doc |) (:schema nil)
           :code $ quote
             defn format-type-display (t)
-              if (nil? t) |nil $ if (string? t) t (format-cirru-one-liner t)
+              if (nil? t) |nil $ if (string? t) t (trim $ format-cirru-edn t)
           :examples $ []
-        |format-type-info $ %{} :CodeEntry (:doc |)
+        |format-type-info $ %{} :CodeEntry (:doc |) (:schema nil)
           :code $ quote
             defn format-type-info (t indent)
-              if (map? t)
-                if
-                  = (get t :type) :fn
-                  let
-                      entries $ []
-                        if
-                          some? $ get t :args
-                          [] |:args $ format-type-info (get t :args) indent
-                        if
-                          some? $ or (get t :return) (get t :return-type)
-                          [] |:return $ format-type-info
-                            or (get t :return) (get t :return-type)
-                            , indent
-                    -> entries
-                      map $ fn (x)
-                        if (nil? x) |nil x
-                      prepend |fn
-                  if
-                    = (get t :type) :tuple
-                    let
-                        entries $ []
-                          if
-                            some? $ get t :tag
-                            [] |:tag $ turn-string (get t :tag)
-                          if
-                            some? $ get t :payload
-                            [] |:payload $ format-type-info (get t :payload) indent
-                      -> entries
-                        map $ fn (x)
-                          if (nil? x) |nil x
-                        prepend |tuple
+              if (nil? t) |nil $ if
+                or (tag? t) (symbol? t) (tuple? t)
+                , t
+                  if (map? t)
                     if
-                      = (get t :type) :record
+                      = (get t :type) :fn
                       let
                           entries $ []
                             if
-                              some? $ get t :name
-                              [] |:name $ turn-string (get t :name)
+                              some? $ get t :args
+                              [] |:args $ format-type-info (get t :args) indent
                             if
-                              some? $ get t :fields
-                              [] |:fields $ format-type-info (get t :fields) indent
+                              some? $ or (get t :return) (get t :return-type)
+                              [] |:return $ format-type-info
+                                or (get t :return) (get t :return-type)
+                                , indent
                         -> entries
                           map $ fn (x)
                             if (nil? x) |nil x
-                          prepend |record
+                          prepend |fn
                       if
-                        = (get t :type) :optional
+                        = (get t :type) :tuple
                         let
                             entries $ []
                               if
-                                some? $ get t :inner
-                                [] |:inner $ format-type-info (get t :inner) indent
+                                some? $ get t :tag
+                                [] |:tag $ turn-string (get t :tag)
+                              if
+                                some? $ get t :payload
+                                [] |:payload $ format-type-info (get t :payload) indent
                           -> entries
                             map $ fn (x)
                               if (nil? x) |nil x
-                            prepend |optional
+                            prepend |tuple
                         if
-                          = (get t :type) :variadic
+                          = (get t :type) :record
                           let
                               entries $ []
                                 if
-                                  some? $ get t :inner
-                                  [] |:inner $ format-type-info (get t :inner) indent
+                                  some? $ get t :name
+                                  [] |:name $ turn-string (get t :name)
+                                if
+                                  some? $ get t :fields
+                                  [] |:fields $ format-type-info (get t :fields) indent
                             -> entries
                               map $ fn (x)
                                 if (nil? x) |nil x
-                              prepend |variadic
-                          -> (keys t) (.to-list) (sort &compare)
-                            map $ fn (k)
-                              [] (turn-string k)
-                                format-type-info (get t k) indent
-                            prepend |{}
-                if (list? t)
-                  -> t
-                    map $ fn (item)
-                      if (nil? item) |nil $ format-type-info item indent
-                    prepend |[]
-                  turn-string t
+                              prepend |record
+                          if
+                            = (get t :type) :optional
+                            let
+                                entries $ []
+                                  if
+                                    some? $ get t :inner
+                                    [] |:inner $ format-type-info (get t :inner) indent
+                              -> entries
+                                map $ fn (x)
+                                  if (nil? x) |nil x
+                                prepend |optional
+                            if
+                              = (get t :type) :variadic
+                              let
+                                  entries $ []
+                                    if
+                                      some? $ get t :inner
+                                      [] |:inner $ format-type-info (get t :inner) indent
+                                -> entries
+                                  map $ fn (x)
+                                    if (nil? x) |nil x
+                                  prepend |variadic
+                              trim $ format-cirru-edn t
+                    if (list? t)
+                      , t
+                        trim $ format-cirru-edn t
           :examples $ []
-        |style-bookmark $ %{} :CodeEntry (:doc |)
+        |style-bookmark $ %{} :CodeEntry (:doc |) (:schema nil)
           :code $ quote
             defstyle style-bookmark $ {}
               "\"&" $ {} (:cursor :pointer) (:padding "\"0 8px") (:position :relative)
@@ -754,31 +750,31 @@
               (str "\"&:hover ." style-close)
                 {} $ :opacity 1
           :examples $ []
-        |style-bookmark-selected $ %{} :CodeEntry (:doc |)
+        |style-bookmark-selected $ %{} :CodeEntry (:doc |) (:schema nil)
           :code $ quote
             defstyle style-bookmark-selected $ {}
               "\"&" $ {}
                 :background-color $ hsl 0 0 96
           :examples $ []
-        |style-close $ %{} :CodeEntry (:doc |)
+        |style-close $ %{} :CodeEntry (:doc |) (:schema nil)
           :code $ quote
             defstyle style-close $ {}
               "\"&" $ {} (:position :absolute) (:opacity 0) (:right 4) (:top 6) (:font-size 12) (:font-weight 100)
           :examples $ []
-        |style-import-ns $ %{} :CodeEntry (:doc |)
+        |style-import-ns $ %{} :CodeEntry (:doc |) (:schema nil)
           :code $ quote
             defstyle style-import-ns $ {}
               "\"&" $ {} (:font-size 10)
                 :color $ hsl 0 0 80
                 :margin-left 4
           :examples $ []
-        |style-tiny-hint $ %{} :CodeEntry (:doc |)
+        |style-tiny-hint $ %{} :CodeEntry (:doc |) (:schema nil)
           :code $ quote
             defstyle style-tiny-hint $ {}
               "\"&" $ {} (:font-size 10) (:margin-left 8) (:line-height "\"16px") (:white-space :pre-wrap)
                 :color $ hsl 0 0 80
           :examples $ []
-      :ns $ %{} :CodeEntry (:doc |)
+      :ns $ %{} :NsEntry (:doc |)
         :code $ quote
           ns app.comp.container $ :require (respo-ui.core :as ui)
             respo.core :refer $ defcomp defeffect <> >> div button textarea span input pre list-> a
@@ -792,27 +788,25 @@
             respo.css :refer $ defstyle
             respo-ui.css :as css
             respo-ui.comp :refer $ comp-close
-        :examples $ []
     |app.config $ %{} :FileEntry
       :defs $ {}
-        |dev? $ %{} :CodeEntry (:doc |)
+        |dev? $ %{} :CodeEntry (:doc |) (:schema nil)
           :code $ quote
             def dev? $ = "\"dev" (get-env "\"mode" "\"release")
           :examples $ []
-        |site $ %{} :CodeEntry (:doc |)
+        |site $ %{} :CodeEntry (:doc |) (:schema nil)
           :code $ quote
             def site $ {} (:title "\"Calcit") (:icon "\"http://cdn.tiye.me/logo/mvc-works.png") (:storage-key "\"calcit-ir-viewer")
           :examples $ []
-      :ns $ %{} :CodeEntry (:doc |)
+      :ns $ %{} :NsEntry (:doc |)
         :code $ quote (ns app.config)
-        :examples $ []
     |app.main $ %{} :FileEntry
       :defs $ {}
-        |*reel $ %{} :CodeEntry (:doc |)
+        |*reel $ %{} :CodeEntry (:doc |) (:schema nil)
           :code $ quote
             defatom *reel $ -> reel-schema/reel (assoc :base schema/store) (assoc :store schema/store)
           :examples $ []
-        |dispatch! $ %{} :CodeEntry (:doc |)
+        |dispatch! $ %{} :CodeEntry (:doc |) (:schema nil)
           :code $ quote
             defn dispatch! (op)
               when
@@ -820,7 +814,7 @@
                 println "\"Dispatch:" op
               reset! *reel $ reel-updater updater @*reel op
           :examples $ []
-        |main! $ %{} :CodeEntry (:doc |)
+        |main! $ %{} :CodeEntry (:doc |) (:schema nil)
           :code $ quote
             defn main! () (load-console-formatter!)
               println "\"Running mode:" $ if config/dev? "\"dev" "\"release"
@@ -836,16 +830,16 @@
                     extract-cirru-edn $ js/JSON.parse raw
               println "|App started."
           :examples $ []
-        |mount-target $ %{} :CodeEntry (:doc |)
+        |mount-target $ %{} :CodeEntry (:doc |) (:schema nil)
           :code $ quote
             def mount-target $ js/document.querySelector |.app
           :examples $ []
-        |persist-storage! $ %{} :CodeEntry (:doc |)
+        |persist-storage! $ %{} :CodeEntry (:doc |) (:schema nil)
           :code $ quote
             defn persist-storage! () $ js/localStorage.setItem (:storage-key config/site)
               js/JSON.stringify $ to-cirru-edn (:store @*reel)
           :examples $ []
-        |reload! $ %{} :CodeEntry (:doc |)
+        |reload! $ %{} :CodeEntry (:doc |) (:schema nil)
           :code $ quote
             defn reload! () $ if (nil? build-errors)
               do (remove-watch *reel :changes) (clear-cache!)
@@ -854,11 +848,11 @@
                 hud! "\"ok~" "\"Ok"
               hud! "\"error" build-errors
           :examples $ []
-        |render-app! $ %{} :CodeEntry (:doc |)
+        |render-app! $ %{} :CodeEntry (:doc |) (:schema nil)
           :code $ quote
             defn render-app! () $ render! mount-target (comp-container @*reel) dispatch!
           :examples $ []
-        |repeat! $ %{} :CodeEntry (:doc |)
+        |repeat! $ %{} :CodeEntry (:doc |) (:schema nil)
           :code $ quote
             defn repeat! (duration cb)
               js/setTimeout
@@ -866,7 +860,7 @@
                   repeat! (* 1000 duration) cb
                 * 1000 duration
           :examples $ []
-      :ns $ %{} :CodeEntry (:doc |)
+      :ns $ %{} :NsEntry (:doc |)
         :code $ quote
           ns app.main $ :require
             [] respo.core :refer $ [] render! clear-cache!
@@ -879,10 +873,9 @@
             [] app.config :as config
             "\"./calcit.build-errors" :default build-errors
             "\"bottom-tip" :default hud!
-        :examples $ []
     |app.schema $ %{} :FileEntry
       :defs $ {}
-        |store $ %{} :CodeEntry (:doc |)
+        |store $ %{} :CodeEntry (:doc |) (:schema nil)
           :code $ quote
             def store $ {}
               :states $ {}
@@ -892,12 +885,11 @@
               :bookmarks $ []
               :pointer 0
           :examples $ []
-      :ns $ %{} :CodeEntry (:doc |)
+      :ns $ %{} :NsEntry (:doc |)
         :code $ quote (ns app.schema)
-        :examples $ []
     |app.updater $ %{} :FileEntry
       :defs $ {}
-        |updater $ %{} :CodeEntry (:doc |)
+        |updater $ %{} :CodeEntry (:doc |) (:schema nil)
           :code $ quote
             defn updater (store op op-id op-time)
               tag-match op
@@ -919,8 +911,7 @@
                     fn (bs) (.dissoc bs idx)
                 _ $ do (eprintln "\"unknown op:" op) store
           :examples $ []
-      :ns $ %{} :CodeEntry (:doc |)
+      :ns $ %{} :NsEntry (:doc |)
         :code $ quote
           ns app.updater $ :require
             [] respo.cursor :refer $ [] update-states
-        :examples $ []
