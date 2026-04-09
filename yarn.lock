@@ -5,14 +5,14 @@ __metadata:
   version: 8
   cacheKey: 10c0
 
-"@calcit/procs@npm:^0.11.7":
-  version: 0.11.7
-  resolution: "@calcit/procs@npm:0.11.7"
+"@calcit/procs@npm:0.12.11":
+  version: 0.12.11
+  resolution: "@calcit/procs@npm:0.12.11"
   dependencies:
     "@calcit/ternary-tree": "npm:0.0.25"
-    "@cirru/parser.ts": "npm:^0.0.8"
+    "@cirru/parser.ts": "npm:^0.0.9"
     "@cirru/writer.ts": "npm:^0.1.7"
-  checksum: 10c0/b8bd5af3dcd4b50fa4a57395c1e3ace18d756d86209b280e05a52929ecb370afcc043f6a68be6c51675a1403891d07cc0b3f30a78921cd891a320467a96b286e
+  checksum: 10c0/1b972d6f3bb4fd2291688e3ff528216abbc43f314ffd7ef6f177a2c8a3c07d67963fa6e1062c52a5c91f87ac3724c97da6023dfc167e707178909e012cf50e7d
   languageName: node
   linkType: hard
 
@@ -23,10 +23,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@cirru/parser.ts@npm:^0.0.8":
-  version: 0.0.8
-  resolution: "@cirru/parser.ts@npm:0.0.8"
-  checksum: 10c0/a722a1ae31503cd602d4bb868f9831f7cf0a3d457cde40fc363120271ebb1320c5cabdf051393b5b10ef3e29452c6e25ab8c2b0d981605299312391f528957b6
+"@cirru/parser.ts@npm:^0.0.9":
+  version: 0.0.9
+  resolution: "@cirru/parser.ts@npm:0.0.9"
+  checksum: 10c0/3b13623b8f627ac81adae0cb6a4e3664f0da09115a997ca9b78b8d5d0b0f9b9b18c1ad847e068831cb1052c7da2a00329d2af04421b1024a004eef0ddca5fd7a
   languageName: node
   linkType: hard
 
@@ -307,6 +307,27 @@ __metadata:
   version: 3.0.0
   resolution: "chownr@npm:3.0.0"
   checksum: 10c0/43925b87700f7e3893296c8e9c56cc58f926411cce3a6e5898136daaf08f08b9a8eb76d37d3267e707d0dcc17aed2e2ebdf5848c0c3ce95cf910a919935c1b10
+  languageName: node
+  linkType: hard
+
+"cirru-color@npm:0.2.4":
+  version: 0.2.4
+  resolution: "cirru-color@npm:0.2.4"
+  checksum: 10c0/2c4e0e1f01d2304aaa7bffe9c75aea04be7c6ea3f45bc03c86bc50efa9c03bf7d4611d1ec2f613610491bd288adb298f7942bfedcb14595dc4c8bde8dfb77104
+  languageName: node
+  linkType: hard
+
+"copy-text-to-clipboard@npm:3.2.2":
+  version: 3.2.2
+  resolution: "copy-text-to-clipboard@npm:3.2.2"
+  checksum: 10c0/451796734a380f7da7b0af27c4d94e449719d3a2f2170e99c7e46eeee54cf3c4b4fdeabc185f6d6e8cbdf932e350831d05e8387c4bae8dcedb7fb961c600ddd4
+  languageName: node
+  linkType: hard
+
+"dayjs@npm:1.11.20":
+  version: 1.11.20
+  resolution: "dayjs@npm:1.11.20"
+  checksum: 10c0/8af525e2aa100c8db9923d706c42b2b2d30579faf89456619413a5c10916efc92c2b166e193c27c02eb3174b30aa440ee1e7b72b0a2876b3da651d204db848a0
   languageName: node
   linkType: hard
 
@@ -964,8 +985,11 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "root-workspace-0b6124@workspace:."
   dependencies:
-    "@calcit/procs": "npm:^0.11.7"
+    "@calcit/procs": "npm:0.12.11"
     bottom-tip: "npm:^0.1.5"
+    cirru-color: "npm:0.2.4"
+    copy-text-to-clipboard: "npm:3.2.2"
+    dayjs: "npm:1.11.20"
     vite: "npm:^8.0.0-beta.16"
   languageName: unknown
   linkType: soft
