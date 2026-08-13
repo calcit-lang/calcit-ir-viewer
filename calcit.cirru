@@ -1,88 +1,101 @@
 
-{} (:about "|file is generated - never edit directly; learn cr edit/tree workflows before changing") (:package |app)
-  :configs $ {} (:init-fn |app.main/main!) (:reload-fn |app.main/reload!) (:version |0.0.1)
-    :modules $ [] |respo.calcit/compact.cirru |lilac/compact.cirru |memof/compact.cirru |respo-ui.calcit/compact.cirru |respo-markdown.calcit/compact.cirru |reel.calcit/compact.cirru
+{} (:about "|Machine-generated snapshot. Do not edit directly — changes will be overwritten. Use `cr query` to inspect and `cr edit`/`cr tree` to modify. Run `cr docs agents --full` first. Manual edits must follow format and schema conventions, then run `cr edit format`.") (:package |app) (:version |0.0.1)
   :entries $ {}
+    :default $ {} (:description |) (:init-fn 'app.main/main!) (:mode :native) (:reload-fn 'app.main/reload!)
+      :modules $ [] |respo.calcit/ |lilac/ |memof/ |respo-ui.calcit/ |respo-markdown.calcit/ |reel.calcit/
+      :type-slots $ {}
   :files $ {}
-    |app.comp.container $ %{} :FileEntry
+    |app.comp.container $ %{} 'FileEntry
       :defs $ {}
-        |calcit-fn? $ %{} :CodeEntry (:doc |) (:schema nil)
+        |calcit-fn? $ %{} 'CodeEntry (:doc |)
           :code $ quote
             defn calcit-fn? (x)
               and (map? x)
                 = :fn $ get x :kind
           :examples $ []
-        |calcit-import? $ %{} :CodeEntry (:doc |) (:schema nil)
+          :schema $ :: 'Dynamic
+        |calcit-import? $ %{} 'CodeEntry (:doc |)
           :code $ quote
             defn calcit-import? (x)
               and (map? x)
                 = (get x :kind) :import
           :examples $ []
-        |calcit-literal? $ %{} :CodeEntry (:doc |) (:schema nil)
+          :schema $ :: 'Dynamic
+        |calcit-literal? $ %{} 'CodeEntry (:doc |)
           :code $ quote
             defn calcit-literal? (x)
               let
                   ret $ or (number? x) (string? x) (bool? x)
                     and (map? x)
                       includes? (#{} :symbol :number :tag :proc :syntax :local :registered) (get x :kind)
-                ; println "\"DETECTHING:" x ret
+                ; println |DETECTHING: x ret
                 , ret
           :examples $ []
-        |calcit-local? $ %{} :CodeEntry (:doc |) (:schema nil)
+          :schema $ :: 'Dynamic
+        |calcit-local? $ %{} 'CodeEntry (:doc |)
           :code $ quote
             defn calcit-local? (x)
               and (map? x)
                 = :local $ get x :kind
           :examples $ []
-        |calcit-macro? $ %{} :CodeEntry (:doc |) (:schema nil)
+          :schema $ :: 'Dynamic
+        |calcit-macro? $ %{} 'CodeEntry (:doc |)
           :code $ quote
             defn calcit-macro? (x)
               and (map? x)
                 = :macro $ get x :kind
           :examples $ []
-        |calcit-method? $ %{} :CodeEntry (:doc |) (:schema nil)
+          :schema $ :: 'Dynamic
+        |calcit-method? $ %{} 'CodeEntry (:doc |)
           :code $ quote
             defn calcit-method? (x)
               and (map? x)
                 = (get x :kind) :method
           :examples $ []
-        |calcit-proc? $ %{} :CodeEntry (:doc |) (:schema nil)
+          :schema $ :: 'Dynamic
+        |calcit-proc? $ %{} 'CodeEntry (:doc |)
           :code $ quote
             defn calcit-proc? (x)
               and (map? x)
                 = :proc $ get x :kind
           :examples $ []
-        |calcit-raw-code? $ %{} :CodeEntry (:doc |) (:schema nil)
+          :schema $ :: 'Dynamic
+        |calcit-raw-code? $ %{} 'CodeEntry (:doc |)
           :code $ quote
             defn calcit-raw-code? (x)
               and (map? x)
                 = (get x :kind) :raw-code
           :examples $ []
-        |calcit-registered? $ %{} :CodeEntry (:doc |) (:schema nil)
+          :schema $ :: 'Dynamic
+        |calcit-registered? $ %{} 'CodeEntry (:doc |)
           :code $ quote
             defn calcit-registered? (x)
               and (map? x)
                 = :registered $ get x :kind
           :examples $ []
-        |calcit-symbol? $ %{} :CodeEntry (:doc |) (:schema nil)
+          :schema $ :: 'Dynamic
+        |calcit-symbol? $ %{} 'CodeEntry (:doc |)
           :code $ quote
             defn calcit-symbol? (x)
               and (map? x)
                 = :symbol $ get x :kind
           :examples $ []
-        |calcit-syntax? $ %{} :CodeEntry (:doc |) (:schema nil)
+          :schema $ :: 'Dynamic
+        |calcit-syntax? $ %{} 'CodeEntry (:doc |)
           :code $ quote
             defn calcit-syntax? (x)
               and (map? x)
                 = (get x :kind) :syntax
           :examples $ []
-        |calcit-tag? $ %{} :CodeEntry (:doc |) (:schema nil)
+          :schema $ :: 'Dynamic
+        |calcit-tag? $ %{} 'CodeEntry (:doc |)
           :code $ quote
             defn calcit-tag? (x)
               and (map? x)
-                = "\"tag" $ get x :kind
+                = |tag $ get x :kind
           :examples $ []
-        |comp-bookmarks $ %{} :CodeEntry (:doc |) (:schema nil)
+          :schema $ :: 'Dynamic
+        |comp-bookmarks $ %{} 'CodeEntry (:doc |)
           :code $ quote
             defcomp comp-bookmarks (bookmarks pointer)
               list->
@@ -92,24 +105,26 @@
                 -> bookmarks $ map-indexed
                   fn (idx b)
                     [] idx $ tag-match b
-                        :bookmark ns definition
+                      (:bookmark ns definition)
                         div
                           {}
                             :on-click $ fn (e d!)
                               d! $ :: :point-to idx
                             :class-name $ str-spaced style-bookmark
                               if (= pointer idx) style-bookmark-selected
-                          <> $ str ns "\"/" definition
+                          <> $ str ns |/ definition
                           comp-close $ {} (:class-name style-close)
                             :on-click $ fn (e d!)
                               d! $ :: :remove-bookmark idx
-                      _ $ eprintln "\"unknown bookmark" b
+                      _ $ eprintln "|unknown bookmark" b
           :examples $ []
-        |comp-cirru-quote $ %{} :CodeEntry (:doc |) (:schema nil)
+          :schema $ :: 'Dynamic
+        |comp-cirru-quote $ %{} 'CodeEntry (:doc |)
           :code $ quote
             defcomp comp-cirru-quote (expr) (comp-ir-kind expr :cirru-quote)
           :examples $ []
-        |comp-code $ %{} :CodeEntry (:doc |) (:schema nil)
+          :schema $ :: 'Dynamic
+        |comp-code $ %{} 'CodeEntry (:doc |)
           :code $ quote
             defcomp comp-code (expr last?)
               cond
@@ -117,7 +132,7 @@
                   <> (str expr) css-code-tag
                 (calcit-tag? expr)
                   <>
-                    str "\":" $ get expr :val
+                    str |: $ get expr :val
                     , css-code-tag
                 (list? expr)
                   div
@@ -158,7 +173,8 @@
                   {} $ :class-name css-code-default
                   <> $ to-lispy-string expr
           :examples $ []
-        |comp-container $ %{} :CodeEntry (:doc |) (:schema nil)
+          :schema $ :: 'Dynamic
+        |comp-container $ %{} 'CodeEntry (:doc |)
           :code $ quote
             defcomp comp-container (reel)
               let
@@ -177,7 +193,7 @@
                     if-let
                       bookmark $ get bookmarks pointer
                       tag-match bookmark
-                          :bookmark ns definition
+                        (:bookmark ns definition)
                           div
                             {} (:class-name css/expand)
                               :style $ {} (:padding-bottom 120)
@@ -198,11 +214,13 @@
                   when dev? $ comp-inspect |Store store
                     {} $ :bottom 0
           :examples $ []
-        |comp-enum $ %{} :CodeEntry (:doc |) (:schema nil)
+          :schema $ :: 'Dynamic
+        |comp-enum $ %{} 'CodeEntry (:doc |)
           :code $ quote
             defcomp comp-enum (expr) (comp-ir-kind expr :enum)
           :examples $ []
-        |comp-file $ %{} :CodeEntry (:doc |) (:schema nil)
+          :schema $ :: 'Dynamic
+        |comp-file $ %{} 'CodeEntry (:doc |)
           :code $ quote
             defcomp comp-file (ns file selected-def)
               div
@@ -225,7 +243,8 @@
                               d! $ :: :new-bookmark (:: :bookmark ns name)
                           <> name
           :examples $ []
-        |comp-file-entry $ %{} :CodeEntry (:doc |) (:schema nil)
+          :schema $ :: 'Dynamic
+        |comp-file-entry $ %{} 'CodeEntry (:doc |)
           :code $ quote
             defn comp-file-entry (states files)
               let
@@ -297,45 +316,48 @@
                             .!readAsText fr file
                       div ({}) (<> "|Pick IR file")
           :examples $ []
-        |comp-fn $ %{} :CodeEntry (:doc |) (:schema nil)
+          :schema $ :: 'Dynamic
+        |comp-fn $ %{} 'CodeEntry (:doc |)
           :code $ quote
             defcomp comp-fn (f)
               div
                 {} $ :class-name css-pad8
                 div ({})
-                  <> $ str "\"Name: " (get f :ns) "\"/" (get f :name)
+                  <> $ str "|Name: " (get f :ns) |/ (get f :name)
                 div ({})
-                  <> $ str "\"Args:"
+                  <> $ str |Args:
                   comp-code (get f :args) false
                 div ({})
-                  <> $ str "\"Code:"
+                  <> $ str |Code:
                   comp-code (get f :code) false
           :examples $ []
-        |comp-header $ %{} :CodeEntry (:doc |) (:schema nil)
+          :schema $ :: 'Dynamic
+        |comp-header $ %{} 'CodeEntry (:doc |)
           :code $ quote
             defcomp comp-header () $ div
               {} $ :style
                 {}
-                  :border-bottom $ str "\"1px solid " (hsl 0 0 90)
+                  :border-bottom $ str "|1px solid " (hsl 0 0 90)
                   :padding 8
               div
                 {} (:class-name css-file-button)
                   :on-click $ fn (e d!)
                     -> e :event .-currentTarget .-children .-0 $ .!click
-                input $ {} (:type "\"file")
+                input $ {} (:type |file)
                   :style $ {} (:opacity 0.2) (:width 0) (:top 0) (:position :absolute) (:pointer-events :none)
                   :on-change $ fn (e d!)
                     let
                         file $ -> (:event e) .-target .-files (aget 0)
                         fr $ new js/FileReader
-                      -> (:event e) .-target $ aset "\"value" nil
+                      -> (:event e) .-target $ aset |value nil
                       set! (.-onload fr)
                         fn (event)
                           d! :ir-data $ parse-cirru-edn (-> event .-target .-result)
                       .!readAsText fr file
-                div ({}) (<> "\"Pick IR file")
+                div ({}) (<> "|Pick IR file")
           :examples $ []
-        |comp-import $ %{} :CodeEntry (:doc |) (:schema nil)
+          :schema $ :: 'Dynamic
+        |comp-import $ %{} 'CodeEntry (:doc |)
           :code $ quote
             defcomp comp-import (expr)
               div
@@ -350,7 +372,7 @@
                   <>
                     str $ :ns expr
                     , style-import-ns
-                  a $ {} (:class-name css/link) (:inner-text "\"goto")
+                  a $ {} (:class-name css/link) (:inner-text |goto)
                     :style $ {} (:font-size 10)
                     :on-click $ fn (e d!)
                       d! $ :: :new-bookmark
@@ -372,7 +394,8 @@
                         format-type-display $ format-type-info t |
                       , style-tiny-hint
           :examples $ []
-        |comp-ir-kind $ %{} :CodeEntry (:doc |) (:schema nil)
+          :schema $ :: 'Dynamic
+        |comp-ir-kind $ %{} 'CodeEntry (:doc |)
           :code $ quote
             defcomp comp-ir-kind (expr kind)
               div
@@ -382,7 +405,8 @@
                 <> (str "|ir " kind) style-tiny-hint
                 <> (to-lispy-string expr) css-code-default
           :examples $ []
-        |comp-local $ %{} :CodeEntry (:doc |) (:schema nil)
+          :schema $ :: 'Dynamic
+        |comp-local $ %{} 'CodeEntry (:doc |)
           :code $ quote
             defcomp comp-local (expr)
               div
@@ -392,42 +416,45 @@
                     {} $ :display :inline-flex
                   :on-click $ fn (e d!) (d! :preview expr)
                 <> $ get expr :val
-                <> "\"local" style-tiny-hint
+                <> |local style-tiny-hint
                 <>
                   str |type: $ let
                       t $ or (get expr :type-info) |unknown
                     format-type-display $ format-type-info t |
                   , style-tiny-hint
           :examples $ []
-        |comp-macro $ %{} :CodeEntry (:doc |) (:schema nil)
+          :schema $ :: 'Dynamic
+        |comp-macro $ %{} 'CodeEntry (:doc |)
           :code $ quote
             defcomp comp-macro (f)
               div
                 {} $ :class-name css-pad8
                 div ({})
-                  <> $ str "\"Macro name: " (get f :ns) "\"/" (get f :name)
+                  <> $ str "|Macro name: " (get f :ns) |/ (get f :name)
                 div ({})
-                  <> $ str "\"Args:"
+                  <> $ str |Args:
                   comp-code (get f :args) false
                 div ({})
-                  <> $ str "\"Code:"
+                  <> $ str |Code:
                   comp-code (get f :code) false
           :examples $ []
-        |comp-method $ %{} :CodeEntry (:doc |) (:schema nil)
+          :schema $ :: 'Dynamic
+        |comp-method $ %{} 'CodeEntry (:doc |)
           :code $ quote
             defcomp comp-method (expr)
               div
                 {} (:class-name css/column)
-                  :style $ {} (:display :inline-flex) (:line-height "\"1.2")
+                  :style $ {} (:display :inline-flex) (:line-height |1.2)
                   :on-click $ fn (e d!) (d! :preview expr)
                 <>
-                  str "\"." $ get expr :method
+                  str |. $ get expr :method
                   , css-code-method
                 <>
-                  str "\"method " $ :behavior expr
+                  str "|method " $ :behavior expr
                   , style-tiny-hint
           :examples $ []
-        |comp-preview $ %{} :CodeEntry (:doc |) (:schema nil)
+          :schema $ :: 'Dynamic
+        |comp-preview $ %{} 'CodeEntry (:doc |)
           :code $ quote
             defcomp comp-preview (data)
               if (some? data)
@@ -435,18 +462,19 @@
                   {} $ :class-name css-preview-tip
                   div $ {}
                     :innerText $ trim (format-cirru-edn data)
-                  div $ {} (:inner-text "\"×") (:class-name css-preview-close)
+                  div $ {} (:inner-text "|×") (:class-name css-preview-close)
                     :on-click $ fn (e d!) (d! :preview nil)
                 div $ {}
           :examples $ []
-        |comp-proc $ %{} :CodeEntry (:doc |) (:schema nil)
+          :schema $ :: 'Dynamic
+        |comp-proc $ %{} 'CodeEntry (:doc |)
           :code $ quote
             defcomp comp-proc (expr)
               div
                 {} (:class-name css/column)
-                  :style $ {} (:display :inline-flex) (:line-height "\"1.2")
+                  :style $ {} (:display :inline-flex) (:line-height |1.2)
                 <> (get expr :name) css-code-proc
-                <> "\"proc" style-tiny-hint
+                <> |proc style-tiny-hint
                 if
                   or
                     some? $ get expr :arg-types
@@ -470,20 +498,23 @@
                     , style-tiny-hint
                   <> |
           :examples $ []
-        |comp-raw-code $ %{} :CodeEntry (:doc |) (:schema nil)
+          :schema $ :: 'Dynamic
+        |comp-raw-code $ %{} 'CodeEntry (:doc |)
           :code $ quote
             defcomp comp-raw-code (expr)
               div
                 {} (:class-name css/column)
                   :style $ {} (:display :inline-flex) (:line-height 1.2)
                 <> $ :code expr
-                <> "\"js raw" style-tiny-hint
+                <> "|js raw" style-tiny-hint
           :examples $ []
-        |comp-record $ %{} :CodeEntry (:doc |) (:schema nil)
+          :schema $ :: 'Dynamic
+        |comp-record $ %{} 'CodeEntry (:doc |)
           :code $ quote
             defcomp comp-record (expr) (comp-ir-kind expr :record)
           :examples $ []
-        |comp-registered $ %{} :CodeEntry (:doc |) (:schema nil)
+          :schema $ :: 'Dynamic
+        |comp-registered $ %{} 'CodeEntry (:doc |)
           :code $ quote
             defcomp comp-registered (expr)
               div
@@ -495,11 +526,13 @@
                     :on-click $ fn (e d!) (d! :preview expr)
                   <> $ get expr :alias
           :examples $ []
-        |comp-struct $ %{} :CodeEntry (:doc |) (:schema nil)
+          :schema $ :: 'Dynamic
+        |comp-struct $ %{} 'CodeEntry (:doc |)
           :code $ quote
             defcomp comp-struct (expr) (comp-ir-kind expr :struct)
           :examples $ []
-        |comp-symbol $ %{} :CodeEntry (:doc |) (:schema nil)
+          :schema $ :: 'Dynamic
+        |comp-symbol $ %{} 'CodeEntry (:doc |)
           :code $ quote
             defcomp comp-symbol (expr)
               div
@@ -512,158 +545,179 @@
                 div ({})
                   <> (get expr :ns) css-code-symbol-ns
           :examples $ []
-        |comp-syntax $ %{} :CodeEntry (:doc |) (:schema nil)
+          :schema $ :: 'Dynamic
+        |comp-syntax $ %{} 'CodeEntry (:doc |)
           :code $ quote
             defcomp comp-syntax (expr)
               div
                 {} (:class-name css/column)
-                  :style $ {} (:display :inline-flex) (:line-height "\"1.2")
+                  :style $ {} (:display :inline-flex) (:line-height |1.2)
                 <> (get expr :name) css-code-syntax
-                <> "\"syntax" style-tiny-hint
+                <> |syntax style-tiny-hint
           :examples $ []
-        |comp-tuple $ %{} :CodeEntry (:doc |) (:schema nil)
+          :schema $ :: 'Dynamic
+        |comp-tuple $ %{} 'CodeEntry (:doc |)
           :code $ quote
             defcomp comp-tuple (expr) (comp-ir-kind expr :tuple)
           :examples $ []
-        |css-code-default $ %{} :CodeEntry (:doc |) (:schema nil)
+          :schema $ :: 'Dynamic
+        |css-code-default $ %{} 'CodeEntry (:doc |)
           :code $ quote
             defstyle css-code-default $ {}
-              "\"$0" $ {}
+              |$0 $ {}
                 :color $ hsl 200 80 60
-                :margin "\"0 4px"
+                :margin "|0 4px"
                 :white-space :pre
                 :display :inline-block
           :examples $ []
-        |css-code-expr $ %{} :CodeEntry (:doc |) (:schema nil)
+          :schema $ :: 'Dynamic
+        |css-code-expr $ %{} 'CodeEntry (:doc |)
           :code $ quote
             defstyle css-code-expr $ {}
-              "\"$0" $ {} (:border-width "\"1px 0 0 1px") (:margin-left "\"14px") (:padding-left "\"2px") (:font-family ui/font-code) (:margin-bottom "\"2px") (:margin-top "\"4px") (:vertical-align :top) (:border-style :solid) (:border-radius "\"8px")
+              |$0 $ {} (:border-width "|1px 0 0 1px") (:margin-left |14px) (:padding-left |2px) (:font-family ui/font-code) (:margin-bottom |2px) (:margin-top |4px) (:vertical-align :top) (:border-style :solid) (:border-radius |8px)
           :examples $ []
-        |css-code-fn $ %{} :CodeEntry (:doc |) (:schema nil)
+          :schema $ :: 'Dynamic
+        |css-code-fn $ %{} 'CodeEntry (:doc |)
           :code $ quote
             defstyle css-code-fn $ {}
-              "\"$0" $ {}
+              |$0 $ {}
                 :color $ hsl 0 80 50
-                :margin "\"0 4px"
+                :margin "|0 4px"
                 :white-space :pre-line
                 :display :inline-block
           :examples $ []
-        |css-code-method $ %{} :CodeEntry (:doc |) (:schema nil)
+          :schema $ :: 'Dynamic
+        |css-code-method $ %{} 'CodeEntry (:doc |)
           :code $ quote
             defstyle css-code-method $ {}
-              "\"$0" $ {}
+              |$0 $ {}
                 :color $ hsl 300 90 40
-                :margin "\"0 4px"
+                :margin "|0 4px"
                 :white-space :pre-line
                 :display :inline-block
           :examples $ []
-        |css-code-proc $ %{} :CodeEntry (:doc |) (:schema nil)
+          :schema $ :: 'Dynamic
+        |css-code-proc $ %{} 'CodeEntry (:doc |)
           :code $ quote
             defstyle css-code-proc $ {}
-              "\"$0" $ {}
+              |$0 $ {}
                 :color $ hsl 0 80 50
-                :margin "\"0 4px"
+                :margin "|0 4px"
                 :white-space :pre-line
                 :display :inline-block
           :examples $ []
-        |css-code-symbol $ %{} :CodeEntry (:doc |) (:schema nil)
+          :schema $ :: 'Dynamic
+        |css-code-symbol $ %{} 'CodeEntry (:doc |)
           :code $ quote
             defstyle css-code-symbol $ {}
-              "\"$0" $ {} (:display :inline-flex) (:margin "\"0px 4px") (:padding "\"0 4px") (:line-height "\"1.2")
+              |$0 $ {} (:display :inline-flex) (:margin "|0px 4px") (:padding "|0 4px") (:line-height |1.2)
           :examples $ []
-        |css-code-symbol-ns $ %{} :CodeEntry (:doc |) (:schema nil)
+          :schema $ :: 'Dynamic
+        |css-code-symbol-ns $ %{} 'CodeEntry (:doc |)
           :code $ quote
             defstyle css-code-symbol-ns $ {}
-              "\"$0" $ {} (:font-size 8)
+              |$0 $ {} (:font-size 8)
                 :color $ hsl 0 0 80
                 :font-family ui/font-normal
           :examples $ []
-        |css-code-symbol-resolved-ns $ %{} :CodeEntry (:doc |) (:schema nil)
+          :schema $ :: 'Dynamic
+        |css-code-symbol-resolved-ns $ %{} 'CodeEntry (:doc |)
           :code $ quote
             defstyle css-code-symbol-resolved-ns $ {}
-              "\"$0" $ {} (:font-size "\"8px") (:white-space :nowrap) (:font-family ui/font-normal)
+              |$0 $ {} (:font-size |8px) (:white-space :nowrap) (:font-family ui/font-normal)
                 :color $ hsl 0 80 70
           :examples $ []
-        |css-code-syntax $ %{} :CodeEntry (:doc |) (:schema nil)
+          :schema $ :: 'Dynamic
+        |css-code-syntax $ %{} 'CodeEntry (:doc |)
           :code $ quote
             defstyle css-code-syntax $ {}
-              "\"$0" $ {}
+              |$0 $ {}
                 :color $ hsl 0 80 50
-                :margin "\"0 4px"
+                :margin "|0 4px"
                 :white-space :pre-line
                 :display :inline-block
           :examples $ []
-        |css-code-tag $ %{} :CodeEntry (:doc |) (:schema nil)
+          :schema $ :: 'Dynamic
+        |css-code-tag $ %{} 'CodeEntry (:doc |)
           :code $ quote
             defstyle css-code-tag $ {}
-              "\"$0" $ {}
+              |$0 $ {}
                 :color $ hsl 200 80 40
-                :margin "\"0 4px"
+                :margin "|0 4px"
                 :white-space :pre-line
                 :display :inline-block
           :examples $ []
-        |css-expr-area $ %{} :CodeEntry (:doc |) (:schema nil)
+          :schema $ :: 'Dynamic
+        |css-expr-area $ %{} 'CodeEntry (:doc |)
           :code $ quote
             defstyle css-expr-area $ {}
-              "\"&" $ {} (:border-color "\"hsl(0,0%,92%)")
-              "\"&:hover" $ {} (:border-color "\"hsl(0,0%,70%)")
-              (str "\"&:has(." css-code-expr "\":hover)")
-                {} $ :border-color "\"hsl(0,0%,92%)"
+              |& $ {} (:border-color "|hsl(0,0%,92%)")
+              |&:hover $ {} (:border-color "|hsl(0,0%,70%)")
+              (str "|&:has(." css-code-expr "|:hover)")
+                {} $ :border-color "|hsl(0,0%,92%)"
           :examples $ []
-        |css-file-button $ %{} :CodeEntry (:doc |) (:schema nil)
+          :schema $ :: 'Dynamic
+        |css-file-button $ %{} 'CodeEntry (:doc |)
           :code $ quote
             defstyle css-file-button $ {}
-              "\"$0" $ {} (:width 120) (:position :relative) (:border-radius 8)
+              |$0 $ {} (:width 120) (:position :relative) (:border-radius 8)
                 :background-color $ hsl 200 90 72
                 :text-align :center
                 :color :white
                 :font-family ui/font-fancy
                 :font-size 18
-                :line-height "\"32px"
+                :line-height |32px
                 :cursor :pointer
-                :transition-duration "\"300ms"
-              "\"$0:hover" $ {}
-                :box-shadow $ str "\"1px 1px 4px " (hsl 0 0 0 0.2)
+                :transition-duration |300ms
+              |$0:hover $ {}
+                :box-shadow $ str "|1px 1px 4px " (hsl 0 0 0 0.2)
                 :background-color $ hsl 200 90 76
-              "\"$0:active" $ {} (:transition-duration "\"0ms") (:transform "\"scale(1.02)")
+              |$0:active $ {} (:transition-duration |0ms) (:transform "|scale(1.02)")
           :examples $ []
-        |css-hover-item $ %{} :CodeEntry (:doc |) (:schema nil)
+          :schema $ :: 'Dynamic
+        |css-hover-item $ %{} 'CodeEntry (:doc |)
           :code $ quote
             defstyle css-hover-item $ {}
-              "\"&" $ {} (:font-size 12) (:cursor :pointer)
-              "\"&:hover" $ {} (:background-color "\"hsl(350,0%,95%)")
+              |& $ {} (:font-size 12) (:cursor :pointer)
+              |&:hover $ {} (:background-color "|hsl(350,0%,95%)")
           :examples $ []
-        |css-pad8 $ %{} :CodeEntry (:doc |) (:schema nil)
+          :schema $ :: 'Dynamic
+        |css-pad8 $ %{} 'CodeEntry (:doc |)
           :code $ quote
             defstyle css-pad8 $ {}
-              "\"&" $ {} (:padding "\"0 8px")
+              |& $ {} (:padding "|0 8px")
           :examples $ []
-        |css-preview-close $ %{} :CodeEntry (:doc |) (:schema nil)
+          :schema $ :: 'Dynamic
+        |css-preview-close $ %{} 'CodeEntry (:doc |)
           :code $ quote
             defstyle css-preview-close $ {}
-              "\"$0" $ {} (:position :absolute) (:top 4) (:right 4)
+              |$0 $ {} (:position :absolute) (:top 4) (:right 4)
                 :color $ hsl 0 80 60
                 :cursor :pointer
                 :font-size 14
           :examples $ []
-        |css-preview-tip $ %{} :CodeEntry (:doc |) (:schema nil)
+          :schema $ :: 'Dynamic
+        |css-preview-tip $ %{} 'CodeEntry (:doc |)
           :code $ quote
             defstyle css-preview-tip $ {}
-              "\"$0" $ {} (:position :absolute) (:bottom 0) (:right 0)
+              |$0 $ {} (:position :absolute) (:bottom 0) (:right 0)
                 :background-color $ hsl 0 0 100 0.6
                 :font-family ui/font-code
                 :white-space :pre
-                :border $ str "\"1px solid " (hsl 0 0 90)
+                :border $ str "|1px solid " (hsl 0 0 90)
                 :font-size 12
-                :line-height "\"20px"
+                :line-height |20px
                 :padding 8
           :examples $ []
-        |format-type-display $ %{} :CodeEntry (:doc |) (:schema nil)
+          :schema $ :: 'Dynamic
+        |format-type-display $ %{} 'CodeEntry (:doc |)
           :code $ quote
             defn format-type-display (t)
-              if (nil? t) |nil $ if (string? t) t (trim $ format-cirru-edn t)
+              if (nil? t) |nil $ if (string? t) t
+                trim $ format-cirru-edn t
           :examples $ []
-        |format-type-info $ %{} :CodeEntry (:doc |) (:schema nil)
+          :schema $ :: 'Dynamic
+        |format-type-info $ %{} 'CodeEntry (:doc |)
           :code $ quote
             defn format-type-info (t indent)
               if (nil? t) |nil $ if
@@ -737,44 +791,48 @@
                                     if (nil? x) |nil x
                                   prepend |variadic
                               trim $ format-cirru-edn t
-                    if (list? t)
-                      , t
-                        trim $ format-cirru-edn t
+                    if (list? t) t $ trim (format-cirru-edn t)
           :examples $ []
-        |style-bookmark $ %{} :CodeEntry (:doc |) (:schema nil)
+          :schema $ :: 'Dynamic
+        |style-bookmark $ %{} 'CodeEntry (:doc |)
           :code $ quote
             defstyle style-bookmark $ {}
-              "\"&" $ {} (:cursor :pointer) (:padding "\"0 8px") (:position :relative)
-              "\"&:hover" $ {}
+              |& $ {} (:cursor :pointer) (:padding "|0 8px") (:position :relative)
+              |&:hover $ {}
                 :background-color $ hsl 0 0 98
-              (str "\"&:hover ." style-close)
+              (str "|&:hover ." style-close)
                 {} $ :opacity 1
           :examples $ []
-        |style-bookmark-selected $ %{} :CodeEntry (:doc |) (:schema nil)
+          :schema $ :: 'Dynamic
+        |style-bookmark-selected $ %{} 'CodeEntry (:doc |)
           :code $ quote
             defstyle style-bookmark-selected $ {}
-              "\"&" $ {}
+              |& $ {}
                 :background-color $ hsl 0 0 96
           :examples $ []
-        |style-close $ %{} :CodeEntry (:doc |) (:schema nil)
+          :schema $ :: 'Dynamic
+        |style-close $ %{} 'CodeEntry (:doc |)
           :code $ quote
             defstyle style-close $ {}
-              "\"&" $ {} (:position :absolute) (:opacity 0) (:right 4) (:top 6) (:font-size 12) (:font-weight 100)
+              |& $ {} (:position :absolute) (:opacity 0) (:right 4) (:top 6) (:font-size 12) (:font-weight 100)
           :examples $ []
-        |style-import-ns $ %{} :CodeEntry (:doc |) (:schema nil)
+          :schema $ :: 'Dynamic
+        |style-import-ns $ %{} 'CodeEntry (:doc |)
           :code $ quote
             defstyle style-import-ns $ {}
-              "\"&" $ {} (:font-size 10)
+              |& $ {} (:font-size 10)
                 :color $ hsl 0 0 80
                 :margin-left 4
           :examples $ []
-        |style-tiny-hint $ %{} :CodeEntry (:doc |) (:schema nil)
+          :schema $ :: 'Dynamic
+        |style-tiny-hint $ %{} 'CodeEntry (:doc |)
           :code $ quote
             defstyle style-tiny-hint $ {}
-              "\"&" $ {} (:font-size 10) (:margin-left 8) (:line-height "\"16px") (:white-space :pre-wrap)
+              |& $ {} (:font-size 10) (:margin-left 8) (:line-height |16px) (:white-space :pre-wrap)
                 :color $ hsl 0 0 80
           :examples $ []
-      :ns $ %{} :NsEntry (:doc |)
+          :schema $ :: 'Dynamic
+      :ns $ %{} 'NsEntry (:doc |)
         :code $ quote
           ns app.comp.container $ :require (respo-ui.core :as ui)
             respo.core :refer $ defcomp defeffect <> >> div button textarea span input pre list-> a
@@ -788,36 +846,40 @@
             respo.css :refer $ defstyle
             respo-ui.css :as css
             respo-ui.comp :refer $ comp-close
-    |app.config $ %{} :FileEntry
+    |app.config $ %{} 'FileEntry
       :defs $ {}
-        |dev? $ %{} :CodeEntry (:doc |) (:schema nil)
+        |dev? $ %{} 'CodeEntry (:doc |)
           :code $ quote
-            def dev? $ = "\"dev" (get-env "\"mode" "\"release")
+            def dev? $ = |dev (get-env |mode |release)
           :examples $ []
-        |site $ %{} :CodeEntry (:doc |) (:schema nil)
+          :schema $ :: 'Dynamic
+        |site $ %{} 'CodeEntry (:doc |)
           :code $ quote
-            def site $ {} (:title "\"Calcit") (:icon "\"http://cdn.tiye.me/logo/mvc-works.png") (:storage-key "\"calcit-ir-viewer")
+            def site $ {} (:title |Calcit) (:icon |http://cdn.tiye.me/logo/mvc-works.png) (:storage-key |calcit-ir-viewer)
           :examples $ []
-      :ns $ %{} :NsEntry (:doc |)
+          :schema $ :: 'Dynamic
+      :ns $ %{} 'NsEntry (:doc |)
         :code $ quote (ns app.config)
-    |app.main $ %{} :FileEntry
+    |app.main $ %{} 'FileEntry
       :defs $ {}
-        |*reel $ %{} :CodeEntry (:doc |) (:schema nil)
+        |*reel $ %{} 'CodeEntry (:doc |)
           :code $ quote
             defatom *reel $ -> reel-schema/reel (assoc :base schema/store) (assoc :store schema/store)
           :examples $ []
-        |dispatch! $ %{} :CodeEntry (:doc |) (:schema nil)
+          :schema $ :: 'Dynamic
+        |dispatch! $ %{} 'CodeEntry (:doc |)
           :code $ quote
             defn dispatch! (op)
               when
                 and config/dev? $ not= (nth op 0) :states
-                println "\"Dispatch:" op
+                println |Dispatch: op
               reset! *reel $ reel-updater updater @*reel op
           :examples $ []
-        |main! $ %{} :CodeEntry (:doc |) (:schema nil)
+          :schema $ :: 'Dynamic
+        |main! $ %{} 'CodeEntry (:doc |)
           :code $ quote
             defn main! () (load-console-formatter!)
-              println "\"Running mode:" $ if config/dev? "\"dev" "\"release"
+              println "|Running mode:" $ if config/dev? |dev |release
               render-app!
               add-watch *reel :changes $ fn (reel prev) (render-app!)
               listen-devtools! |a dispatch!
@@ -830,29 +892,34 @@
                     extract-cirru-edn $ js/JSON.parse raw
               println "|App started."
           :examples $ []
-        |mount-target $ %{} :CodeEntry (:doc |) (:schema nil)
+          :schema $ :: 'Dynamic
+        |mount-target $ %{} 'CodeEntry (:doc |)
           :code $ quote
             def mount-target $ js/document.querySelector |.app
           :examples $ []
-        |persist-storage! $ %{} :CodeEntry (:doc |) (:schema nil)
+          :schema $ :: 'Dynamic
+        |persist-storage! $ %{} 'CodeEntry (:doc |)
           :code $ quote
             defn persist-storage! () $ js/localStorage.setItem (:storage-key config/site)
               js/JSON.stringify $ to-cirru-edn (:store @*reel)
           :examples $ []
-        |reload! $ %{} :CodeEntry (:doc |) (:schema nil)
+          :schema $ :: 'Dynamic
+        |reload! $ %{} 'CodeEntry (:doc |)
           :code $ quote
             defn reload! () $ if (nil? build-errors)
               do (remove-watch *reel :changes) (clear-cache!)
                 add-watch *reel :changes $ fn (reel prev) (render-app!)
                 reset! *reel $ refresh-reel @*reel schema/store updater
-                hud! "\"ok~" "\"Ok"
-              hud! "\"error" build-errors
+                hud! |ok~ |Ok
+              hud! |error build-errors
           :examples $ []
-        |render-app! $ %{} :CodeEntry (:doc |) (:schema nil)
+          :schema $ :: 'Dynamic
+        |render-app! $ %{} 'CodeEntry (:doc |)
           :code $ quote
             defn render-app! () $ render! mount-target (comp-container @*reel) dispatch!
           :examples $ []
-        |repeat! $ %{} :CodeEntry (:doc |) (:schema nil)
+          :schema $ :: 'Dynamic
+        |repeat! $ %{} 'CodeEntry (:doc |)
           :code $ quote
             defn repeat! (duration cb)
               js/setTimeout
@@ -860,7 +927,8 @@
                   repeat! (* 1000 duration) cb
                 * 1000 duration
           :examples $ []
-      :ns $ %{} :NsEntry (:doc |)
+          :schema $ :: 'Dynamic
+      :ns $ %{} 'NsEntry (:doc |)
         :code $ quote
           ns app.main $ :require
             [] respo.core :refer $ [] render! clear-cache!
@@ -871,11 +939,11 @@
             [] reel.core :refer $ [] reel-updater refresh-reel
             [] reel.schema :as reel-schema
             [] app.config :as config
-            "\"./calcit.build-errors" :default build-errors
-            "\"bottom-tip" :default hud!
-    |app.schema $ %{} :FileEntry
+            |./calcit.build-errors :default build-errors
+            |bottom-tip :default hud!
+    |app.schema $ %{} 'FileEntry
       :defs $ {}
-        |store $ %{} :CodeEntry (:doc |) (:schema nil)
+        |store $ %{} 'CodeEntry (:doc |)
           :code $ quote
             def store $ {}
               :states $ {}
@@ -885,16 +953,16 @@
               :bookmarks $ []
               :pointer 0
           :examples $ []
-      :ns $ %{} :NsEntry (:doc |)
+          :schema $ :: 'Dynamic
+      :ns $ %{} 'NsEntry (:doc |)
         :code $ quote (ns app.schema)
-    |app.updater $ %{} :FileEntry
+    |app.updater $ %{} 'FileEntry
       :defs $ {}
-        |updater $ %{} :CodeEntry (:doc |) (:schema nil)
+        |updater $ %{} 'CodeEntry (:doc |)
           :code $ quote
             defn updater (store op op-id op-time)
               tag-match op
-                  :states cursor s
-                  update-states store cursor s
+                (:states cursor s) (update-states store cursor s)
                 (:ir-data data)
                   -> store (assoc :ir data)
                     assoc :bookmarks $ []
@@ -909,9 +977,10 @@
                 (:remove-bookmark idx)
                   -> store $ update :bookmarks
                     fn (bs) (.dissoc bs idx)
-                _ $ do (eprintln "\"unknown op:" op) store
+                _ $ do (eprintln "|unknown op:" op) store
           :examples $ []
-      :ns $ %{} :NsEntry (:doc |)
+          :schema $ :: 'Dynamic
+      :ns $ %{} 'NsEntry (:doc |)
         :code $ quote
           ns app.updater $ :require
             [] respo.cursor :refer $ [] update-states
