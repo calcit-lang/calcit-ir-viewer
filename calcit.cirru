@@ -628,13 +628,13 @@
                 :white-space :pre
                 :display :inline-block
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'String
         |css-code-expr $ %{} 'CodeEntry (:doc |)
           :code $ quote
             defstyle css-code-expr $ {}
               |$0 $ {} (:border-width "|1px 0 0 1px") (:margin-left |14px) (:padding-left |2px) (:font-family ui/font-code) (:margin-bottom |2px) (:margin-top |4px) (:vertical-align :top) (:border-style :solid) (:border-radius |8px)
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'String
         |css-code-fn $ %{} 'CodeEntry (:doc |)
           :code $ quote
             defstyle css-code-fn $ {}
@@ -644,7 +644,7 @@
                 :white-space :pre-line
                 :display :inline-block
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'String
         |css-code-method $ %{} 'CodeEntry (:doc |)
           :code $ quote
             defstyle css-code-method $ {}
@@ -654,7 +654,7 @@
                 :white-space :pre-line
                 :display :inline-block
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'String
         |css-code-proc $ %{} 'CodeEntry (:doc |)
           :code $ quote
             defstyle css-code-proc $ {}
@@ -664,13 +664,13 @@
                 :white-space :pre-line
                 :display :inline-block
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'String
         |css-code-symbol $ %{} 'CodeEntry (:doc |)
           :code $ quote
             defstyle css-code-symbol $ {}
               |$0 $ {} (:display :inline-flex) (:margin "|0px 4px") (:padding "|0 4px") (:line-height |1.2)
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'String
         |css-code-symbol-ns $ %{} 'CodeEntry (:doc |)
           :code $ quote
             defstyle css-code-symbol-ns $ {}
@@ -678,14 +678,14 @@
                 :color $ hsl 0 0 80
                 :font-family ui/font-normal
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'String
         |css-code-symbol-resolved-ns $ %{} 'CodeEntry (:doc |)
           :code $ quote
             defstyle css-code-symbol-resolved-ns $ {}
               |$0 $ {} (:font-size |8px) (:white-space :nowrap) (:font-family ui/font-normal)
                 :color $ hsl 0 80 70
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'String
         |css-code-syntax $ %{} 'CodeEntry (:doc |)
           :code $ quote
             defstyle css-code-syntax $ {}
@@ -695,7 +695,7 @@
                 :white-space :pre-line
                 :display :inline-block
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'String
         |css-code-tag $ %{} 'CodeEntry (:doc |)
           :code $ quote
             defstyle css-code-tag $ {}
@@ -705,7 +705,7 @@
                 :white-space :pre-line
                 :display :inline-block
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'String
         |css-expr-area $ %{} 'CodeEntry (:doc |)
           :code $ quote
             defstyle css-expr-area $ {}
@@ -714,7 +714,7 @@
               (str "|&:has(." css-code-expr "|:hover)")
                 {} $ :border-color "|hsl(0,0%,92%)"
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'String
         |css-file-button $ %{} 'CodeEntry (:doc |)
           :code $ quote
             defstyle css-file-button $ {}
@@ -732,20 +732,20 @@
                 :background-color $ hsl 200 90 76
               |$0:active $ {} (:transition-duration |0ms) (:transform "|scale(1.02)")
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'String
         |css-hover-item $ %{} 'CodeEntry (:doc |)
           :code $ quote
             defstyle css-hover-item $ {}
               |& $ {} (:font-size 12) (:cursor :pointer)
               |&:hover $ {} (:background-color "|hsl(350,0%,95%)")
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'String
         |css-pad8 $ %{} 'CodeEntry (:doc |)
           :code $ quote
             defstyle css-pad8 $ {}
               |& $ {} (:padding "|0 8px")
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'String
         |css-preview-close $ %{} 'CodeEntry (:doc |)
           :code $ quote
             defstyle css-preview-close $ {}
@@ -754,7 +754,7 @@
                 :cursor :pointer
                 :font-size 14
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'String
         |css-preview-tip $ %{} 'CodeEntry (:doc |)
           :code $ quote
             defstyle css-preview-tip $ {}
@@ -767,7 +767,7 @@
                 :line-height |20px
                 :padding 8
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'String
         |format-type-display $ %{} 'CodeEntry (:doc |)
           :code $ quote
             defn format-type-display (t)
@@ -863,7 +863,9 @@
                               trim $ format-cirru-edn t
                     if (list? t) t $ trim (format-cirru-edn t)
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Fn
+            {} (:return 'Dynamic)
+              :args $ [] 'Dynamic 'String
         |style-bookmark $ %{} 'CodeEntry (:doc |)
           :code $ quote
             defstyle style-bookmark $ {}
@@ -873,20 +875,20 @@
               (str "|&:hover ." style-close)
                 {} $ :opacity 1
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'String
         |style-bookmark-selected $ %{} 'CodeEntry (:doc |)
           :code $ quote
             defstyle style-bookmark-selected $ {}
               |& $ {}
                 :background-color $ hsl 0 0 96
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'String
         |style-close $ %{} 'CodeEntry (:doc |)
           :code $ quote
             defstyle style-close $ {}
               |& $ {} (:position :absolute) (:opacity 0) (:right 4) (:top 6) (:font-size 12) (:font-weight |100)
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'String
         |style-import-ns $ %{} 'CodeEntry (:doc |)
           :code $ quote
             defstyle style-import-ns $ {}
@@ -894,14 +896,14 @@
                 :color $ hsl 0 0 80
                 :margin-left 4
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'String
         |style-tiny-hint $ %{} 'CodeEntry (:doc |)
           :code $ quote
             defstyle style-tiny-hint $ {}
               |& $ {} (:font-size 10) (:margin-left 8) (:line-height |16px) (:white-space :pre-wrap)
                 :color $ hsl 0 0 80
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'String
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote
           ns app.comp.container $ :require (respo-ui.core :as ui)
@@ -928,7 +930,7 @@
           :code $ quote
             def site $ {} (:title |Calcit) (:icon |http://cdn.tiye.me/logo/mvc-works.png) (:storage-key |calcit-ir-viewer)
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Map 'Tag 'String
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote (ns app.config)
     |app.main $ %{} 'FileEntry
@@ -946,7 +948,9 @@
                 println |Dispatch: op
               reset! *reel $ reel-updater updater @*reel op
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Fn
+            {} (:return 'Unit)
+              :args $ [] 'Dynamic
         |main! $ %{} 'CodeEntry (:doc |)
           :code $ quote
             defn main! () (load-console-formatter!)
@@ -993,21 +997,29 @@
                 hud! |ok~ |Ok
               hud! |error build-errors
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Fn
+            {} (:return 'Unit)
+              :args $ []
         |render-app! $ %{} 'CodeEntry (:doc |)
           :code $ quote
             defn render-app! () $ render! mount-target (comp-container @*reel) dispatch!
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Fn
+            {} (:return 'Unit)
+              :args $ []
         |repeat! $ %{} 'CodeEntry (:doc |)
           :code $ quote
             defn repeat! (duration cb)
-              js/setTimeout
-                fn () (cb)
-                  repeat! (* 1000 duration) cb
-                * 1000 duration
+              do
+                js/setTimeout
+                  fn () (cb)
+                    repeat! (* 1000 duration) cb
+                  * 1000 duration
+                , nil
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Fn
+            {} (:return 'Unit)
+              :args $ [] 'Number 'Dynamic
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote
           ns app.main $ :require
@@ -1023,9 +1035,16 @@
             |bottom-tip :default hud!
     |app.schema $ %{} 'FileEntry
       :defs $ {}
+        |StoreData $ %{} 'CodeEntry (:doc |)
+          :code $ quote
+            defstruct StoreData (:states 'Map) (:ir 'Dynamic) (:preview 'Dynamic)
+              :bookmarks $ :: 'List 'Tag 'Dynamic
+              :pointer 'Number
+          :examples $ []
+          :schema $ :: 'Dynamic
         |store $ %{} 'CodeEntry (:doc |)
           :code $ quote
-            def store $ {}
+            def store $ %{} app.schema/StoreData
               :states $ {}
                 :cursor $ []
               :ir nil
@@ -1033,7 +1052,7 @@
               :bookmarks $ []
               :pointer 0
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'app.schema/StoreData
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote (ns app.schema)
     |app.updater $ %{} 'FileEntry
@@ -1059,7 +1078,9 @@
                     fn (bs) (.dissoc bs idx)
                 _ $ do (eprintln "|unknown op:" op) store
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Fn
+            {} (:return 'app.schema/StoreData)
+              :args $ [] 'app.schema/StoreData 'Dynamic 'String 'Number
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote
           ns app.updater $ :require
