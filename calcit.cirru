@@ -1,0 +1,1091 @@
+
+{} (:about "|Machine-generated snapshot. Do not edit directly — changes will be overwritten. Use `cr query` to inspect and `cr edit`/`cr tree` to modify. Run `cr docs agents --full` first. Manual edits must follow format and schema conventions, then run `cr edit format`.") (:package |app) (:version |0.0.1)
+  :entries $ {}
+    :default $ {} (:description |) (:init-fn 'app.main/main!) (:mode :js) (:reload-fn 'app.main/reload!)
+      :modules $ [] |respo.calcit/ |lilac/ |memof/ |respo-ui.calcit/ |respo-markdown.calcit/ |reel.calcit/
+      :type-slots $ {}
+  :files $ {}
+    |app.comp.container $ %{} 'FileEntry
+      :defs $ {}
+        |calcit-fn? $ %{} 'CodeEntry (:doc |)
+          :code $ quote
+            defn calcit-fn? (x)
+              and (map? x)
+                = :fn $ option:unwrap-or (get x :kind) nil
+          :examples $ []
+          :schema $ :: 'Dynamic
+        |calcit-import? $ %{} 'CodeEntry (:doc |)
+          :code $ quote
+            defn calcit-import? (x)
+              and (map? x)
+                =
+                  option:unwrap-or (get x :kind) nil
+                  , :import
+          :examples $ []
+          :schema $ :: 'Dynamic
+        |calcit-literal? $ %{} 'CodeEntry (:doc |)
+          :code $ quote
+            defn calcit-literal? (x)
+              let
+                  ret $ or (number? x) (string? x) (bool? x)
+                    and (map? x)
+                      includes? (#{} :symbol :number :tag :proc :syntax :local :registered)
+                        option:unwrap-or (get x :kind) nil
+                ; println |DETECTHING: x ret
+                , ret
+          :examples $ []
+          :schema $ :: 'Dynamic
+        |calcit-local? $ %{} 'CodeEntry (:doc |)
+          :code $ quote
+            defn calcit-local? (x)
+              and (map? x)
+                = :local $ option:unwrap-or (get x :kind) nil
+          :examples $ []
+          :schema $ :: 'Dynamic
+        |calcit-macro? $ %{} 'CodeEntry (:doc |)
+          :code $ quote
+            defn calcit-macro? (x)
+              and (map? x)
+                = :macro $ option:unwrap-or (get x :kind) nil
+          :examples $ []
+          :schema $ :: 'Dynamic
+        |calcit-method? $ %{} 'CodeEntry (:doc |)
+          :code $ quote
+            defn calcit-method? (x)
+              and (map? x)
+                =
+                  option:unwrap-or (get x :kind) nil
+                  , :method
+          :examples $ []
+          :schema $ :: 'Dynamic
+        |calcit-proc? $ %{} 'CodeEntry (:doc |)
+          :code $ quote
+            defn calcit-proc? (x)
+              and (map? x)
+                = :proc $ option:unwrap-or (get x :kind) nil
+          :examples $ []
+          :schema $ :: 'Dynamic
+        |calcit-raw-code? $ %{} 'CodeEntry (:doc |)
+          :code $ quote
+            defn calcit-raw-code? (x)
+              and (map? x)
+                =
+                  option:unwrap-or (get x :kind) nil
+                  , :raw-code
+          :examples $ []
+          :schema $ :: 'Dynamic
+        |calcit-registered? $ %{} 'CodeEntry (:doc |)
+          :code $ quote
+            defn calcit-registered? (x)
+              and (map? x)
+                = :registered $ option:unwrap-or (get x :kind) nil
+          :examples $ []
+          :schema $ :: 'Dynamic
+        |calcit-symbol? $ %{} 'CodeEntry (:doc |)
+          :code $ quote
+            defn calcit-symbol? (x)
+              and (map? x)
+                = :symbol $ option:unwrap-or (get x :kind) nil
+          :examples $ []
+          :schema $ :: 'Dynamic
+        |calcit-syntax? $ %{} 'CodeEntry (:doc |)
+          :code $ quote
+            defn calcit-syntax? (x)
+              and (map? x)
+                =
+                  option:unwrap-or (get x :kind) nil
+                  , :syntax
+          :examples $ []
+          :schema $ :: 'Dynamic
+        |calcit-tag? $ %{} 'CodeEntry (:doc |)
+          :code $ quote
+            defn calcit-tag? (x)
+              and (map? x)
+                = |tag $ option:unwrap-or (get x :kind) nil
+          :examples $ []
+          :schema $ :: 'Dynamic
+        |comp-bookmarks $ %{} 'CodeEntry (:doc |)
+          :code $ quote
+            defcomp comp-bookmarks (bookmarks pointer)
+              list->
+                {} (:class-name css/column)
+                  :style $ {} (:overflow-y :auto) (:width 300)
+                    :border-right $ str "|1px solid " (hsl 0 0 90)
+                -> bookmarks $ map-indexed
+                  fn (idx b)
+                    [] idx $ tag-match b
+                      (:bookmark ns definition)
+                        div
+                          {}
+                            :on-click $ fn (e d!)
+                              d! $ :: :point-to idx
+                            :class-name $ str-spaced style-bookmark
+                              if (= pointer idx) style-bookmark-selected
+                          <> $ str ns |/ definition
+                          comp-close $ {} (:class-name style-close)
+                            :on-click $ fn (e d!)
+                              d! $ :: :remove-bookmark idx
+                      _ $ eprintln "|unknown bookmark" b
+          :examples $ []
+          :schema $ :: 'Dynamic
+        |comp-cirru-quote $ %{} 'CodeEntry (:doc |)
+          :code $ quote
+            defcomp comp-cirru-quote (expr) (comp-ir-kind expr :cirru-quote)
+          :examples $ []
+          :schema $ :: 'Dynamic
+        |comp-code $ %{} 'CodeEntry (:doc |)
+          :code $ quote
+            defcomp comp-code (expr last?)
+              cond
+                  tag? expr
+                  <> (str expr) css-code-tag
+                (calcit-tag? expr)
+                  <>
+                    str |: $ option:unwrap-or (get expr :val) nil
+                    , css-code-tag
+                (list? expr)
+                  div
+                    {}
+                      :class-name $ str-spaced css-expr-area css-code-expr
+                      :style $ merge
+                        if
+                          and
+                            <= (count expr) 3
+                            every? expr calcit-literal?
+                          {} $ :display :inline-flex
+                        if last? $ {} (:display :inline-block)
+                    , & $ let
+                        size $ count expr
+                      map-indexed expr $ fn (idx x)
+                        comp-code x $ = (inc idx) size
+                (calcit-import? expr) (comp-import expr)
+                (calcit-local? expr) (comp-local expr)
+                (calcit-registered? expr) (comp-registered expr)
+                (calcit-symbol? expr) (comp-symbol expr)
+                (calcit-proc? expr) (comp-proc expr)
+                (calcit-fn? expr)
+                  <> (get expr :name) css-code-fn
+                (calcit-syntax? expr) (comp-syntax expr)
+                (calcit-method? expr) (comp-method expr)
+                (calcit-raw-code? expr) (comp-raw-code expr)
+                (and (map? expr) (= (option:unwrap-or (get expr :kind) nil) :cirru-quote))
+                  comp-cirru-quote expr
+                (and (map? expr) (= (option:unwrap-or (get expr :kind) nil) :tuple))
+                  comp-tuple expr
+                (and (map? expr) (= (option:unwrap-or (get expr :kind) nil) :struct))
+                  comp-struct expr
+                (and (map? expr) (= (option:unwrap-or (get expr :kind) nil) :enum))
+                  comp-enum expr
+                (and (map? expr) (= (option:unwrap-or (get expr :kind) nil) :record))
+                  comp-record expr
+                true $ pre
+                  {} $ :class-name css-code-default
+                  <> $ to-lispy-string expr
+          :examples $ []
+          :schema $ :: 'Dynamic
+        |comp-container $ %{} 'CodeEntry (:doc |)
+          :code $ quote
+            defcomp comp-container (reel)
+              let
+                  store $ option:unwrap-or (get reel :store) ({})
+                  states $ option:unwrap-or (get store :states) ({})
+                  cursor $ option:unwrap-or (get states :cursor) ([])
+                  pointer $ option:unwrap-or (get store :pointer) 0
+                  bookmarks $ option:unwrap-or (get store :bookmarks) ([])
+                div
+                  {} $ :class-name (str-spaced css/global css/fullscreen css/column)
+                  div
+                    {} $ :class-name (str-spaced css/row css/expand)
+                    comp-file-entry (>> states :file-entry)
+                      get-in store $ [] :ir :files
+                    comp-bookmarks bookmarks pointer
+                    if-let
+                      bookmark $ get bookmarks pointer
+                      tag-match bookmark
+                        (:bookmark ns definition)
+                          div
+                            {} (:class-name css/expand)
+                              :style $ {} (:padding-bottom 120)
+                            let
+                                declaration $ get-in store ([] :ir :files ns :defs definition)
+                              if (calcit-fn? declaration) (comp-fn declaration)
+                                if (calcit-macro? declaration) (comp-macro declaration)
+                                  div
+                                    {} $ :class-name css-pad8
+                                    comp-code declaration false
+                        _ $ div ({})
+                          <> $ str "|unknown bookmark data: " bookmark
+                      div
+                        {} $ :class-name css/expand
+                        <> "|No bookmark selected"
+                  comp-preview $ option:unwrap-or (get store :preview) nil
+                  when dev? $ comp-reel (>> states :reel) reel ({})
+                  when dev? $ comp-inspect |Store store
+                    {} $ :bottom 0
+          :examples $ []
+          :schema $ :: 'Dynamic
+        |comp-enum $ %{} 'CodeEntry (:doc |)
+          :code $ quote
+            defcomp comp-enum (expr) (comp-ir-kind expr :enum)
+          :examples $ []
+          :schema $ :: 'Dynamic
+        |comp-file $ %{} 'CodeEntry (:doc |)
+          :code $ quote
+            defcomp comp-file (ns file selected-def)
+              div
+                {} $ :class-name (str-spaced css/column)
+                let
+                    defs $ if (some? file)
+                      keys $ get file :defs
+                      #{}
+                  list->
+                    {} $ :class-name (str-spaced css/column)
+                    -> defs (.to-list) (sort &compare)
+                      map $ fn (name)
+                        [] name $ div
+                          {}
+                            :class-name $ str-spaced css-pad8 css-hover-item css/font-code!
+                            :style $ if (= name selected-def)
+                              {} $ :background-color (hsl 0 0 95)
+                              {}
+                            :on-click $ fn (e d!)
+                              d! $ :: :new-bookmark (:: :bookmark ns name)
+                          <> name
+          :examples $ []
+          :schema $ :: 'Dynamic
+        |comp-file-entry $ %{} 'CodeEntry (:doc |)
+          :code $ quote
+            defn comp-file-entry (states files)
+              let
+                  cursor $ option:unwrap-or (get states :cursor) ([])
+                  state $ option:unwrap-or (get states :data)
+                    {} (:selected nil) (:query |)
+                  selected $ option:unwrap-or (get state :selected) nil
+                  query $ option:unwrap-or (get state :query) |
+                div
+                  {}
+                    :class-name $ str-spaced css/column
+                    :style $ {} (:width 400) (:overflow :hidden)
+                      :border-right $ str "|1px solid " (hsl 0 0 90)
+                  div
+                    {} $ :style
+                      {} $ :padding 4
+                    input $ {} (:value query) (:placeholder "|Search ns...") (:class-name css/input)
+                      :style $ {} (:width |100%)
+                      :on-input $ fn (e d!)
+                        d! cursor $ assoc state :query
+                          option:unwrap $ get e :value
+                  div
+                    {} (:class-name css/expand)
+                      :style $ {} (:overflow-y :auto) (:max-height |40%)
+                        :border-bottom $ str "|1px solid " (hsl 0 0 95)
+                    let
+                        ns-names $ if (some? files) (keys files) (#{})
+                      list-> ({})
+                        -> ns-names (.to-list) (sort &compare)
+                          filter $ fn (name) (includes? name query)
+                          map $ fn (name)
+                            [] name $ div
+                              {}
+                                :on-click $ fn (e d!)
+                                  d! cursor $ assoc state :selected name
+                                :style $ if (= name selected)
+                                  {} $ :background-color (hsl 0 0 94)
+                                  {}
+                                :class-name $ str-spaced css-pad8 css-hover-item css/font-code!
+                              <> name
+                  div
+                    {} (:class-name css/expand)
+                      :style $ {} (:overflow-y :auto) (:min-height 0)
+                    if (some? selected)
+                      comp-file selected
+                        get-in files $ [] selected
+                        , nil
+                      div
+                        {} $ :class-name (str-spaced css-pad8 css/font-fancy)
+                        <> "|No NS selected"
+                  div
+                    {} $ :style
+                      {} (:padding 16)
+                        :border-top $ str "|1px solid " (hsl 0 0 90)
+                    div
+                      {} (:class-name css-file-button)
+                        :on-click $ fn (e d!)
+                          let
+                              target $ unsafe-coerce
+                                .-currentTarget $ option:unwrap (get e :event)
+                                , 'JsObject
+                            ->
+                              unsafe-coerce
+                                .-0 $ unsafe-coerce (.-children target) 'JsObject
+                                , 'JsObject
+                              .!click
+                      input $ {} (:type |file)
+                        :style $ {} (:opacity 0.2) (:width 0) (:top 0) (:position :absolute) (:pointer-events :none)
+                        :on-change $ fn (e d!)
+                          let
+                              file $ unsafe-coerce
+                                aget
+                                  unsafe-coerce
+                                    .-files $ unsafe-coerce
+                                      .-target $ option:unwrap (get e :event)
+                                      , 'JsObject
+                                    , 'JsObject
+                                  , 0
+                                , 'JsObject
+                              fr $ new js/FileReader
+                            aset
+                              .-target $ option:unwrap (get e :event)
+                              , |value nil
+                            set! (.-onload fr)
+                              fn (event)
+                                d! :ir-data $ parse-cirru-edn
+                                  unsafe-coerce
+                                    .-result $ unsafe-coerce (.-target event) 'JsObject
+                                    , 'String
+                            .!readAsText fr file
+                      div ({}) (<> "|Pick IR file")
+          :examples $ []
+          :schema $ :: 'Fn
+            {} (:return 'respo.schema/Component)
+              :args $ [] 'Dynamic 'Dynamic
+              :features $ #{} :js-ffi
+        |comp-fn $ %{} 'CodeEntry (:doc |)
+          :code $ quote
+            defcomp comp-fn (f)
+              div
+                {} $ :class-name css-pad8
+                div ({})
+                  <> $ str "|Name: " (get f :ns) |/ (get f :name)
+                div ({})
+                  <> $ str |Args:
+                  comp-code (get f :args) false
+                div ({})
+                  <> $ str |Code:
+                  comp-code (get f :code) false
+          :examples $ []
+          :schema $ :: 'Dynamic
+        |comp-header $ %{} 'CodeEntry (:doc |)
+          :code $ quote
+            defcomp comp-header () $ div
+              {} $ :style
+                {}
+                  :border-bottom $ str "|1px solid " (hsl 0 0 90)
+                  :padding 8
+              div
+                {} (:class-name css-file-button)
+                  :on-click $ fn (e d!)
+                    ->
+                      unsafe-coerce
+                        .-currentTarget $ option:unwrap (get e :event)
+                        , 'JsObject
+                      , .-children .-0 $ .!click
+                input $ {} (:type |file)
+                  :style $ {} (:opacity 0.2) (:width 0) (:top 0) (:position :absolute) (:pointer-events :none)
+                  :on-change $ fn (e d!)
+                    let
+                        file $ unsafe-coerce
+                          aget
+                            unsafe-coerce
+                              .-files $ unsafe-coerce
+                                .-target $ option:unwrap (get e :event)
+                                , 'JsObject
+                              , 'JsObject
+                            , 0
+                          , 'JsObject
+                        fr $ new js/FileReader
+                      ->
+                        option:unwrap $ get e :event
+                        , .-target $ aset |value nil
+                      set! (.-onload fr)
+                        fn (event)
+                          d! :ir-data $ parse-cirru-edn
+                            unsafe-coerce
+                              .-result $ unsafe-coerce (.-target event) 'JsObject
+                              , 'String
+                      .!readAsText fr file
+                div ({}) (<> "|Pick IR file")
+          :examples $ []
+          :schema $ :: 'Dynamic
+        |comp-import $ %{} 'CodeEntry (:doc |)
+          :code $ quote
+            defcomp comp-import (expr)
+              div
+                {}
+                  :class-name $ str-spaced css/column css-code-symbol
+                  :style $ merge
+                    {} $ :display :inline-flex
+                  :on-click $ fn (e d!) (d! :preview expr)
+                <> $ get expr :def
+                div
+                  {} $ :class-name css/row-middle
+                  <>
+                    str $ option:unwrap-or (get expr :ns) nil
+                    , style-import-ns
+                  a $ {} (:class-name css/link) (:inner-text |goto)
+                    :style $ {} (:font-size 10)
+                    :on-click $ fn (e d!)
+                      d! $ :: :new-bookmark
+                        :: :bookmark
+                          option:unwrap-or (get expr :ns) nil
+                          option:unwrap-or (get expr :def) nil
+                when
+                  and
+                    option:some? $ get expr :info
+                    option:some? $ get
+                      option:unwrap-or (get expr :info) nil
+                      , :kind
+                  <>
+                    str "|import " $ get
+                      option:unwrap-or (get expr :info) nil
+                      , :kind
+                    , style-tiny-hint
+                when
+                  option:some? $ get expr :type-hint
+                  div
+                    {} $ :class-name css/row-middle
+                    <>
+                      str |type: $ let
+                          t $ option:unwrap (get expr :type-hint)
+                        format-type-display $ format-type-info t |
+                      , style-tiny-hint
+          :examples $ []
+          :schema $ :: 'Dynamic
+        |comp-ir-kind $ %{} 'CodeEntry (:doc |)
+          :code $ quote
+            defcomp comp-ir-kind (expr kind)
+              div
+                {} (:class-name css/column)
+                  :style $ {} (:display :inline-flex)
+                  :on-click $ fn (e d!) (d! :preview expr)
+                <> (str "|ir " kind) style-tiny-hint
+                <> (to-lispy-string expr) css-code-default
+          :examples $ []
+          :schema $ :: 'Dynamic
+        |comp-local $ %{} 'CodeEntry (:doc |)
+          :code $ quote
+            defcomp comp-local (expr)
+              div
+                {}
+                  :class-name $ str-spaced css/column css-code-symbol
+                  :style $ merge
+                    {} $ :display :inline-flex
+                  :on-click $ fn (e d!) (d! :preview expr)
+                <> $ str
+                  option:unwrap-or (get expr :val) nil
+                <> |local style-tiny-hint
+                <>
+                  str |type: $ let
+                      t $ or (get expr :type-info) |unknown
+                    format-type-display $ format-type-info t |
+                  , style-tiny-hint
+          :examples $ []
+          :schema $ :: 'Dynamic
+        |comp-macro $ %{} 'CodeEntry (:doc |)
+          :code $ quote
+            defcomp comp-macro (f)
+              div
+                {} $ :class-name css-pad8
+                div ({})
+                  <> $ str "|Macro name: " (get f :ns) |/ (get f :name)
+                div ({})
+                  <> $ str |Args:
+                  comp-code (get f :args) false
+                div ({})
+                  <> $ str |Code:
+                  comp-code (get f :code) false
+          :examples $ []
+          :schema $ :: 'Dynamic
+        |comp-method $ %{} 'CodeEntry (:doc |)
+          :code $ quote
+            defcomp comp-method (expr)
+              div
+                {} (:class-name css/column)
+                  :style $ {} (:display :inline-flex) (:line-height |1.2)
+                  :on-click $ fn (e d!) (d! :preview expr)
+                <>
+                  str |. $ option:unwrap-or (get expr :method) nil
+                  , css-code-method
+                <>
+                  str "|method " $ option:unwrap-or (get expr :behavior) nil
+                  , style-tiny-hint
+          :examples $ []
+          :schema $ :: 'Dynamic
+        |comp-preview $ %{} 'CodeEntry (:doc |)
+          :code $ quote
+            defcomp comp-preview (data)
+              if (some? data)
+                div
+                  {} $ :class-name css-preview-tip
+                  div $ {}
+                    :inner-text $ trim (format-cirru-edn data)
+                  div $ {} (:inner-text "|×") (:class-name css-preview-close)
+                    :on-click $ fn (e d!) (d! :preview nil)
+                div $ {}
+          :examples $ []
+          :schema $ :: 'Dynamic
+        |comp-proc $ %{} 'CodeEntry (:doc |)
+          :code $ quote
+            defcomp comp-proc (expr)
+              div
+                {} (:class-name css/column)
+                  :style $ {} (:display :inline-flex) (:line-height |1.2)
+                <> (get expr :name) css-code-proc
+                <> |proc style-tiny-hint
+                if
+                  or
+                    option:some? $ get expr :arg-types
+                    option:some? $ get expr :return-type
+                  <>
+                    str
+                      if
+                        option:some? $ get expr :arg-types
+                        format-type-display $ [] |args:
+                          format-type-info (get expr :arg-types) |
+                        , |
+                      if
+                        option:some? $ get expr :return-type
+                        str
+                          if
+                            option:some? $ get expr :arg-types
+                            , &newline |
+                          format-type-display $ [] |return:
+                            format-type-info (get expr :return-type) |
+                        , |
+                    , style-tiny-hint
+                  <> |
+          :examples $ []
+          :schema $ :: 'Dynamic
+        |comp-raw-code $ %{} 'CodeEntry (:doc |)
+          :code $ quote
+            defcomp comp-raw-code (expr)
+              div
+                {} (:class-name css/column)
+                  :style $ {} (:display :inline-flex) (:line-height |1.2)
+                <> $ option:unwrap-or (get expr :code) nil
+                <> "|js raw" style-tiny-hint
+          :examples $ []
+          :schema $ :: 'Dynamic
+        |comp-record $ %{} 'CodeEntry (:doc |)
+          :code $ quote
+            defcomp comp-record (expr) (comp-ir-kind expr :record)
+          :examples $ []
+          :schema $ :: 'Dynamic
+        |comp-registered $ %{} 'CodeEntry (:doc |)
+          :code $ quote
+            defcomp comp-registered (expr)
+              div
+                {} $ :class-name (str-spaced css/column css-code-symbol)
+                div
+                  {}
+                    :style $ merge
+                      {} $ :display :inline-block
+                    :on-click $ fn (e d!) (d! :preview expr)
+                  <> $ get expr :alias
+          :examples $ []
+          :schema $ :: 'Dynamic
+        |comp-struct $ %{} 'CodeEntry (:doc |)
+          :code $ quote
+            defcomp comp-struct (expr) (comp-ir-kind expr :struct)
+          :examples $ []
+          :schema $ :: 'Dynamic
+        |comp-symbol $ %{} 'CodeEntry (:doc |)
+          :code $ quote
+            defcomp comp-symbol (expr)
+              div
+                {}
+                  :class-name $ str-spaced css/column css-code-symbol
+                  :style $ merge
+                    {} $ :display :inline-flex
+                  :on-click $ fn (e d!) (d! :preview expr)
+                <> $ str
+                  option:unwrap-or (get expr :val) nil
+                div ({})
+                  <> (get expr :ns) css-code-symbol-ns
+          :examples $ []
+          :schema $ :: 'Dynamic
+        |comp-syntax $ %{} 'CodeEntry (:doc |)
+          :code $ quote
+            defcomp comp-syntax (expr)
+              div
+                {} (:class-name css/column)
+                  :style $ {} (:display :inline-flex) (:line-height |1.2)
+                <> (get expr :name) css-code-syntax
+                <> |syntax style-tiny-hint
+          :examples $ []
+          :schema $ :: 'Dynamic
+        |comp-tuple $ %{} 'CodeEntry (:doc |)
+          :code $ quote
+            defcomp comp-tuple (expr) (comp-ir-kind expr :tuple)
+          :examples $ []
+          :schema $ :: 'Dynamic
+        |css-code-default $ %{} 'CodeEntry (:doc |)
+          :code $ quote
+            defstyle css-code-default $ {}
+              |$0 $ {}
+                :color $ hsl 200 80 60
+                :margin "|0 4px"
+                :white-space :pre
+                :display :inline-block
+          :examples $ []
+          :schema $ :: 'String
+        |css-code-expr $ %{} 'CodeEntry (:doc |)
+          :code $ quote
+            defstyle css-code-expr $ {}
+              |$0 $ {} (:border-width "|1px 0 0 1px") (:margin-left |14px) (:padding-left |2px) (:font-family ui/font-code) (:margin-bottom |2px) (:margin-top |4px) (:vertical-align :top) (:border-style :solid) (:border-radius |8px)
+          :examples $ []
+          :schema $ :: 'String
+        |css-code-fn $ %{} 'CodeEntry (:doc |)
+          :code $ quote
+            defstyle css-code-fn $ {}
+              |$0 $ {}
+                :color $ hsl 0 80 50
+                :margin "|0 4px"
+                :white-space :pre-line
+                :display :inline-block
+          :examples $ []
+          :schema $ :: 'String
+        |css-code-method $ %{} 'CodeEntry (:doc |)
+          :code $ quote
+            defstyle css-code-method $ {}
+              |$0 $ {}
+                :color $ hsl 300 90 40
+                :margin "|0 4px"
+                :white-space :pre-line
+                :display :inline-block
+          :examples $ []
+          :schema $ :: 'String
+        |css-code-proc $ %{} 'CodeEntry (:doc |)
+          :code $ quote
+            defstyle css-code-proc $ {}
+              |$0 $ {}
+                :color $ hsl 0 80 50
+                :margin "|0 4px"
+                :white-space :pre-line
+                :display :inline-block
+          :examples $ []
+          :schema $ :: 'String
+        |css-code-symbol $ %{} 'CodeEntry (:doc |)
+          :code $ quote
+            defstyle css-code-symbol $ {}
+              |$0 $ {} (:display :inline-flex) (:margin "|0px 4px") (:padding "|0 4px") (:line-height |1.2)
+          :examples $ []
+          :schema $ :: 'String
+        |css-code-symbol-ns $ %{} 'CodeEntry (:doc |)
+          :code $ quote
+            defstyle css-code-symbol-ns $ {}
+              |$0 $ {} (:font-size 8)
+                :color $ hsl 0 0 80
+                :font-family ui/font-normal
+          :examples $ []
+          :schema $ :: 'String
+        |css-code-symbol-resolved-ns $ %{} 'CodeEntry (:doc |)
+          :code $ quote
+            defstyle css-code-symbol-resolved-ns $ {}
+              |$0 $ {} (:font-size |8px) (:white-space :nowrap) (:font-family ui/font-normal)
+                :color $ hsl 0 80 70
+          :examples $ []
+          :schema $ :: 'String
+        |css-code-syntax $ %{} 'CodeEntry (:doc |)
+          :code $ quote
+            defstyle css-code-syntax $ {}
+              |$0 $ {}
+                :color $ hsl 0 80 50
+                :margin "|0 4px"
+                :white-space :pre-line
+                :display :inline-block
+          :examples $ []
+          :schema $ :: 'String
+        |css-code-tag $ %{} 'CodeEntry (:doc |)
+          :code $ quote
+            defstyle css-code-tag $ {}
+              |$0 $ {}
+                :color $ hsl 200 80 40
+                :margin "|0 4px"
+                :white-space :pre-line
+                :display :inline-block
+          :examples $ []
+          :schema $ :: 'String
+        |css-expr-area $ %{} 'CodeEntry (:doc |)
+          :code $ quote
+            defstyle css-expr-area $ {}
+              |& $ {} (:border-color "|hsl(0,0%,92%)")
+              |&:hover $ {} (:border-color "|hsl(0,0%,70%)")
+              (str "|&:has(." css-code-expr "|:hover)")
+                {} $ :border-color "|hsl(0,0%,92%)"
+          :examples $ []
+          :schema $ :: 'String
+        |css-file-button $ %{} 'CodeEntry (:doc |)
+          :code $ quote
+            defstyle css-file-button $ {}
+              |$0 $ {} (:width 120) (:position :relative) (:border-radius 8)
+                :background-color $ hsl 200 90 72
+                :text-align :center
+                :color :white
+                :font-family ui/font-fancy
+                :font-size 18
+                :line-height |32px
+                :cursor :pointer
+                :transition-duration |300ms
+              |$0:hover $ {}
+                :box-shadow $ str "|1px 1px 4px " (hsl 0 0 0 0.2)
+                :background-color $ hsl 200 90 76
+              |$0:active $ {} (:transition-duration |0ms) (:transform "|scale(1.02)")
+          :examples $ []
+          :schema $ :: 'String
+        |css-hover-item $ %{} 'CodeEntry (:doc |)
+          :code $ quote
+            defstyle css-hover-item $ {}
+              |& $ {} (:font-size 12) (:cursor :pointer)
+              |&:hover $ {} (:background-color "|hsl(350,0%,95%)")
+          :examples $ []
+          :schema $ :: 'String
+        |css-pad8 $ %{} 'CodeEntry (:doc |)
+          :code $ quote
+            defstyle css-pad8 $ {}
+              |& $ {} (:padding "|0 8px")
+          :examples $ []
+          :schema $ :: 'String
+        |css-preview-close $ %{} 'CodeEntry (:doc |)
+          :code $ quote
+            defstyle css-preview-close $ {}
+              |$0 $ {} (:position :absolute) (:top 4) (:right 4)
+                :color $ hsl 0 80 60
+                :cursor :pointer
+                :font-size 14
+          :examples $ []
+          :schema $ :: 'String
+        |css-preview-tip $ %{} 'CodeEntry (:doc |)
+          :code $ quote
+            defstyle css-preview-tip $ {}
+              |$0 $ {} (:position :absolute) (:bottom 0) (:right 0)
+                :background-color $ hsl 0 0 100 0.6
+                :font-family ui/font-code
+                :white-space :pre
+                :border $ str "|1px solid " (hsl 0 0 90)
+                :font-size 12
+                :line-height |20px
+                :padding 8
+          :examples $ []
+          :schema $ :: 'String
+        |format-type-display $ %{} 'CodeEntry (:doc |)
+          :code $ quote
+            defn format-type-display (t)
+              if (nil? t) |nil $ if (string? t) t
+                trim $ format-cirru-edn t
+          :examples $ []
+          :schema $ :: 'Dynamic
+        |format-type-info $ %{} 'CodeEntry (:doc |)
+          :code $ quote
+            defn format-type-info (t indent)
+              if (nil? t) |nil $ if
+                or (tag? t) (symbol? t) (enum? t)
+                , t
+                  if (map? t)
+                    if
+                      =
+                        option:unwrap-or (get t :type) nil
+                        , :fn
+                      let
+                          entries $ []
+                            if
+                              option:some? $ get t :args
+                              [] |:args $ format-type-info (get t :args) indent
+                            if
+                              some? $ option:unwrap-or (get t :return)
+                                option:unwrap-or (get t :return-type) nil
+                              [] |:return $ format-type-info
+                                option:unwrap-or (get t :return)
+                                  option:unwrap-or (get t :return-type) nil
+                                , indent
+                        -> entries
+                          map $ fn (x)
+                            if (nil? x) |nil x
+                          prepend |fn
+                      if
+                        =
+                          option:unwrap-or (get t :type) nil
+                          , :tuple
+                        let
+                            entries $ []
+                              if
+                                option:some? $ get t :tag
+                                [] |:tag $ turn-string (get t :tag)
+                              if
+                                option:some? $ get t :payload
+                                [] |:payload $ format-type-info (get t :payload) indent
+                          -> entries
+                            map $ fn (x)
+                              if (nil? x) |nil x
+                            prepend |tuple
+                        if
+                          =
+                            option:unwrap-or (get t :type) nil
+                            , :record
+                          let
+                              entries $ []
+                                if
+                                  option:some? $ get t :name
+                                  [] |:name $ turn-string (get t :name)
+                                if
+                                  option:some? $ get t :fields
+                                  [] |:fields $ format-type-info (get t :fields) indent
+                            -> entries
+                              map $ fn (x)
+                                if (nil? x) |nil x
+                              prepend |record
+                          if
+                            =
+                              option:unwrap-or (get t :type) nil
+                              , :optional
+                            let
+                                entries $ []
+                                  if
+                                    option:some? $ get t :inner
+                                    [] |:inner $ format-type-info (get t :inner) indent
+                              -> entries
+                                map $ fn (x)
+                                  if (nil? x) |nil x
+                                prepend |optional
+                            if
+                              =
+                                option:unwrap-or (get t :type) nil
+                                , :variadic
+                              let
+                                  entries $ []
+                                    if
+                                      option:some? $ get t :inner
+                                      [] |:inner $ format-type-info (get t :inner) indent
+                                -> entries
+                                  map $ fn (x)
+                                    if (nil? x) |nil x
+                                  prepend |variadic
+                              trim $ format-cirru-edn t
+                    if (list? t) t $ trim (format-cirru-edn t)
+          :examples $ []
+          :schema $ :: 'Fn
+            {} (:return 'Dynamic)
+              :args $ [] 'Dynamic 'String
+        |style-bookmark $ %{} 'CodeEntry (:doc |)
+          :code $ quote
+            defstyle style-bookmark $ {}
+              |& $ {} (:cursor :pointer) (:padding "|0 8px") (:position :relative)
+              |&:hover $ {}
+                :background-color $ hsl 0 0 98
+              (str "|&:hover ." style-close)
+                {} $ :opacity 1
+          :examples $ []
+          :schema $ :: 'String
+        |style-bookmark-selected $ %{} 'CodeEntry (:doc |)
+          :code $ quote
+            defstyle style-bookmark-selected $ {}
+              |& $ {}
+                :background-color $ hsl 0 0 96
+          :examples $ []
+          :schema $ :: 'String
+        |style-close $ %{} 'CodeEntry (:doc |)
+          :code $ quote
+            defstyle style-close $ {}
+              |& $ {} (:position :absolute) (:opacity 0) (:right 4) (:top 6) (:font-size 12) (:font-weight |100)
+          :examples $ []
+          :schema $ :: 'String
+        |style-import-ns $ %{} 'CodeEntry (:doc |)
+          :code $ quote
+            defstyle style-import-ns $ {}
+              |& $ {} (:font-size 10)
+                :color $ hsl 0 0 80
+                :margin-left 4
+          :examples $ []
+          :schema $ :: 'String
+        |style-tiny-hint $ %{} 'CodeEntry (:doc |)
+          :code $ quote
+            defstyle style-tiny-hint $ {}
+              |& $ {} (:font-size 10) (:margin-left 8) (:line-height |16px) (:white-space :pre-wrap)
+                :color $ hsl 0 0 80
+          :examples $ []
+          :schema $ :: 'String
+      :ns $ %{} 'NsEntry (:doc |)
+        :code $ quote
+          ns app.comp.container $ :require (respo-ui.core :as ui)
+            respo.core :refer $ defcomp defeffect <> >> div button textarea span input pre list-> a
+            respo.comp.space :refer $ =<
+            respo.comp.inspect :refer $ comp-inspect
+            reel.comp.reel :refer $ comp-reel
+            respo-md.comp.md :refer $ comp-md
+            app.config :refer $ dev?
+            memof.once :refer $ memof1-call
+            respo.util.format :refer $ hsl
+            respo.css :refer $ defstyle
+            respo-ui.css :as css
+            respo-ui.comp :refer $ comp-close
+    |app.config $ %{} 'FileEntry
+      :defs $ {}
+        |dev? $ %{} 'CodeEntry (:doc |)
+          :code $ quote
+            def dev? $ = |dev
+              option:unwrap-or (get-env |mode) |release
+          :examples $ []
+          :schema $ :: 'Dynamic
+        |site $ %{} 'CodeEntry (:doc |)
+          :code $ quote
+            def site $ {} (:title |Calcit) (:icon |http://cdn.tiye.me/logo/mvc-works.png) (:storage-key |calcit-ir-viewer)
+          :examples $ []
+          :schema $ :: 'Map 'Tag 'String
+      :ns $ %{} 'NsEntry (:doc |)
+        :code $ quote (ns app.config)
+    |app.main $ %{} 'FileEntry
+      :defs $ {}
+        |*reel $ %{} 'CodeEntry (:doc |)
+          :code $ quote
+            defatom *reel $ -> reel-schema/reel (assoc :base schema/store) (assoc :store schema/store)
+          :examples $ []
+          :schema $ :: 'Dynamic
+        |dispatch! $ %{} 'CodeEntry (:doc |)
+          :code $ quote
+            defn dispatch! (op)
+              when
+                and config/dev? $ not= (nth op 0) :states
+                println |Dispatch: op
+              reset! *reel $ reel-updater updater @*reel op
+          :examples $ []
+          :schema $ :: 'Fn
+            {} (:return 'Unit)
+              :args $ [] 'Dynamic
+        |main! $ %{} 'CodeEntry (:doc |)
+          :code $ quote
+            defn main! () (load-console-formatter!)
+              println "|Running mode:" $ if config/dev? |dev |release
+              render-app!
+              add-watch *reel :changes $ fn (reel prev) (render-app!)
+              listen-devtools! |a dispatch!
+              js/window.addEventListener |beforeunload $ fn (event) (persist-storage!)
+              repeat! 60 persist-storage!
+              let
+                  raw $ js/localStorage.getItem
+                    option:unwrap-or (get config/site :storage-key) |
+                when (js-present? raw)
+                  dispatch! $ :: :hydrate-storage
+                    extract-cirru-edn $ js/JSON.parse raw
+              println "|App started."
+          :examples $ []
+          :schema $ :: 'Fn
+            {} (:return 'Unit)
+              :args $ []
+              :features $ #{} :js-ffi
+        |mount-target $ %{} 'CodeEntry (:doc |)
+          :code $ quote
+            def mount-target $ js/document.querySelector |.app
+          :examples $ []
+          :schema $ :: 'Dynamic
+        |persist-storage! $ %{} 'CodeEntry (:doc |)
+          :code $ quote
+            defn persist-storage! () $ js/localStorage.setItem
+              option:unwrap-or (get config/site :storage-key) |
+              js/JSON.stringify $ to-cirru-edn
+                option:unwrap-or (get @*reel :store) ({})
+          :examples $ []
+          :schema $ :: 'Fn
+            {} (:return 'Dynamic)
+              :args $ []
+              :features $ #{} :js-ffi
+        |reload! $ %{} 'CodeEntry (:doc |)
+          :code $ quote
+            defn reload! () $ if (nil? build-errors)
+              do (remove-watch *reel :changes) (clear-cache!)
+                add-watch *reel :changes $ fn (reel prev) (render-app!)
+                reset! *reel $ refresh-reel @*reel schema/store updater
+                hud! |ok~ |Ok
+              hud! |error build-errors
+          :examples $ []
+          :schema $ :: 'Fn
+            {} (:return 'Unit)
+              :args $ []
+        |render-app! $ %{} 'CodeEntry (:doc |)
+          :code $ quote
+            defn render-app! () $ render! mount-target (comp-container @*reel) dispatch!
+          :examples $ []
+          :schema $ :: 'Fn
+            {} (:return 'Unit)
+              :args $ []
+        |repeat! $ %{} 'CodeEntry (:doc |)
+          :code $ quote
+            defn repeat! (duration cb)
+              do
+                js/setTimeout
+                  fn () (cb)
+                    repeat! (* 1000 duration) cb
+                  * 1000 duration
+                , nil
+          :examples $ []
+          :schema $ :: 'Fn
+            {} (:return 'Unit)
+              :args $ [] 'Number 'Dynamic
+      :ns $ %{} 'NsEntry (:doc |)
+        :code $ quote
+          ns app.main $ :require
+            [] respo.core :refer $ [] render! clear-cache!
+            [] app.comp.container :refer $ [] comp-container
+            [] app.updater :refer $ [] updater
+            [] app.schema :as schema
+            [] reel.util :refer $ [] listen-devtools!
+            [] reel.core :refer $ [] reel-updater refresh-reel
+            [] reel.schema :as reel-schema
+            [] app.config :as config
+            |./calcit.build-errors :default build-errors
+            |bottom-tip :default hud!
+    |app.schema $ %{} 'FileEntry
+      :defs $ {}
+        |store $ %{} 'CodeEntry (:doc |)
+          :code $ quote
+            def store $ %{} app.types/StoreData
+              :states $ {}
+                :cursor $ []
+              :ir nil
+              :preview nil
+              :bookmarks $ []
+              :pointer 0
+          :examples $ []
+          :schema $ :: 'app.types/StoreData
+      :ns $ %{} 'NsEntry (:doc |)
+        :code $ quote (ns app.schema)
+    |app.types $ %{} 'FileEntry
+      :defs $ {}
+        |StoreData $ %{} 'CodeEntry (:doc |)
+          :code $ quote
+            defstruct StoreData (:states 'Map) (:ir 'Dynamic) (:preview 'Dynamic)
+              :bookmarks $ :: 'List 'Tag 'Dynamic
+              :pointer 'Number
+          :examples $ []
+          :schema $ :: 'Dynamic
+      :ns $ %{} 'NsEntry (:doc |)
+        :code $ quote (ns app.types)
+    |app.updater $ %{} 'FileEntry
+      :defs $ {}
+        |updater $ %{} 'CodeEntry (:doc |)
+          :code $ quote
+            defn updater (store op op-id op-time)
+              tag-match op
+                (:states cursor s) (update-states store cursor s)
+                (:ir-data data)
+                  -> store (assoc :ir data)
+                    assoc :bookmarks $ []
+                    assoc :pointer 0
+                (:preview data) (assoc store :preview data)
+                (:hydrate-storage data) data
+                (:new-bookmark b)
+                  -> store
+                    update :bookmarks $ fn (bs) (prepend bs b)
+                    assoc :pointer 0
+                (:point-to idx) (assoc store :pointer idx)
+                (:remove-bookmark idx)
+                  -> store $ update :bookmarks
+                    fn (bs) (.dissoc bs idx)
+                _ $ do (eprintln "|unknown op:" op) store
+          :examples $ []
+          :schema $ :: 'Fn
+            {} (:return 'app.types/StoreData)
+              :args $ [] 'app.types/StoreData 'Dynamic 'String 'Number
+      :ns $ %{} 'NsEntry (:doc |)
+        :code $ quote
+          ns app.updater $ :require
+            [] respo.cursor :refer $ [] update-states
