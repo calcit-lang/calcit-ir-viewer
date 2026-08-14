@@ -1035,16 +1035,9 @@
             |bottom-tip :default hud!
     |app.schema $ %{} 'FileEntry
       :defs $ {}
-        |StoreData $ %{} 'CodeEntry (:doc |)
-          :code $ quote
-            defstruct StoreData (:states 'Map) (:ir 'Dynamic) (:preview 'Dynamic)
-              :bookmarks $ :: 'List 'Tag 'Dynamic
-              :pointer 'Number
-          :examples $ []
-          :schema $ :: 'Dynamic
         |store $ %{} 'CodeEntry (:doc |)
           :code $ quote
-            def store $ %{} app.schema/StoreData
+            def store $ %{} app.types/StoreData
               :states $ {}
                 :cursor $ []
               :ir nil
@@ -1052,9 +1045,20 @@
               :bookmarks $ []
               :pointer 0
           :examples $ []
-          :schema $ :: 'app.schema/StoreData
+          :schema $ :: 'app.types/StoreData
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote (ns app.schema)
+    |app.types $ %{} 'FileEntry
+      :defs $ {}
+        |StoreData $ %{} 'CodeEntry (:doc |)
+          :code $ quote
+            defstruct StoreData (:states 'Map) (:ir 'Dynamic) (:preview 'Dynamic)
+              :bookmarks $ :: 'List 'Tag 'Dynamic
+              :pointer 'Number
+          :examples $ []
+          :schema $ :: 'Dynamic
+      :ns $ %{} 'NsEntry (:doc |)
+        :code $ quote (ns app.types)
     |app.updater $ %{} 'FileEntry
       :defs $ {}
         |updater $ %{} 'CodeEntry (:doc |)
@@ -1079,8 +1083,8 @@
                 _ $ do (eprintln "|unknown op:" op) store
           :examples $ []
           :schema $ :: 'Fn
-            {} (:return 'app.schema/StoreData)
-              :args $ [] 'app.schema/StoreData 'Dynamic 'String 'Number
+            {} (:return 'app.types/StoreData)
+              :args $ [] 'app.types/StoreData 'Dynamic 'String 'Number
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote
           ns app.updater $ :require
