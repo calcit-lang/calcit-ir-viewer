@@ -141,7 +141,7 @@
                   <> (str expr) css-code-tag
                 (calcit-tag? expr)
                   <>
-                    str |: :unwrap-or (get expr :val) nil
+                    str |: $ option:unwrap-or (get expr :val) nil
                     , css-code-tag
                 (list? expr)
                   div
@@ -561,7 +561,7 @@
             defcomp comp-raw-code (expr)
               div
                 {} (:class-name css/column)
-                  :style $ {} (:display :inline-flex) (:line-height 1.2)
+                  :style $ {} (:display :inline-flex) (:line-height |1.2)
                 <> $ option:unwrap-or (get expr :code) nil
                 <> "|js raw" style-tiny-hint
           :examples $ []
@@ -884,7 +884,7 @@
         |style-close $ %{} 'CodeEntry (:doc |)
           :code $ quote
             defstyle style-close $ {}
-              |& $ {} (:position :absolute) (:opacity 0) (:right 4) (:top 6) (:font-size 12) (:font-weight 100)
+              |& $ {} (:position :absolute) (:opacity 0) (:right 4) (:top 6) (:font-size 12) (:font-weight |100)
           :examples $ []
           :schema $ :: 'Dynamic
         |style-import-ns $ %{} 'CodeEntry (:doc |)
