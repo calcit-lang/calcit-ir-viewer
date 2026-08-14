@@ -1,7 +1,7 @@
 
 {} (:about "|Machine-generated snapshot. Do not edit directly — changes will be overwritten. Use `cr query` to inspect and `cr edit`/`cr tree` to modify. Run `cr docs agents --full` first. Manual edits must follow format and schema conventions, then run `cr edit format`.") (:package |app) (:version |0.0.1)
   :entries $ {}
-    :default $ {} (:description |) (:init-fn 'app.main/main!) (:mode :native) (:reload-fn 'app.main/reload!)
+    :default $ {} (:description |) (:init-fn 'app.main/main!) (:mode :js) (:reload-fn 'app.main/reload!)
       :modules $ [] |respo.calcit/ |lilac/ |memof/ |respo-ui.calcit/ |respo-markdown.calcit/ |reel.calcit/
       :type-slots $ {}
   :files $ {}
@@ -11,14 +11,16 @@
           :code $ quote
             defn calcit-fn? (x)
               and (map? x)
-                = :fn $ get x :kind
+                = :fn $ option:unwrap-or (get x :kind) nil
           :examples $ []
           :schema $ :: 'Dynamic
         |calcit-import? $ %{} 'CodeEntry (:doc |)
           :code $ quote
             defn calcit-import? (x)
               and (map? x)
-                = (get x :kind) :import
+                =
+                  option:unwrap-or (get x :kind) nil
+                  , :import
           :examples $ []
           :schema $ :: 'Dynamic
         |calcit-literal? $ %{} 'CodeEntry (:doc |)
@@ -27,7 +29,8 @@
               let
                   ret $ or (number? x) (string? x) (bool? x)
                     and (map? x)
-                      includes? (#{} :symbol :number :tag :proc :syntax :local :registered) (get x :kind)
+                      includes? (#{} :symbol :number :tag :proc :syntax :local :registered)
+                        option:unwrap-or (get x :kind) nil
                 ; println |DETECTHING: x ret
                 , ret
           :examples $ []
@@ -36,63 +39,69 @@
           :code $ quote
             defn calcit-local? (x)
               and (map? x)
-                = :local $ get x :kind
+                = :local $ option:unwrap-or (get x :kind) nil
           :examples $ []
           :schema $ :: 'Dynamic
         |calcit-macro? $ %{} 'CodeEntry (:doc |)
           :code $ quote
             defn calcit-macro? (x)
               and (map? x)
-                = :macro $ get x :kind
+                = :macro $ option:unwrap-or (get x :kind) nil
           :examples $ []
           :schema $ :: 'Dynamic
         |calcit-method? $ %{} 'CodeEntry (:doc |)
           :code $ quote
             defn calcit-method? (x)
               and (map? x)
-                = (get x :kind) :method
+                =
+                  option:unwrap-or (get x :kind) nil
+                  , :method
           :examples $ []
           :schema $ :: 'Dynamic
         |calcit-proc? $ %{} 'CodeEntry (:doc |)
           :code $ quote
             defn calcit-proc? (x)
               and (map? x)
-                = :proc $ get x :kind
+                = :proc $ option:unwrap-or (get x :kind) nil
           :examples $ []
           :schema $ :: 'Dynamic
         |calcit-raw-code? $ %{} 'CodeEntry (:doc |)
           :code $ quote
             defn calcit-raw-code? (x)
               and (map? x)
-                = (get x :kind) :raw-code
+                =
+                  option:unwrap-or (get x :kind) nil
+                  , :raw-code
           :examples $ []
           :schema $ :: 'Dynamic
         |calcit-registered? $ %{} 'CodeEntry (:doc |)
           :code $ quote
             defn calcit-registered? (x)
               and (map? x)
-                = :registered $ get x :kind
+                = :registered $ option:unwrap-or (get x :kind) nil
           :examples $ []
           :schema $ :: 'Dynamic
         |calcit-symbol? $ %{} 'CodeEntry (:doc |)
           :code $ quote
             defn calcit-symbol? (x)
               and (map? x)
-                = :symbol $ get x :kind
+                = :symbol $ option:unwrap-or (get x :kind) nil
           :examples $ []
           :schema $ :: 'Dynamic
         |calcit-syntax? $ %{} 'CodeEntry (:doc |)
           :code $ quote
             defn calcit-syntax? (x)
               and (map? x)
-                = (get x :kind) :syntax
+                =
+                  option:unwrap-or (get x :kind) nil
+                  , :syntax
           :examples $ []
           :schema $ :: 'Dynamic
         |calcit-tag? $ %{} 'CodeEntry (:doc |)
           :code $ quote
             defn calcit-tag? (x)
               and (map? x)
-                = |tag $ get x :kind
+                = |tag $ option:unwrap-or (get x :kind) nil
           :examples $ []
           :schema $ :: 'Dynamic
         |comp-bookmarks $ %{} 'CodeEntry (:doc |)
@@ -132,7 +141,7 @@
                   <> (str expr) css-code-tag
                 (calcit-tag? expr)
                   <>
-                    str |: $ get expr :val
+                    str |: :unwrap-or (get expr :val) nil
                     , css-code-tag
                 (list? expr)
                   div
@@ -159,15 +168,15 @@
                 (calcit-syntax? expr) (comp-syntax expr)
                 (calcit-method? expr) (comp-method expr)
                 (calcit-raw-code? expr) (comp-raw-code expr)
-                (and (map? expr) (= (get expr :kind) :cirru-quote))
+                (and (map? expr) (= (option:unwrap-or (get expr :kind) nil) :cirru-quote))
                   comp-cirru-quote expr
-                (and (map? expr) (= (get expr :kind) :tuple))
+                (and (map? expr) (= (option:unwrap-or (get expr :kind) nil) :tuple))
                   comp-tuple expr
-                (and (map? expr) (= (get expr :kind) :struct))
+                (and (map? expr) (= (option:unwrap-or (get expr :kind) nil) :struct))
                   comp-struct expr
-                (and (map? expr) (= (get expr :kind) :enum))
+                (and (map? expr) (= (option:unwrap-or (get expr :kind) nil) :enum))
                   comp-enum expr
-                (and (map? expr) (= (get expr :kind) :record))
+                (and (map? expr) (= (option:unwrap-or (get expr :kind) nil) :record))
                   comp-record expr
                 true $ pre
                   {} $ :class-name css-code-default
@@ -178,11 +187,11 @@
           :code $ quote
             defcomp comp-container (reel)
               let
-                  store $ :store reel
-                  states $ :states store
-                  cursor $ either (:cursor states) ([])
-                  pointer $ either (:pointer store) 0
-                  bookmarks $ :bookmarks store
+                  store $ option:unwrap-or (get reel :store) ({})
+                  states $ option:unwrap-or (get store :states) ({})
+                  cursor $ option:unwrap-or (get states :cursor) ([])
+                  pointer $ option:unwrap-or (get store :pointer) 0
+                  bookmarks $ option:unwrap-or (get store :bookmarks) ([])
                 div
                   {} $ :class-name (str-spaced css/global css/fullscreen css/column)
                   div
@@ -209,7 +218,7 @@
                       div
                         {} $ :class-name css/expand
                         <> "|No bookmark selected"
-                  comp-preview $ :preview store
+                  comp-preview $ option:unwrap-or (get store :preview) nil
                   when dev? $ comp-reel (>> states :reel) reel ({})
                   when dev? $ comp-inspect |Store store
                     {} $ :bottom 0
@@ -248,11 +257,11 @@
           :code $ quote
             defn comp-file-entry (states files)
               let
-                  cursor $ :cursor states
-                  state $ either (:data states)
+                  cursor $ option:unwrap-or (get states :cursor) ([])
+                  state $ option:unwrap-or (get states :data)
                     {} (:selected nil) (:query |)
-                  selected $ :selected state
-                  query $ or (:query state) |
+                  selected $ option:unwrap-or (get state :selected) nil
+                  query $ option:unwrap-or (get state :query) |
                 div
                   {}
                     :class-name $ str-spaced css/column
@@ -264,7 +273,8 @@
                     input $ {} (:value query) (:placeholder "|Search ns...") (:class-name css/input)
                       :style $ {} (:width |100%)
                       :on-input $ fn (e d!)
-                        d! cursor $ assoc state :query (:value e)
+                        d! cursor $ assoc state :query
+                          option:unwrap $ get e :value
                   div
                     {} (:class-name css/expand)
                       :style $ {} (:overflow-y :auto) (:max-height |40%)
@@ -300,23 +310,46 @@
                         :border-top $ str "|1px solid " (hsl 0 0 90)
                     div
                       {} (:class-name css-file-button)
-                        :on-click $ fn (e d!) (-> e :event .-currentTarget .-children .-0 .!click)
+                        :on-click $ fn (e d!)
+                          let
+                              target $ unsafe-coerce
+                                .-currentTarget $ option:unwrap (get e :event)
+                                , 'JsObject
+                            ->
+                              unsafe-coerce
+                                .-0 $ unsafe-coerce (.-children target) 'JsObject
+                                , 'JsObject
+                              .!click
                       input $ {} (:type |file)
                         :style $ {} (:opacity 0.2) (:width 0) (:top 0) (:position :absolute) (:pointer-events :none)
                         :on-change $ fn (e d!)
                           let
-                              file $ -> (:event e) .-target .-files (aget 0)
+                              file $ unsafe-coerce
+                                aget
+                                  unsafe-coerce
+                                    .-files $ unsafe-coerce
+                                      .-target $ option:unwrap (get e :event)
+                                      , 'JsObject
+                                    , 'JsObject
+                                  , 0
+                                , 'JsObject
                               fr $ new js/FileReader
                             aset
-                              .-target $ :event e
+                              .-target $ option:unwrap (get e :event)
                               , |value nil
                             set! (.-onload fr)
                               fn (event)
-                                d! :ir-data $ parse-cirru-edn (-> event .-target .-result)
+                                d! :ir-data $ parse-cirru-edn
+                                  unsafe-coerce
+                                    .-result $ unsafe-coerce (.-target event) 'JsObject
+                                    , 'String
                             .!readAsText fr file
                       div ({}) (<> "|Pick IR file")
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Fn
+            {} (:return 'respo.schema/Component)
+              :args $ [] 'Dynamic 'Dynamic
+              :features $ #{} :js-ffi
         |comp-fn $ %{} 'CodeEntry (:doc |)
           :code $ quote
             defcomp comp-fn (f)
@@ -342,17 +375,34 @@
               div
                 {} (:class-name css-file-button)
                   :on-click $ fn (e d!)
-                    -> e :event .-currentTarget .-children .-0 $ .!click
+                    ->
+                      unsafe-coerce
+                        .-currentTarget $ option:unwrap (get e :event)
+                        , 'JsObject
+                      , .-children .-0 $ .!click
                 input $ {} (:type |file)
                   :style $ {} (:opacity 0.2) (:width 0) (:top 0) (:position :absolute) (:pointer-events :none)
                   :on-change $ fn (e d!)
                     let
-                        file $ -> (:event e) .-target .-files (aget 0)
+                        file $ unsafe-coerce
+                          aget
+                            unsafe-coerce
+                              .-files $ unsafe-coerce
+                                .-target $ option:unwrap (get e :event)
+                                , 'JsObject
+                              , 'JsObject
+                            , 0
+                          , 'JsObject
                         fr $ new js/FileReader
-                      -> (:event e) .-target $ aset |value nil
+                      ->
+                        option:unwrap $ get e :event
+                        , .-target $ aset |value nil
                       set! (.-onload fr)
                         fn (event)
-                          d! :ir-data $ parse-cirru-edn (-> event .-target .-result)
+                          d! :ir-data $ parse-cirru-edn
+                            unsafe-coerce
+                              .-result $ unsafe-coerce (.-target event) 'JsObject
+                              , 'String
                       .!readAsText fr file
                 div ({}) (<> "|Pick IR file")
           :examples $ []
@@ -370,27 +420,33 @@
                 div
                   {} $ :class-name css/row-middle
                   <>
-                    str $ :ns expr
+                    str $ option:unwrap-or (get expr :ns) nil
                     , style-import-ns
                   a $ {} (:class-name css/link) (:inner-text |goto)
                     :style $ {} (:font-size 10)
                     :on-click $ fn (e d!)
                       d! $ :: :new-bookmark
-                        :: :bookmark (:ns expr) (:def expr)
+                        :: :bookmark
+                          option:unwrap-or (get expr :ns) nil
+                          option:unwrap-or (get expr :def) nil
                 when
                   and
-                    some? $ :info expr
-                    some? $ get (:info expr) :kind
+                    option:some? $ get expr :info
+                    option:some? $ get
+                      option:unwrap-or (get expr :info) nil
+                      , :kind
                   <>
-                    str "|import " $ get (:info expr) :kind
+                    str "|import " $ get
+                      option:unwrap-or (get expr :info) nil
+                      , :kind
                     , style-tiny-hint
                 when
-                  some? $ :type-hint expr
+                  option:some? $ get expr :type-hint
                   div
                     {} $ :class-name css/row-middle
                     <>
                       str |type: $ let
-                          t $ :type-hint expr
+                          t $ option:unwrap (get expr :type-hint)
                         format-type-display $ format-type-info t |
                       , style-tiny-hint
           :examples $ []
@@ -415,7 +471,8 @@
                   :style $ merge
                     {} $ :display :inline-flex
                   :on-click $ fn (e d!) (d! :preview expr)
-                <> $ get expr :val
+                <> $ str
+                  option:unwrap-or (get expr :val) nil
                 <> |local style-tiny-hint
                 <>
                   str |type: $ let
@@ -447,10 +504,10 @@
                   :style $ {} (:display :inline-flex) (:line-height |1.2)
                   :on-click $ fn (e d!) (d! :preview expr)
                 <>
-                  str |. $ get expr :method
+                  str |. $ option:unwrap-or (get expr :method) nil
                   , css-code-method
                 <>
-                  str "|method " $ :behavior expr
+                  str "|method " $ option:unwrap-or (get expr :behavior) nil
                   , style-tiny-hint
           :examples $ []
           :schema $ :: 'Dynamic
@@ -461,7 +518,7 @@
                 div
                   {} $ :class-name css-preview-tip
                   div $ {}
-                    :innerText $ trim (format-cirru-edn data)
+                    :inner-text $ trim (format-cirru-edn data)
                   div $ {} (:inner-text "|×") (:class-name css-preview-close)
                     :on-click $ fn (e d!) (d! :preview nil)
                 div $ {}
@@ -477,20 +534,20 @@
                 <> |proc style-tiny-hint
                 if
                   or
-                    some? $ get expr :arg-types
-                    some? $ get expr :return-type
+                    option:some? $ get expr :arg-types
+                    option:some? $ get expr :return-type
                   <>
                     str
                       if
-                        some? $ get expr :arg-types
+                        option:some? $ get expr :arg-types
                         format-type-display $ [] |args:
                           format-type-info (get expr :arg-types) |
                         , |
                       if
-                        some? $ get expr :return-type
+                        option:some? $ get expr :return-type
                         str
                           if
-                            some? $ get expr :arg-types
+                            option:some? $ get expr :arg-types
                             , &newline |
                           format-type-display $ [] |return:
                             format-type-info (get expr :return-type) |
@@ -505,7 +562,7 @@
               div
                 {} (:class-name css/column)
                   :style $ {} (:display :inline-flex) (:line-height 1.2)
-                <> $ :code expr
+                <> $ option:unwrap-or (get expr :code) nil
                 <> "|js raw" style-tiny-hint
           :examples $ []
           :schema $ :: 'Dynamic
@@ -541,7 +598,8 @@
                   :style $ merge
                     {} $ :display :inline-flex
                   :on-click $ fn (e d!) (d! :preview expr)
-                <> $ :val expr
+                <> $ str
+                  option:unwrap-or (get expr :val) nil
                 div ({})
                   <> (get expr :ns) css-code-symbol-ns
           :examples $ []
@@ -721,70 +779,82 @@
           :code $ quote
             defn format-type-info (t indent)
               if (nil? t) |nil $ if
-                or (tag? t) (symbol? t) (tuple? t)
+                or (tag? t) (symbol? t) (enum? t)
                 , t
                   if (map? t)
                     if
-                      = (get t :type) :fn
+                      =
+                        option:unwrap-or (get t :type) nil
+                        , :fn
                       let
                           entries $ []
                             if
-                              some? $ get t :args
+                              option:some? $ get t :args
                               [] |:args $ format-type-info (get t :args) indent
                             if
-                              some? $ or (get t :return) (get t :return-type)
+                              some? $ option:unwrap-or (get t :return)
+                                option:unwrap-or (get t :return-type) nil
                               [] |:return $ format-type-info
-                                or (get t :return) (get t :return-type)
+                                option:unwrap-or (get t :return)
+                                  option:unwrap-or (get t :return-type) nil
                                 , indent
                         -> entries
                           map $ fn (x)
                             if (nil? x) |nil x
                           prepend |fn
                       if
-                        = (get t :type) :tuple
+                        =
+                          option:unwrap-or (get t :type) nil
+                          , :tuple
                         let
                             entries $ []
                               if
-                                some? $ get t :tag
+                                option:some? $ get t :tag
                                 [] |:tag $ turn-string (get t :tag)
                               if
-                                some? $ get t :payload
+                                option:some? $ get t :payload
                                 [] |:payload $ format-type-info (get t :payload) indent
                           -> entries
                             map $ fn (x)
                               if (nil? x) |nil x
                             prepend |tuple
                         if
-                          = (get t :type) :record
+                          =
+                            option:unwrap-or (get t :type) nil
+                            , :record
                           let
                               entries $ []
                                 if
-                                  some? $ get t :name
+                                  option:some? $ get t :name
                                   [] |:name $ turn-string (get t :name)
                                 if
-                                  some? $ get t :fields
+                                  option:some? $ get t :fields
                                   [] |:fields $ format-type-info (get t :fields) indent
                             -> entries
                               map $ fn (x)
                                 if (nil? x) |nil x
                               prepend |record
                           if
-                            = (get t :type) :optional
+                            =
+                              option:unwrap-or (get t :type) nil
+                              , :optional
                             let
                                 entries $ []
                                   if
-                                    some? $ get t :inner
+                                    option:some? $ get t :inner
                                     [] |:inner $ format-type-info (get t :inner) indent
                               -> entries
                                 map $ fn (x)
                                   if (nil? x) |nil x
                                 prepend |optional
                             if
-                              = (get t :type) :variadic
+                              =
+                                option:unwrap-or (get t :type) nil
+                                , :variadic
                               let
                                   entries $ []
                                     if
-                                      some? $ get t :inner
+                                      option:some? $ get t :inner
                                       [] |:inner $ format-type-info (get t :inner) indent
                                 -> entries
                                   map $ fn (x)
@@ -850,7 +920,8 @@
       :defs $ {}
         |dev? $ %{} 'CodeEntry (:doc |)
           :code $ quote
-            def dev? $ = |dev (get-env |mode |release)
+            def dev? $ = |dev
+              option:unwrap-or (get-env |mode) |release
           :examples $ []
           :schema $ :: 'Dynamic
         |site $ %{} 'CodeEntry (:doc |)
@@ -886,13 +957,17 @@
               js/window.addEventListener |beforeunload $ fn (event) (persist-storage!)
               repeat! 60 persist-storage!
               let
-                  raw $ js/localStorage.getItem (:storage-key config/site)
-                when (some? raw)
+                  raw $ js/localStorage.getItem
+                    option:unwrap-or (get config/site :storage-key) |
+                when (js-present? raw)
                   dispatch! $ :: :hydrate-storage
                     extract-cirru-edn $ js/JSON.parse raw
               println "|App started."
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Fn
+            {} (:return 'Unit)
+              :args $ []
+              :features $ #{} :js-ffi
         |mount-target $ %{} 'CodeEntry (:doc |)
           :code $ quote
             def mount-target $ js/document.querySelector |.app
@@ -900,10 +975,15 @@
           :schema $ :: 'Dynamic
         |persist-storage! $ %{} 'CodeEntry (:doc |)
           :code $ quote
-            defn persist-storage! () $ js/localStorage.setItem (:storage-key config/site)
-              js/JSON.stringify $ to-cirru-edn (:store @*reel)
+            defn persist-storage! () $ js/localStorage.setItem
+              option:unwrap-or (get config/site :storage-key) |
+              js/JSON.stringify $ to-cirru-edn
+                option:unwrap-or (get @*reel :store) ({})
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Fn
+            {} (:return 'Dynamic)
+              :args $ []
+              :features $ #{} :js-ffi
         |reload! $ %{} 'CodeEntry (:doc |)
           :code $ quote
             defn reload! () $ if (nil? build-errors)
