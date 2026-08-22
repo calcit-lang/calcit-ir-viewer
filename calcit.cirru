@@ -1,7 +1,8 @@
 
-{} (:about "|Machine-generated snapshot. Do not edit directly — changes will be overwritten. Use `cr query` to inspect and `cr edit`/`cr tree` to modify. Run `cr docs agents --full` first. Manual edits must follow format and schema conventions, then run `cr edit format`.") (:package |app) (:version |0.0.1)
+{} (:about "|Machine-generated snapshot. Do not edit directly — changes will be overwritten. Use `calcit query` to inspect and `calcit edit`/`calcit tree` to modify. Run `calcit docs agents --full` first. Manual edits must follow format and schema conventions, then run `calcit edit format`.") (:package |app)
   :entries $ {}
     :default $ {} (:description |) (:init-fn 'app.main/main!) (:mode :js) (:reload-fn 'app.main/reload!)
+      :feature-policy $ {}
       :modules $ [] |respo.calcit/ |lilac/ |memof/ |respo-ui.calcit/ |respo-markdown.calcit/ |reel.calcit/
       :type-slots $ {}
   :files $ {}
@@ -1056,7 +1057,7 @@
               :bookmarks $ :: 'List 'Tag 'Dynamic
               :pointer 'Number
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Enum
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote (ns app.types)
     |app.updater $ %{} 'FileEntry
