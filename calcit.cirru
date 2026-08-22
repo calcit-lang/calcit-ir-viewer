@@ -1057,7 +1057,7 @@
               :bookmarks $ :: 'List 'Tag 'Dynamic
               :pointer 'Number
           :examples $ []
-          :schema $ :: 'StructDef
+          :schema $ :: 'Enum
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote (ns app.types)
     |app.updater $ %{} 'FileEntry
