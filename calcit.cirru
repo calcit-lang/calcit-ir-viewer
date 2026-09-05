@@ -10,99 +10,66 @@
       :defs $ {}
         'calcit-fn? $ %{} 'CodeEntry (:doc |)
           :code $ quote
-            defn calcit-fn? (x)
-              and (map? x)
-                = :fn $ option:unwrap-or (get x :kind) nil
+            defn calcit-fn? (x) (kind-tag? x :fn)
           :examples $ []
           :schema $ :: 'Dynamic
         'calcit-import? $ %{} 'CodeEntry (:doc |)
           :code $ quote
-            defn calcit-import? (x)
-              and (map? x)
-                =
-                  option:unwrap-or (get x :kind) nil
-                  , :import
+            defn calcit-import? (x) (kind-tag? x :import)
           :examples $ []
           :schema $ :: 'Dynamic
         'calcit-literal? $ %{} 'CodeEntry (:doc |)
           :code $ quote
             defn calcit-literal? (x)
               let
-                  ret $ or (number? x) (string? x) (bool? x)
-                    and (map? x)
-                      includes? (#{} :symbol :number :tag :proc :syntax :local :registered)
-                        option:unwrap-or (get x :kind) nil
+                  ret $ or (number? x) (string? x) (bool? x) (kind-tag? x :symbol) (kind-tag? x :number) (kind-tag? x :tag) (kind-tag? x :proc) (kind-tag? x :syntax) (kind-tag? x :local) (kind-tag? x :registered)
                 ; println |DETECTHING: x ret
                 , ret
           :examples $ []
           :schema $ :: 'Dynamic
         'calcit-local? $ %{} 'CodeEntry (:doc |)
           :code $ quote
-            defn calcit-local? (x)
-              and (map? x)
-                = :local $ option:unwrap-or (get x :kind) nil
+            defn calcit-local? (x) (kind-tag? x :local)
           :examples $ []
           :schema $ :: 'Dynamic
         'calcit-macro? $ %{} 'CodeEntry (:doc |)
           :code $ quote
-            defn calcit-macro? (x)
-              and (map? x)
-                = :macro $ option:unwrap-or (get x :kind) nil
+            defn calcit-macro? (x) (kind-tag? x :macro)
           :examples $ []
           :schema $ :: 'Dynamic
         'calcit-method? $ %{} 'CodeEntry (:doc |)
           :code $ quote
-            defn calcit-method? (x)
-              and (map? x)
-                =
-                  option:unwrap-or (get x :kind) nil
-                  , :method
+            defn calcit-method? (x) (kind-tag? x :method)
           :examples $ []
           :schema $ :: 'Dynamic
         'calcit-proc? $ %{} 'CodeEntry (:doc |)
           :code $ quote
-            defn calcit-proc? (x)
-              and (map? x)
-                = :proc $ option:unwrap-or (get x :kind) nil
+            defn calcit-proc? (x) (kind-tag? x :proc)
           :examples $ []
           :schema $ :: 'Dynamic
         'calcit-raw-code? $ %{} 'CodeEntry (:doc |)
           :code $ quote
-            defn calcit-raw-code? (x)
-              and (map? x)
-                =
-                  option:unwrap-or (get x :kind) nil
-                  , :raw-code
+            defn calcit-raw-code? (x) (kind-tag? x :raw-code)
           :examples $ []
           :schema $ :: 'Dynamic
         'calcit-registered? $ %{} 'CodeEntry (:doc |)
           :code $ quote
-            defn calcit-registered? (x)
-              and (map? x)
-                = :registered $ option:unwrap-or (get x :kind) nil
+            defn calcit-registered? (x) (kind-tag? x :registered)
           :examples $ []
           :schema $ :: 'Dynamic
         'calcit-symbol? $ %{} 'CodeEntry (:doc |)
           :code $ quote
-            defn calcit-symbol? (x)
-              and (map? x)
-                = :symbol $ option:unwrap-or (get x :kind) nil
+            defn calcit-symbol? (x) (kind-tag? x :symbol)
           :examples $ []
           :schema $ :: 'Dynamic
         'calcit-syntax? $ %{} 'CodeEntry (:doc |)
           :code $ quote
-            defn calcit-syntax? (x)
-              and (map? x)
-                =
-                  option:unwrap-or (get x :kind) nil
-                  , :syntax
+            defn calcit-syntax? (x) (kind-tag? x :syntax)
           :examples $ []
           :schema $ :: 'Dynamic
         'calcit-tag? $ %{} 'CodeEntry (:doc |)
           :code $ quote
-            defn calcit-tag? (x)
-              and (map? x)
-                = |tag $ option:unwrap-or (get x :kind) nil
+            defn calcit-tag? (x) (kind-string? x |tag)
           :examples $ []
           :schema $ :: 'Dynamic
         'comp-bookmarks $ %{} 'CodeEntry (:doc |)
@@ -114,17 +81,25 @@
                     :border-right $ str "|1px solid " (hsl 0 0 90)
                 -> bookmarks $ map-indexed
                   fn (idx b)
-                    [] idx $ tag-match b
+                    [] idx $ match b
                       (:bookmark ns definition)
                         div
                           {}
                             :on-click $ fn (e d!)
+                              hint-fn $ {} (:return 'Unit)
+                                :args $ [] 'Map
+                                  :: 'Fn $ {} (:return 'Unit)
+                                    :args $ [] 'Dynamic
                               d! $ :: :point-to idx
                             :class-name $ str-spaced style-bookmark
                               if (= pointer idx) style-bookmark-selected
                           <> $ str ns |/ definition
                           comp-close $ {} (:class-name style-close)
                             :on-click $ fn (e d!)
+                              hint-fn $ {} (:return 'Unit)
+                                :args $ [] 'Map
+                                  :: 'Fn $ {} (:return 'Unit)
+                                    :args $ [] 'Dynamic
                               d! $ :: :remove-bookmark idx
                       _ $ eprintln "|unknown bookmark" b
           :examples $ []
@@ -142,7 +117,7 @@
                   <> (str expr) css-code-tag
                 (calcit-tag? expr)
                   <>
-                    str |: $ option:unwrap-or (get expr :val) nil
+                    str |: $ option:unwrap-or (get expr :val) |
                     , css-code-tag
                 (list? expr)
                   div
@@ -154,7 +129,10 @@
                             <= (count expr) 3
                             every? expr calcit-literal?
                           {} $ :display :inline-flex
-                        if last? $ {} (:display :inline-block)
+                          {}
+                        if last?
+                          {} $ :display :inline-block
+                          {}
                     , & $ let
                         size $ count expr
                       map-indexed expr $ fn (idx x)
@@ -165,20 +143,17 @@
                 (calcit-symbol? expr) (comp-symbol expr)
                 (calcit-proc? expr) (comp-proc expr)
                 (calcit-fn? expr)
-                  <> (get expr :name) css-code-fn
+                  <>
+                    str $ option:unwrap-or (get expr :name) |
+                    , css-code-fn
                 (calcit-syntax? expr) (comp-syntax expr)
                 (calcit-method? expr) (comp-method expr)
                 (calcit-raw-code? expr) (comp-raw-code expr)
-                (and (map? expr) (= (option:unwrap-or (get expr :kind) nil) :cirru-quote))
-                  comp-cirru-quote expr
-                (and (map? expr) (= (option:unwrap-or (get expr :kind) nil) :tuple))
-                  comp-tuple expr
-                (and (map? expr) (= (option:unwrap-or (get expr :kind) nil) :struct))
-                  comp-struct expr
-                (and (map? expr) (= (option:unwrap-or (get expr :kind) nil) :enum))
-                  comp-enum expr
-                (and (map? expr) (= (option:unwrap-or (get expr :kind) nil) :record))
-                  comp-record expr
+                (kind-tag? expr :cirru-quote) (comp-cirru-quote expr)
+                (kind-tag? expr :tuple) (comp-tuple expr)
+                (kind-tag? expr :struct) (comp-struct expr)
+                (kind-tag? expr :enum) (comp-enum expr)
+                (kind-tag? expr :record) (comp-record expr)
                 true $ pre
                   {} $ :class-name css-code-default
                   <> $ to-lispy-string expr
@@ -193,16 +168,18 @@
                   cursor $ option:unwrap-or (get states :cursor) ([])
                   pointer $ option:unwrap-or (get store :pointer) 0
                   bookmarks $ option:unwrap-or (get store :bookmarks) ([])
+                  files $ option:unwrap-or
+                    get-in store $ [] :ir :files
+                    {}
                 div
                   {} $ :class-name (str-spaced css/global css/fullscreen css/column)
                   div
                     {} $ :class-name (str-spaced css/row css/expand)
-                    comp-file-entry (>> states :file-entry)
-                      get-in store $ [] :ir :files
+                    comp-file-entry (>> states :file-entry) files
                     comp-bookmarks bookmarks pointer
                     if-let
                       bookmark $ get bookmarks pointer
-                      tag-match bookmark
+                      match bookmark
                         (:bookmark ns definition)
                           div
                             {} (:class-name css/expand)
@@ -237,7 +214,7 @@
                 {} $ :class-name (str-spaced css/column)
                 let
                     defs $ if (some? file)
-                      keys $ get file :defs
+                      keys $ option:unwrap-or (get file :defs) ({})
                       #{}
                   list->
                     {} $ :class-name (str-spaced css/column)
@@ -261,7 +238,7 @@
                   cursor $ option:unwrap-or (get states :cursor) ([])
                   state $ option:unwrap-or (get states :data)
                     {} (:selected nil) (:query |)
-                  selected $ option:unwrap-or (get state :selected) nil
+                  selected $ option:unwrap-or (get state :selected) |
                   query $ option:unwrap-or (get state :query) |
                 div
                   {}
@@ -298,10 +275,11 @@
                   div
                     {} (:class-name css/expand)
                       :style $ {} (:overflow-y :auto) (:min-height 0)
-                    if (some? selected)
+                    if
+                      not $ blank? selected
                       comp-file selected
-                        get-in files $ [] selected
-                        , nil
+                        option:unwrap-or (get files selected) ({})
+                        , |
                       div
                         {} $ :class-name (str-spaced css-pad8 css/font-fancy)
                         <> "|No NS selected"
@@ -348,7 +326,7 @@
                       div ({}) (<> "|Pick IR file")
           :examples $ []
           :schema $ :: 'Fn
-            {} (:return 'respo.schema/Component)
+            {} (:return 'respo.schema/Element)
               :args $ [] 'Dynamic 'Dynamic
               :features $ #{} :js-ffi
         'comp-fn $ %{} 'CodeEntry (:doc |)
@@ -417,7 +395,8 @@
                   :style $ merge
                     {} $ :display :inline-flex
                   :on-click $ fn (e d!) (d! :preview expr)
-                <> $ get expr :def
+                <> $ str
+                  option:unwrap-or (get expr :def) |
                 div
                   {} $ :class-name css/row-middle
                   <>
@@ -531,7 +510,9 @@
               div
                 {} (:class-name css/column)
                   :style $ {} (:display :inline-flex) (:line-height |1.2)
-                <> (get expr :name) css-code-proc
+                <>
+                  str $ option:unwrap-or (get expr :name) |
+                  , css-code-proc
                 <> |proc style-tiny-hint
                 if
                   or
@@ -563,7 +544,8 @@
               div
                 {} (:class-name css/column)
                   :style $ {} (:display :inline-flex) (:line-height |1.2)
-                <> $ option:unwrap-or (get expr :code) nil
+                <> $ str
+                  option:unwrap-or (get expr :code) |
                 <> "|js raw" style-tiny-hint
           :examples $ []
           :schema $ :: 'Dynamic
@@ -582,7 +564,8 @@
                     :style $ merge
                       {} $ :display :inline-block
                     :on-click $ fn (e d!) (d! :preview expr)
-                  <> $ get expr :alias
+                  <> $ str
+                    option:unwrap-or (get expr :alias) |
           :examples $ []
           :schema $ :: 'Dynamic
         'comp-struct $ %{} 'CodeEntry (:doc |)
@@ -602,7 +585,9 @@
                 <> $ str
                   option:unwrap-or (get expr :val) nil
                 div ({})
-                  <> (get expr :ns) css-code-symbol-ns
+                  <>
+                    str $ option:unwrap-or (get expr :ns) |
+                    , css-code-symbol-ns
           :examples $ []
           :schema $ :: 'Dynamic
         'comp-syntax $ %{} 'CodeEntry (:doc |)
@@ -611,7 +596,9 @@
               div
                 {} (:class-name css/column)
                   :style $ {} (:display :inline-flex) (:line-height |1.2)
-                <> (get expr :name) css-code-syntax
+                <>
+                  str $ option:unwrap-or (get expr :name) |
+                  , css-code-syntax
                 <> |syntax style-tiny-hint
           :examples $ []
           :schema $ :: 'Dynamic
@@ -783,10 +770,7 @@
                 or (tag? t) (symbol? t) (enum? t)
                 , t
                   if (map? t)
-                    if
-                      =
-                        option:unwrap-or (get t :type) nil
-                        , :fn
+                    if (kind-tag? t :fn)
                       let
                           entries $ []
                             if
@@ -803,10 +787,7 @@
                           map $ fn (x)
                             if (nil? x) |nil x
                           prepend |fn
-                      if
-                        =
-                          option:unwrap-or (get t :type) nil
-                          , :tuple
+                      if (kind-tag? t :tuple)
                         let
                             entries $ []
                               if
@@ -819,10 +800,7 @@
                             map $ fn (x)
                               if (nil? x) |nil x
                             prepend |tuple
-                        if
-                          =
-                            option:unwrap-or (get t :type) nil
-                            , :record
+                        if (kind-tag? t :record)
                           let
                               entries $ []
                                 if
@@ -835,10 +813,7 @@
                               map $ fn (x)
                                 if (nil? x) |nil x
                               prepend |record
-                          if
-                            =
-                              option:unwrap-or (get t :type) nil
-                              , :optional
+                          if (kind-tag? t :optional)
                             let
                                 entries $ []
                                   if
@@ -848,10 +823,7 @@
                                 map $ fn (x)
                                   if (nil? x) |nil x
                                 prepend |optional
-                            if
-                              =
-                                option:unwrap-or (get t :type) nil
-                                , :variadic
+                            if (kind-tag? t :variadic)
                               let
                                   entries $ []
                                     if
@@ -867,6 +839,34 @@
           :schema $ :: 'Fn
             {} (:return 'Dynamic)
               :args $ [] 'Dynamic 'String
+        'kind-string? $ %{} 'CodeEntry (:doc "|Validate a string discriminator read from an open Calcit IR map.")
+          :code $ quote
+            defn kind-string? (x expected)
+              if (map? x)
+                match (get x :kind)
+                  (:some value)
+                    and (string? value)
+                      = (unsafe-coerce value 'String) expected
+                  (:none) false
+                , false
+          :examples $ []
+          :schema $ :: 'Fn
+            {} (:return 'Bool)
+              :args $ [] 'Dynamic 'String
+        'kind-tag? $ %{} 'CodeEntry (:doc "|Validate a tag discriminator read from an open Calcit IR map.")
+          :code $ quote
+            defn kind-tag? (x expected)
+              if (map? x)
+                match (get x :kind)
+                  (:some value)
+                    and (tag? value)
+                      = (unsafe-coerce value 'Tag) expected
+                  (:none) false
+                , false
+          :examples $ []
+          :schema $ :: 'Fn
+            {} (:return 'Bool)
+              :args $ [] 'Dynamic 'Tag
         'style-bookmark $ %{} 'CodeEntry (:doc |)
           :code $ quote
             defstyle style-bookmark $ {}
@@ -945,7 +945,9 @@
           :code $ quote
             defn dispatch! (op)
               when
-                and config/dev? $ not= (nth op 0) :states
+                and config/dev? $ not=
+                  option:unwrap-or (nth op 0) :unknown
+                  , :states
                 println |Dispatch: op
               reset! *reel $ reel-updater updater @*reel op
           :examples $ []
@@ -1016,7 +1018,7 @@
                   fn () (cb)
                     repeat! (* 1000 duration) cb
                   * 1000 duration
-                , nil
+                , &unit
           :examples $ []
           :schema $ :: 'Fn
             {} (:return 'Unit)
@@ -1065,22 +1067,22 @@
         'updater $ %{} 'CodeEntry (:doc |)
           :code $ quote
             defn updater (store op op-id op-time)
-              tag-match op
-                (:states cursor s) (update-states store cursor s)
+              match op
+                (:states cursor s)
+                  assoc store :states $ update-states (:states store) cursor s
                 (:ir-data data)
                   -> store (assoc :ir data)
                     assoc :bookmarks $ []
                     assoc :pointer 0
                 (:preview data) (assoc store :preview data)
-                (:hydrate-storage data) data
+                (:hydrate-storage data) (decode-map-as data app.types/StoreData)
                 (:new-bookmark b)
                   -> store
                     update :bookmarks $ fn (bs) (prepend bs b)
                     assoc :pointer 0
                 (:point-to idx) (assoc store :pointer idx)
                 (:remove-bookmark idx)
-                  -> store $ update :bookmarks
-                    fn (bs) (.dissoc bs idx)
+                  assoc store :bookmarks $ .dissoc (:bookmarks store) idx
                 _ $ do (eprintln "|unknown op:" op) store
           :examples $ []
           :schema $ :: 'Fn
