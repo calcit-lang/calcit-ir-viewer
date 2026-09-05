@@ -22,7 +22,7 @@
           :code $ quote
             defn calcit-literal? (x)
               let
-                  ret $ or (number? x) (string? x) (bool? x) (kind-tag? x :symbol) (kind-tag? x :number) (kind-tag? x :tag) (kind-tag? x :proc) (kind-tag? x :syntax) (kind-tag? x :local) (kind-tag? x :registered)
+                  ret $ or (number? x) (string? x) (bool? x) (kind-tag? x :symbol) (kind-tag? x :number) (calcit-tag? x) (kind-tag? x :proc) (kind-tag? x :syntax) (kind-tag? x :local) (kind-tag? x :registered)
                 ; println |DETECTHING: x ret
                 , ret
           :examples $ []
