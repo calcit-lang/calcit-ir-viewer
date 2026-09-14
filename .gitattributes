@@ -1,5 +1,6 @@
 
 calcit.cirru -diff linguist-generated
+config/*-quality.cirru text linguist-generated=true
 yarn.lock -diff linguist-generated
 Agents.md -diff linguist-generated
 llms/*.md -diff linguist-generated
