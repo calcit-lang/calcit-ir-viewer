@@ -1091,7 +1091,20 @@
                   assoc :pointer 0
               (:point-to index) (assoc store :pointer index)
               (:remove-bookmark index)
-                assoc store :bookmarks $ dissoc (:bookmarks store) index
+                let
+                    bookmarks $ dissoc (:bookmarks store) index
+                    pointer $ if
+                      < index $ :pointer store
+                      dec $ :pointer store
+                      :pointer store
+                    max-index $ dec $ count bookmarks
+                    next-pointer $ cond
+                        empty? bookmarks
+                        , 0
+                      (< pointer 0) 0
+                      (> pointer max-index) max-index
+                      true pointer
+                  -> store (assoc :bookmarks bookmarks) (assoc :pointer next-pointer)
               _ store
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'app.types/StoreData)
