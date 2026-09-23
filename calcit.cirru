@@ -5,7 +5,7 @@
   :entries $ {} $ :default
     {} (:description |) (:init-fn 'app.main/main!) (:mode :js) (:reload-fn 'app.main/reload!) (:target :browser)
       :feature-policy $ {}
-      :modules $ [] |respo.calcit/ |memof/ |respo-ui.calcit/ |respo-markdown.calcit/ |reel.calcit/
+      :modules $ [] |respo.calcit/ |respo-ui.calcit/ |respo-markdown.calcit/ |reel.calcit/
       :type-slots $ {}
   :files $ {}
     'app.comp.container $ %{} 'FileEntry
@@ -879,7 +879,6 @@
             reel.comp.reel :refer $ comp-reel
             respo-md.comp.md :refer $ comp-md
             app.config :refer $ dev?
-            memof.once :refer $ memof1-call
             respo.util.format :refer $ hsl
             respo.css :refer $ defstyle
             respo-ui.css :as css
