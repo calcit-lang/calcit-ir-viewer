@@ -11,3 +11,5 @@ dist/
 .yarn
 
 .calcit-snippets/*
+.pnp.cjs
+.pnp.loader.mjs
