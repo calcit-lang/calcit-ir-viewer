@@ -217,7 +217,7 @@
                       {} $ :class-name css/expand
                       <> "|No bookmark selected"
                 comp-preview $ :preview store
-                when dev? $ comp-reel (>> states :reel) reel $ {}
+                when dev? $ comp-typed-reel (>> states :reel) reel $ {}
                 when dev? $ comp-inspect |Store store $ {} (:bottom 0)
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'respo.schema/Component)
@@ -876,7 +876,7 @@
             respo.core :refer $ defcomp defeffect <> >> div button textarea span input pre list-> a
             respo.comp.space :refer $ =<
             respo.comp.inspect :refer $ comp-inspect
-            reel.comp.reel :refer $ comp-reel
+            reel.comp.reel :refer $ comp-typed-reel
             respo-md.comp.md :refer $ comp-md
             app.config :refer $ dev?
             respo.util.format :refer $ hsl
