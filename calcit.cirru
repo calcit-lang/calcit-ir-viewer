@@ -105,18 +105,18 @@
                           d! $ :: :point-to idx
                         :class-name $ str-spaced style-bookmark $ if (= pointer idx) style-bookmark-selected
                       <> $ str ns |/ definition
-                      comp-close $ %some $ %{} respo-ui.schema/ButtonOptions
-                        :kind $ %none
-                        :type $ %none
-                        :disabled $ %none
-                        :on-click $ %some $ fn (e d!)
+                      comp-close $ Option :some $ %{} respo-ui.schema/ButtonOptions
+                        :kind $ Option :none
+                        :type $ Option :none
+                        :disabled $ Option :none
+                        :on-click $ Option :some $ fn (e d!)
                           hint-fn $ {} (:return 'Unit)
                             :args $ [] 'Map $ :: 'Fn
                               {} (:return 'Unit)
                                 :args $ [] 'Dynamic
                           d! $ :: :remove-bookmark idx
-                        :class-name $ %some style-close
-                        :style $ %none
+                        :class-name $ Option :some style-close
+                        :style $ Option :none
                   _ $ eprintln "|unknown bookmark" b
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'respo.schema/Component)
@@ -1061,8 +1061,8 @@
         'decode-store $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn decode-store (data)
             match (try-decode-map-as data app.types/StoreData)
-              (:ok store) (%some store)
-              (:err message) (%none)
+              (:ok store) (Option :some store)
+              (:err message) (Option :none)
           :examples $ []
           :schema $ :: 'Fn $ {}
             :args $ [] 'Dynamic
