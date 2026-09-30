@@ -5,7 +5,7 @@
   :entries $ {} $ :default
     {} (:description |) (:init-fn 'app.main/main!) (:mode :js) (:reload-fn 'app.main/reload!) (:target :browser)
       :feature-policy $ {}
-      :modules $ [] |respo.calcit/ |respo-ui.calcit/ |respo-markdown.calcit/ |reel.calcit/
+      :modules $ [] |respo.calcit/ |respo-ui.calcit/ |reel.calcit/
       :type-slots $ {}
   :files $ {}
     'app.comp.container $ %{} 'FileEntry
@@ -275,7 +275,8 @@
                   input $ {} (:value query) (:placeholder "|Search ns...") (:class-name css/input)
                     :style $ {} $ :width |100%
                     :on-input $ fn (e d!)
-                      d! cursor $ assoc state :query $ option:unwrap (get e :value)
+                      d! $ :: :states cursor $ assoc state :query
+                        option:unwrap $ get e :value
                 div
                   {} (:class-name css/expand)
                     :style $ {} (:overflow-y :auto) (:max-height |40%)
@@ -289,7 +290,7 @@
                           [] name $ div
                             {}
                               :on-click $ fn (e d!)
-                                d! cursor $ assoc state :selected name
+                                d! $ :: :states cursor $ assoc state :selected name
                               :style $ if (= name selected)
                                 {} $ :background-color $ hsl 0 0 94
                                 {}
@@ -329,7 +330,7 @@
                               js-await $ file-host .text
                               , 'String
                           js-set target :value |
-                          d! :ir-data $ parse-cirru-edn text
+                          d! $ :: :ir-data $ parse-cirru-edn text
                     div ({}) (<> "|Pick IR file")
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'respo.schema/Element)
@@ -877,7 +878,6 @@
             respo.comp.space :refer $ =<
             respo.comp.inspect :refer $ comp-inspect
             reel.comp.reel :refer $ comp-typed-reel
-            respo-md.comp.md :refer $ comp-md
             app.config :refer $ dev?
             respo.util.format :refer $ hsl
             respo.css :refer $ defstyle
@@ -1076,7 +1076,7 @@
             match op
               (:states cursor data)
                 assoc store :states $ assert-type
-                  update-states (:states store) cursor data
+                  update-state-tree (:states store) cursor data
                   , 'Map
               (:ir-data data)
                 -> store (assoc :ir data)
@@ -1110,4 +1110,4 @@
             :args $ [] 'app.types/StoreData 'app.types/Op 'String 'Number
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.updater
-          :require $ [] respo.cursor :refer $ [] update-states
+          :require $ respo.cursor :refer $ update-state-tree
