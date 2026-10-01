@@ -16,15 +16,22 @@ caps --strict --ci
 yarn install --immutable
 caps verify --toolchain
 calcit calcit.cirru --check-only
-calcit calcit.cirru js
-yarn vite build
+yarn build
 node --test scripts/ir-viewer-regression.test.mjs
 ```
 
-CI builds with absolute COS/CDN asset URLs and uses cos-upload-action v1.1.1's
-built-in public verification. Only frontend `dist` resources are uploaded;
+`yarn build` compiles the default JS browser entry and builds once; `yarn dev`
+compiles initially and starts Vite. For live edits, run `calcit calcit.cirru -w`
+in another terminal.
+
+CI builds with absolute COS/CDN asset URLs and uses released COS action v1.2.0's
+built-in HTML reference and public upload verification. No extra verification
+script is needed. Only frontend `dist` resources are uploaded;
 the original server rsync source and destination remain unchanged.
-Shared PR uploads are serialized. State edits use `update-state-tree` and
+PR paths use `pr/<number>/<run-id>/<attempt>/`; runs queue per PR and separately
+for production, without cancellation. Canonical/entry/public, quality baseline,
+dynamic-method zero-findings and existing business gates remain; repeated
+migration and diagnostic reports are removed. State edits use `update-state-tree` and
 single-argument Enum dispatch; regressions cover query/selection, async file
 import, state/reel/render round-trips and bookmarks.
 

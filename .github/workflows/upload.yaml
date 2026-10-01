@@ -10,8 +10,9 @@ permissions:
   contents: read
 
 concurrency:
-  group: cos-upload-${{ github.repository }}-${{ github.event_name == 'pull_request' && 'pr' || 'production' }}
+  group: cos-upload-${{ github.repository }}-${{ github.event_name == 'pull_request' && format('pr-{0}', github.event.pull_request.number) || 'production' }}
   cancel-in-progress: false
+  queue: max
 
 jobs:
   test:
@@ -47,28 +48,26 @@ jobs:
       - name: Validate Calcit snapshot and type baseline
         run: |
           set -euo pipefail
-          test "$(calcit --version)" = "0.27.0"
+          test -f calcit.cirru
+          test -f deps.cirru
           test ! -e compact.cirru
           test ! -e package.cirru
-          calcit calcit.cirru fix --workflow strict --verify --format edn
           calcit calcit.cirru edit format
           git diff --exit-code -- calcit.cirru
           calcit calcit.cirru --check-only
           calcit calcit.cirru analyze check-public --ns app.comp.container --ns app.config --ns app.main --ns app.schema --ns app.types --ns app.updater --summary-only
-          calcit calcit.cirru analyze check-types --ns-prefix app --summary-only
-          calcit calcit.cirru analyze weak-types --ns-prefix app --only schema-dynamic,unresolved-type-slot,code-dynamic --intent unresolved --summary-only
           calcit calcit.cirru analyze dynamic-methods --summary-only --format json | jq -e '.data.summary.findings == 0'
-          calcit calcit.cirru analyze deprecated --ns-prefix app --summary-only
           calcit calcit.cirru analyze quality --baseline config/calcit-quality.cirru
 
       - name: Build client with CDN asset URLs
         id: asset-path
         env:
           CDN_ORIGIN: https://cos-sh.tiye.me
+          PR_NUMBER: ${{ github.event.pull_request.number }}
         run: |
           set -euo pipefail
           if [[ "$GITHUB_EVENT_NAME" == "pull_request" ]]; then
-            asset_prefix="${GITHUB_REPOSITORY}/pr/"
+            asset_prefix="${GITHUB_REPOSITORY}/pr/${PR_NUMBER}/${GITHUB_RUN_ID}/${GITHUB_RUN_ATTEMPT}/"
           elif [[ "$GITHUB_REF" == "refs/heads/main" ]]; then
             asset_prefix="${GITHUB_REPOSITORY}/"
           else
@@ -78,13 +77,12 @@ jobs:
           echo "VITE_BASE_URL=${VITE_BASE_URL}" >> "$GITHUB_ENV"
           echo "prefix=${asset_prefix}" >> "$GITHUB_OUTPUT"
           echo "base-url=${VITE_BASE_URL}" >> "$GITHUB_OUTPUT"
-          calcit calcit.cirru js
-          yarn vite build --base="$VITE_BASE_URL"
+          yarn build
           node --test scripts/ir-viewer-regression.test.mjs
 
       - name: Upload static assets to COS
         if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
-        uses: worktools/cos-upload-action@17e6d213fe9f6772a6090a13c8ba044cd6cbcb09 # v1.1.1
+        uses: worktools/cos-upload-action@06d6027dcca6413c5936e04a9b6e9f0d5ef71ba0 # v1.2.0
         with:
           source-dir: dist
           bucket: ${{ secrets.COS_BUCKET }}
