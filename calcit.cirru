@@ -945,6 +945,10 @@
           :code $ quote $ defref *reel (typed/new-reel schema/store)
           :examples $ []
           :schema $ :: 'Ref $ :: 'reel.typed/State 'app.types/Op 'app.types/StoreData
+        '*storage-ready? $ %{} 'CodeEntry (:doc |)
+          :code $ quote $ defref *storage-ready? false
+          :examples $ []
+          :schema $ :: 'Ref 'Bool
         'dispatch! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn dispatch! (op)
             when config/dev? $ println |Dispatch: op
@@ -964,39 +968,54 @@
         'main! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn main! () (load-console-formatter!)
             println "|Running mode:" $ if config/dev? |dev |release
-            render-app!
-            add-watch! *reel :changes $ fn (reel prev) (render-app!)
-            listen-devtools! |a dispatch!
-            browser/set-before-unload! $ fn (event) (persist-storage!)
-            browser/set-interval! persist-storage! 60000
-            match
-              browser/storage-get $ option:unwrap-or (get config/site :storage-key) |
-              (:some raw)
-                match
-                  types/decode-store $ parse-cirru-edn raw
-                  (:some stored)
-                    dispatch! $ types/Op :hydrate-storage stored
-                  (:none) (hud! |error "|Ignored invalid saved state")
-              (:none) &unit
-            println "|App started."
+            app.storage/load!
+              .unwrap $ get config/site :storage-key
+              fn () $ browser/storage-get $ .unwrap (get config/site :storage-key)
+              fn (restored)
+                match restored
+                  (:ok state)
+                    do
+                      match state
+                        (:some stored)
+                          dispatch! $ types/Op :hydrate-storage stored
+                        (:none) &unit
+                      reset! *storage-ready? true
+                  (:err message)
+                    do (reset! *storage-ready? false)
+                      hud! |error $ str "|Restore failed; automatic saving is paused to protect saved data. " message
+                      , &unit
+                render-app!
+                add-watch! *reel :changes $ fn (reel prev) (render-app!) (persist-storage!)
+                listen-devtools! |a dispatch!
+                browser/set-before-unload! $ fn (event) (persist-storage!)
+                browser/set-interval! persist-storage! 60000
+                persist-storage!
+                println "|App started."
+                , &unit
+            , &unit
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Unit)
             :args $ []
             :features $ #{} :js-ffi
         'mount-target $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn mount-target ()
-            js-cast
-              option:unwrap $ browser/query-selector |.app
-              , 'respo.dom/DomElement
+            option:unwrap $ respo.ffi.browser/query-selector |.app
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'respo.dom/DomElement)
             :args $ []
             :features $ #{} :js-ffi
         'persist-storage! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn persist-storage! ()
-            browser/storage-set!
-              option:unwrap-or (get config/site :storage-key) |
-              format-cirru-edn $ :store @*reel
+            when @*storage-ready? $ app.storage/save!
+              .unwrap $ get config/site :storage-key
+              :store @*reel
+              fn (result)
+                match result
+                  (:ok _) &unit
+                  (:err message)
+                    do
+                      hud! |error $ str "|Could not save locally; keep the IR file. " message
+                      , &unit
             , &unit
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Unit)
@@ -1006,7 +1025,7 @@
           :code $ quote $ defn reload! ()
             if (nil? build-errors)
               do (remove-watch! *reel :changes) (clear-cache!)
-                add-watch! *reel :changes $ fn (reel prev) (render-app!)
+                add-watch! *reel :changes $ fn (reel prev) (render-app!) (persist-storage!)
                 reset! *reel $ typed/refresh updater @*reel schema/store
                 hud! |ok~ |Ok
               hud! |error build-errors
@@ -1057,6 +1076,76 @@
           :schema $ :: 'app.types/StoreData
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.schema
+    'app.storage $ %{} 'FileEntry
+      :defs $ {}
+        'decode-saved $ %{} 'CodeEntry (:doc |)
+          :code $ quote $ defn decode-saved (text)
+            try
+              match
+                types/decode-store $ parse-cirru-edn text
+                (:some stored)
+                  Result :ok $ Option :some stored
+                (:none) (Result :err "|Invalid saved IR Viewer state")
+              fn (message)
+                Result :err $ str "|Invalid saved IR Viewer state: " message
+          :examples $ []
+          :schema $ :: 'Fn $ {}
+            :args $ [] 'String
+            :return $ :: 'Result (:: 'Option 'app.types/StoreData) 'String
+        'load! $ %{} 'CodeEntry
+          :doc "|异步优先读取 IndexedDB；无记录时才调用旧 localStorage 读取回调。Result 错误不删除或覆盖原记录。"
+          :code $ quote $ defn load! (key read-legacy! complete!)
+            try
+              shared/promise-observe! (idb/get key)
+                fn (raw)
+                  complete! $ if (js-nullish? raw)
+                    match (read-legacy!)
+                      (:some text) (decode-saved text)
+                      (:none)
+                        Result :ok $ Option :none
+                    decode-saved $ contract/expect-string "|IndexedDB snapshot" raw
+                  , &unit
+                fn (error)
+                  complete! $ Result :err $ :message (shared/normalize-error error)
+                  , &unit
+              fn (message)
+                complete! $ Result :err message
+                , &unit
+            , &unit
+          :examples $ []
+          :schema $ :: 'Fn $ {} (:return 'Unit)
+            :args $ [] 'String
+              :: 'Fn $ {}
+                :args $ []
+                :return $ :: 'Option 'String
+              :: 'Fn $ {} (:return 'Unit)
+                :args $ [] $ :: 'Result (:: 'Option 'app.types/StoreData) 'String
+            :features $ #{} :js-ffi
+        'save! $ %{} 'CodeEntry
+          :doc "|把完整 StoreData 序列化并异步提交到 IndexedDB；事务完成后回调 Result，不把写入失败当作成功。"
+          :code $ quote $ defn save! (key stored complete!)
+            try
+              shared/promise-observe!
+                idb/set key $ format-cirru-edn stored
+                fn (_)
+                  complete! $ Result :ok &unit
+                  , &unit
+                fn (error)
+                  complete! $ Result :err $ :message (shared/normalize-error error)
+                  , &unit
+              fn (message)
+                complete! $ Result :err message
+                , &unit
+            , &unit
+          :examples $ []
+          :schema $ :: 'Fn $ {} (:return 'Unit)
+            :args $ [] 'String 'app.types/StoreData $ :: 'Fn
+              {} (:return 'Unit)
+                :args $ [] $ :: 'Result 'Unit 'String
+            :features $ #{} :js-ffi
+      :ns $ %{} 'NsEntry (:doc |)
+        :code $ quote $ ns app.storage
+          :require (|idb-keyval :as idb) (app.types :as types) (js-ffi.shared :as shared) (js-ffi.contract :as contract)
     'app.types $ %{} 'FileEntry
       :defs $ {}
         'Bookmark $ %{} 'CodeEntry (:doc |)
@@ -1119,6 +1208,16 @@
             :pointer 'Number
           :examples $ []
           :schema $ :: 'StructDef
+        'decode-bookmark $ %{} 'CodeEntry
+          :doc "|检查书签 variant 和两个 String 载荷，将历史匿名或已有命名书签规范化为当前 Bookmark。"
+          :code $ quote $ defn decode-bookmark (bookmark)
+            match bookmark
+              (:bookmark ns name)
+                Bookmark :bookmark (decode-map-as ns 'String) (decode-map-as name 'String)
+              _ $ raise "|Expected a bookmark target"
+          :examples $ []
+          :schema $ :: 'Fn $ {} (:return 'app.types/Bookmark)
+            :args $ [] 'Enum
         'decode-op $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn decode-op (op)
             match op
@@ -1131,10 +1230,7 @@
               (:hydrate-storage data)
                 Op :hydrate-storage $ .unwrap $ decode-store data
               (:new-bookmark bookmark)
-                match bookmark
-                  (:bookmark ns name)
-                    Op :new-bookmark $ Bookmark :bookmark (decode-map-as ns 'String) (decode-map-as name 'String)
-                  _ $ raise "|Expected a bookmark operation target"
+                Op :new-bookmark $ if (enum? bookmark) (decode-bookmark bookmark) (raise "|Expected a bookmark target")
               (:point-to index)
                 Op :point-to $ decode-map-as index 'Number
               (:remove-bookmark index)
@@ -1143,15 +1239,25 @@
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'app.types/Op)
             :args $ [] 'Enum
-        'decode-store $ %{} 'CodeEntry (:doc |)
+        'decode-store $ %{} 'CodeEntry
+          :doc "|验证存档字段并规范化历史匿名书签，返回具有当前 StoreData/Bookmark 身份的受检值；不承诺保持输入对象身份。"
           :code $ quote $ defn decode-store (data)
-            if (struct? data)
-              struct-match data
-                app.types/StoreData stored $ Option :some stored
-                _ _ $ Option :none
-              match (try-decode-map-as data app.types/StoreData)
-                (:ok store) (Option :some store)
-                (:err message) (Option :none)
+            try
+              let
+                  raw $ if (struct? data)
+                    struct-match data
+                      StoreData stored $ .to-map stored
+                      _ _ $ raise "|Expected an IR Viewer store"
+                    decode-map-as data $ :: 'Map 'Tag 'Dynamic
+                  bookmarks $ .unwrap $ get raw :bookmarks
+                  normalized $ assoc raw :bookmarks $ if (list? bookmarks)
+                    map bookmarks $ fn (bookmark)
+                      if (enum? bookmark) (decode-bookmark bookmark) (raise "|Expected a bookmark Enum")
+                    raise "|Expected a bookmark List"
+                match (try-decode-map-as normalized app.types/StoreData)
+                  (:ok stored) (Option :some stored)
+                  (:err message) (Option :none)
+              fn (message) (Option :none)
           :examples $ []
           :schema $ :: 'Fn $ {}
             :args $ [] 'Dynamic

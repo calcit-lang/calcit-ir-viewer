@@ -56,7 +56,7 @@ jobs:
           git diff --exit-code -- calcit.cirru
           calcit calcit.cirru --check-only
           calcit calcit.cirru test app.comp.container/format-type-info --require-match
-          calcit calcit.cirru analyze check-public --ns app.comp.container --ns app.config --ns app.main --ns app.schema --ns app.types --ns app.updater --summary-only
+          calcit calcit.cirru analyze check-public --ns app.comp.container --ns app.config --ns app.main --ns app.schema --ns app.storage --ns app.types --ns app.updater --summary-only
           calcit calcit.cirru analyze dynamic-methods --summary-only --format json | jq -e '.data.summary.findings == 0'
           calcit calcit.cirru analyze quality --baseline config/calcit-quality.cirru
 
