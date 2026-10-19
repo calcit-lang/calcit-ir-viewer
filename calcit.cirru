@@ -985,11 +985,11 @@
                       hud! |error $ str "|Restore failed; automatic saving is paused to protect saved data. " message
                       , &unit
                 render-app!
-                add-watch! *reel :changes $ fn (reel prev) (render-app!) (persist-storage!)
+                add-watch! *reel :changes $ fn (reel prev) (render-app!) (schedule-storage!)
                 listen-devtools! |a dispatch!
                 browser/set-before-unload! $ fn (event) (persist-storage!)
                 browser/set-interval! persist-storage! 60000
-                persist-storage!
+                do (schedule-storage!) (persist-storage!)
                 println "|App started."
                 , &unit
             , &unit
@@ -1006,16 +1006,7 @@
             :features $ #{} :js-ffi
         'persist-storage! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn persist-storage! ()
-            when @*storage-ready? $ app.storage/save!
-              .unwrap $ get config/site :storage-key
-              :store @*reel
-              fn (result)
-                match result
-                  (:ok _) &unit
-                  (:err message)
-                    do
-                      hud! |error $ str "|Could not save locally; keep the IR file. " message
-                      , &unit
+            when @*storage-ready? $ app.storage/flush-save!
             , &unit
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Unit)
@@ -1025,7 +1016,7 @@
           :code $ quote $ defn reload! ()
             if (nil? build-errors)
               do (remove-watch! *reel :changes) (clear-cache!)
-                add-watch! *reel :changes $ fn (reel prev) (render-app!) (persist-storage!)
+                add-watch! *reel :changes $ fn (reel prev) (render-app!) (schedule-storage!)
                 reset! *reel $ typed/refresh updater @*reel schema/store
                 hud! |ok~ |Ok
               hud! |error build-errors
@@ -1049,6 +1040,23 @@
             :args $ [] 'Number $ :: 'Fn
               {} (:return 'Unit)
                 :args $ []
+            :features $ #{} :js-ffi
+        'schedule-storage! $ %{} 'CodeEntry (:doc |)
+          :code $ quote $ defn schedule-storage! ()
+            when @*storage-ready? $ app.storage/queue-save!
+              .unwrap $ get config/site :storage-key
+              :store @*reel
+              fn (result)
+                match result
+                  (:ok _) &unit
+                  (:err message)
+                    do
+                      hud! |error $ str "|Could not save locally; keep the IR file. " message
+                      , &unit
+            , &unit
+          :examples $ []
+          :schema $ :: 'Fn $ {} (:return 'Unit)
+            :args $ []
             :features $ #{} :js-ffi
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.main
@@ -1078,6 +1086,39 @@
         :code $ quote $ ns app.schema
     'app.storage $ %{} 'FileEntry
       :defs $ {}
+        '*pending-save $ %{} 'CodeEntry (:doc |)
+          :code $ quote $ defref *pending-save (Option :none)
+          :examples $ []
+          :schema $ :: 'Ref $ :: 'Option 'app.storage/SaveRequest
+        '*save-timer $ %{} 'CodeEntry (:doc |)
+          :code $ quote $ defref *save-timer (Option :none)
+          :examples $ []
+          :schema $ :: 'Ref $ :: 'Option 'Number
+        '*saving? $ %{} 'CodeEntry (:doc |)
+          :code $ quote $ defref *saving? false
+          :examples $ []
+          :schema $ :: 'Ref 'Bool
+        'SaveRequest $ %{} 'CodeEntry (:doc |)
+          :code $ quote $ defstruct SaveRequest (:key 'String) (:stored 'types/StoreData)
+            :complete! $ :: 'Fn $ {} (:return 'Unit)
+              :args $ [] $ :: 'Result 'Unit 'String
+          :examples $ []
+          :schema $ :: 'StructDef
+        'arm-save! $ %{} 'CodeEntry (:doc |)
+          :code $ quote $ defn arm-save! ()
+            match @*save-timer
+              (:some timer) (browser/clear-timeout! timer)
+              (:none) &unit
+            reset! *save-timer $ Option :some $ browser/set-timeout!
+              fn ()
+                reset! *save-timer $ Option :none
+                flush-save!
+              , 1000
+            , &unit
+          :examples $ []
+          :schema $ :: 'Fn $ {} (:return 'Unit)
+            :args $ []
+            :features $ #{} :js-ffi
         'decode-saved $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn decode-saved (text)
             try
@@ -1092,6 +1133,39 @@
           :schema $ :: 'Fn $ {}
             :args $ [] 'String
             :return $ :: 'Result (:: 'Option 'app.types/StoreData) 'String
+        'flush-save! $ %{} 'CodeEntry (:doc |)
+          :code $ quote $ defn flush-save! ()
+            match @*save-timer
+              (:some timer) (browser/clear-timeout! timer)
+              (:none) &unit
+            reset! *save-timer $ Option :none
+            when (not @*saving?)
+              match @*pending-save
+                (:none) &unit
+                (:some request)
+                  do
+                    reset! *pending-save $ Option :none
+                    reset! *saving? true
+                    save! (:key request) (:stored request)
+                      fn (result) (reset! *saving? false)
+                        match result
+                          (:ok _)
+                            match @*pending-save
+                              (:some _) (arm-save!)
+                              (:none) &unit
+                          (:err message)
+                            match @*pending-save
+                              (:none)
+                                reset! *pending-save $ Option :some request
+                              (:some _) &unit
+                        (:complete! request) result
+                        , &unit
+                    , &unit
+            , &unit
+          :examples $ []
+          :schema $ :: 'Fn $ {} (:return 'Unit)
+            :args $ []
+            :features $ #{} :js-ffi
         'load! $ %{} 'CodeEntry
           :doc "|异步优先读取 IndexedDB；无记录时才调用旧 localStorage 读取回调。Result 错误不删除或覆盖原记录。"
           :code $ quote $ defn load! (key read-legacy! complete!)
@@ -1121,6 +1195,17 @@
               :: 'Fn $ {} (:return 'Unit)
                 :args $ [] $ :: 'Result (:: 'Option 'app.types/StoreData) 'String
             :features $ #{} :js-ffi
+        'queue-save! $ %{} 'CodeEntry (:doc |)
+          :code $ quote $ defn queue-save! (key stored complete!)
+            reset! *pending-save $ Option :some $ SaveRequest :key key :stored stored :complete! complete!
+            arm-save!
+            , &unit
+          :examples $ []
+          :schema $ :: 'Fn $ {} (:return 'Unit)
+            :args $ [] 'String 'app.types/StoreData $ :: 'Fn
+              {} (:return 'Unit)
+                :args $ [] $ :: 'Result 'Unit 'String
+            :features $ #{} :js-ffi
         'save! $ %{} 'CodeEntry
           :doc "|把完整 StoreData 序列化并异步提交到 IndexedDB；事务完成后回调 Result，不把写入失败当作成功。"
           :code $ quote $ defn save! (key stored complete!)
@@ -1145,7 +1230,7 @@
             :features $ #{} :js-ffi
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.storage
-          :require (|idb-keyval :as idb) (app.types :as types) (js-ffi.shared :as shared) (js-ffi.contract :as contract)
+          :require (|idb-keyval :as idb) (app.types :as types) (js-ffi.shared :as shared) (js-ffi.contract :as contract) (js-ffi.browser :as browser)
     'app.types $ %{} 'FileEntry
       :defs $ {}
         'Bookmark $ %{} 'CodeEntry (:doc |)
@@ -1256,8 +1341,9 @@
                     raise "|Expected a bookmark List"
                 match (try-decode-map-as normalized app.types/StoreData)
                   (:ok stored) (Option :some stored)
-                  (:err message) (Option :none)
-              fn (message) (Option :none)
+                  (:err message)
+                    do (eprintln "|Invalid saved IR Viewer state: " message) (Option :none)
+              fn (message) (eprintln "|Invalid saved IR Viewer state: " message) (Option :none)
           :examples $ []
           :schema $ :: 'Fn $ {}
             :args $ [] 'Dynamic

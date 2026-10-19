@@ -11,7 +11,7 @@ import { comp_file_entry, comp_container, comp_import, comp_preview } from '../j
 import { new_reel, record_op } from '../js-out/reel.typed.mjs';
 import { make_string } from '../js-out/respo.render.html.mjs';
 import { component_$q_, component_tree } from '../js-out/respo.util.detect.mjs';
-import { load_$x_ as loadSaved, save_$x_ as saveSaved } from '../js-out/app.storage.mjs';
+import { load_$x_ as loadSaved, save_$x_ as saveSaved, queue_save_$x_ as queueSaved, flush_save_$x_ as flushSaved } from '../js-out/app.storage.mjs';
 
 const t = clt.init_tags(['states', 'cursor', 'data', 'file-entry', 'query', 'selected', 'value', 'files', 'defs', 'event', 'input', 'click', 'change', 'children', 'node', 'some', 'bookmarks', 'pointer', 'new-bookmark', 'point-to', 'remove-bookmark', 'preview', 'ir', 'ir-data']);
 const map = clt._$n__$M_;
@@ -169,4 +169,43 @@ test('failed reads and writes report errors without replacing the saved snapshot
     IDBDatabase.prototype.transaction = original;
   }
   assert.equal(await readDB(key), invalid);
+});
+
+test('autosave coalesces edits and keeps only one write in flight', async context => {
+  context.mock.timers.enable({ apis: ['setTimeout'] });
+  const original = IDBDatabase.prototype.transaction;
+  let writes = 0, active = 0, maxActive = 0;
+  IDBDatabase.prototype.transaction = function (...args) {
+    const transaction = original.apply(this, args);
+    if (args[1] === 'readwrite') {
+      writes++; active++; maxActive = Math.max(maxActive, active);
+      transaction.addEventListener('complete', () => { active--; }, { once: true });
+    }
+    return transaction;
+  };
+  try {
+    let firstComplete, secondComplete;
+    const first = new Promise(resolve => { firstComplete = resolve; });
+    const second = new Promise(resolve => { secondComplete = resolve; });
+    const key = 'ir-viewer-coalesced';
+    for (let i = 0; i < 3; i++) queueSaved(key, store, firstComplete);
+    assert.equal(writes, 0);
+    context.mock.timers.tick(1000);
+    const latest = updater(store, op(t['ir-data'], map(t.files, files)), 'latest', 1);
+    queueSaved(key, latest, secondComplete);
+    flushSaved();
+    context.mock.timers.tick(1000);
+    assert.equal(resultTag(await first), 'ok');
+    assert.equal(writes, 1);
+    context.mock.timers.tick(1000);
+    assert.equal(resultTag(await second), 'ok');
+    assert.equal(writes, 2);
+    assert.equal(maxActive, 1);
+    assert.equal(await readDB(key), clt.format_cirru_edn(latest));
+    flushSaved();
+    assert.equal(writes, 2);
+  } finally {
+    IDBDatabase.prototype.transaction = original;
+    context.mock.timers.reset();
+  }
 });
