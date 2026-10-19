@@ -1104,7 +1104,7 @@
               :args $ [] $ :: 'Result 'Unit 'String
           :examples $ []
           :schema $ :: 'StructDef
-        'arm-save! $ %{} 'CodeEntry (:doc |)
+        'arm-save! $ %{} 'CodeEntry (:doc "|重置自动保存的 1 秒尾沿定时器；计时结束仅刷新待存请求，不在用户每次输入时序列化完整 IR。")
           :code $ quote $ defn arm-save! ()
             match @*save-timer
               (:some timer) (browser/clear-timeout! timer)
@@ -1133,7 +1133,8 @@
           :schema $ :: 'Fn $ {}
             :args $ [] 'String
             :return $ :: 'Result (:: 'Option 'app.types/StoreData) 'String
-        'flush-save! $ %{} 'CodeEntry (:doc |)
+        'flush-save! $ %{} 'CodeEntry
+          :doc "|仅在有待存请求且无写入在途时序列化并提交，最多同时写入一次。期间的新编辑保留为最新待存快照；失败不覆盖更新的请求、不自旋重试，留待后续操作或周期刷新。页面关闭时异步提交仍只能尽力完成。"
           :code $ quote $ defn flush-save! ()
             match @*save-timer
               (:some timer) (browser/clear-timeout! timer)
@@ -1195,7 +1196,8 @@
               :: 'Fn $ {} (:return 'Unit)
                 :args $ [] $ :: 'Result (:: 'Option 'app.types/StoreData) 'String
             :features $ #{} :js-ffi
-        'queue-save! $ %{} 'CodeEntry (:doc |)
+        'queue-save! $ %{} 'CodeEntry
+          :doc "|为当前单存档排入最新不可变快照引用，重置 1 秒延迟；此处不序列化。被合并替换的待存请求不回调，仅实际提交的请求收到 Result。"
           :code $ quote $ defn queue-save! (key stored complete!)
             reset! *pending-save $ Option :some $ SaveRequest :key key :stored stored :complete! complete!
             arm-save!

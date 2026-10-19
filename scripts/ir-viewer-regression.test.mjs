@@ -21,6 +21,7 @@ const field = (v, k) => clt.option_$o_unwrap(clt.get(v, k));
 const op = (tag, ...values) => clt._PCT__$o__$o_(Op, tag, ...values);
 const files = map('app.alpha', map(t.defs, map()), 'app.beta', map(t.defs, map()));
 
+/** Find a matching handler in actual Respo render nodes for interaction regressions. */
 function eventHandler(node, tag, accept = () => true) {
   if (clt.enum_$q_(node)) return node.extra.length ? eventHandler(node.extra[0], tag, accept) : undefined;
   if (component_$q_(node)) return eventHandler(component_tree(node), tag, accept);
