@@ -8,7 +8,12 @@ Demo http://repo.calcit-lang.org/calcit-ir-viewer/ .
 
 ### Workflow
 
-Calcit / `@calcit/procs` 0.27.0, Node.js 24, Yarn 4.18.0.
+迁移候选：Calcit / `@calcit/procs` 配对使用已发布的 `0.30.1-alpha.5`，
+不是尚未发布的 0.30.1 正式版。Respo、Reel、UI 均使用精确正式 tag。
+原有 IR 导入、书签和预览行为保留；不改变生产路径或自动部署后端。
+存档保留原字段布局，恢复时区分已构造的 StoreData 与待解码 Map。
+
+Node.js 24, Yarn 4.18.0.
 Keep only `calcit.cirru` and `deps.cirru`; CI rejects retired snapshot files.
 
 ```sh
@@ -18,6 +23,7 @@ caps verify --toolchain
 calcit calcit.cirru --check-only
 yarn build
 node --test scripts/ir-viewer-regression.test.mjs
+calcit test app.comp.container/format-type-info --require-match
 ```
 
 `yarn build` compiles the default JS browser entry and builds once; `yarn dev`

@@ -2,14 +2,14 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import * as clt from '../js-out/calcit.core.mjs';
 import { store } from '../js-out/app.schema.mjs';
-import { Op, Bookmark } from '../js-out/app.types.mjs';
+import { Op, Bookmark, decode_store, decode_op } from '../js-out/app.types.mjs';
 import { updater } from '../js-out/app.updater.mjs';
-import { comp_file_entry, comp_container } from '../js-out/app.comp.container.mjs';
+import { comp_file_entry, comp_container, comp_import, comp_preview } from '../js-out/app.comp.container.mjs';
 import { new_reel, record_op } from '../js-out/reel.typed.mjs';
 import { make_string } from '../js-out/respo.render.html.mjs';
 import { component_$q_, component_tree } from '../js-out/respo.util.detect.mjs';
 
-const t = clt.init_tags(['states', 'cursor', 'data', 'file-entry', 'query', 'selected', 'value', 'files', 'defs', 'event', 'input', 'click', 'change', 'children', 'some', 'bookmarks', 'pointer', 'new-bookmark', 'point-to', 'remove-bookmark', 'preview', 'ir', 'ir-data']);
+const t = clt.init_tags(['states', 'cursor', 'data', 'file-entry', 'query', 'selected', 'value', 'files', 'defs', 'event', 'input', 'click', 'change', 'children', 'node', 'some', 'bookmarks', 'pointer', 'new-bookmark', 'point-to', 'remove-bookmark', 'preview', 'ir', 'ir-data']);
 const map = clt._$n__$M_;
 const list = clt._$L_;
 const nth = (v, i) => clt.option_$o_unwrap(clt.nth(v, i));
@@ -18,7 +18,8 @@ const op = (tag, ...values) => clt._PCT__$o__$o_(Op, tag, ...values);
 const files = map('app.alpha', map(t.defs, map()), 'app.beta', map(t.defs, map()));
 
 function eventHandler(node, tag, accept = () => true) {
-  if (component_$q_(node)) return eventHandler(clt.option_$o_unwrap(component_tree(node)), tag, accept);
+  if (clt.enum_$q_(node)) return node.extra.length ? eventHandler(node.extra[0], tag, accept) : undefined;
+  if (component_$q_(node)) return eventHandler(component_tree(node), tag, accept);
   const events = clt.get(node, t.event);
   if (clt._$n_enum_$o_nth(events, 0) === t.some) {
     const handler = clt.get(clt.option_$o_unwrap(events), tag);
@@ -28,7 +29,7 @@ function eventHandler(node, tag, accept = () => true) {
   if (clt._$n_enum_$o_nth(children, 0) === t.some) {
     const pairs = clt.option_$o_unwrap(children);
     for (let i = 0; i < clt.count(pairs); i++) {
-      const found = eventHandler(nth(nth(pairs, i), 1), tag, accept);
+      const found = eventHandler(field(nth(pairs, i), t.node), tag, accept);
       if (found) return found;
     }
   }
@@ -43,6 +44,8 @@ test('state updates modify the state tree without nesting another store', () => 
   const root = updater(next, op(t.states, list(), map(t.query, 'root')), 'root', 2);
   assert.equal(field(field(field(root, t.states), t.data), t.query), 'root');
   assert.equal(clt.contains_$q_(field(root, t.states), t['file-entry']), true);
+  assert.equal(clt.option_$o_unwrap(decode_store(root)), root);
+  assert.equal(clt._$n_enum_$o_nth(decode_store(clt.parse_cirru_edn(clt.format_cirru_edn(root))), 0), t.some);
 });
 
 test('query dispatch is a single Enum and round-trips through updater/Reel/render', () => {
@@ -75,8 +78,9 @@ test('IR file import awaits file text and dispatches one ir-data Enum', async ()
   const handler = eventHandler(comp_file_entry(inputState, files), t.change);
   assert.equal(typeof handler, 'function');
   const target = { value: 'program-ir.cirru', files: { item: () => ({ text: async () => clt.format_cirru_edn(map(t.files, files)) }) } };
+  const event = { target, currentTarget: target, type: 'change', defaultPrevented: false, eventPhase: 2, preventDefault() {}, stopPropagation() {} };
   let captured;
-  await handler(map(t.event, { target }), (...args) => { assert.equal(args.length, 1); captured = args[0]; });
+  await handler(map(t.event, event), (...args) => { assert.equal(args.length, 1); captured = args[0]; });
   assert.equal(target.value, '');
   assert.equal(clt._$n_enum_$o_nth(captured, 0), t['ir-data']);
   const next = updater(store, captured, 'file', 1);
@@ -92,4 +96,17 @@ test('bookmark removal clamps pointer and keeps preview unchanged', () => {
   assert.equal(clt.count(field(next, t.bookmarks)), 0);
   assert.equal(field(next, t.pointer), 0);
   assert.equal(field(next, t.preview), 'preview');
+});
+
+test('preview click and close decode operations and round-trip through Reel', () => {
+  let reel = new_reel(store);
+  const dispatch = (...args) => {
+    assert.equal(args.length, 1);
+    reel = record_op(updater, reel, decode_op(args[0]), 'preview', 1);
+  };
+  const expr = map(clt.init_tags(['ns']).ns, 'app.alpha', clt.init_tags(['def']).def, 'main!');
+  eventHandler(comp_import(expr), t.click)(map(), dispatch);
+  assert.equal(field(field(reel, clt.init_tags(['store']).store), t.preview), expr);
+  eventHandler(comp_preview(expr), t.click)(map(), dispatch);
+  assert.equal(field(field(reel, clt.init_tags(['store']).store), t.preview), null);
 });

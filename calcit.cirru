@@ -184,11 +184,11 @@
                 cursor $ option:unwrap-or (get states :cursor) ([])
                 pointer $ :pointer store
                 bookmarks $ :bookmarks store
-                files $ assert-type
+                files $ decode-map-as
                   option:unwrap-or
                     get-in (:ir store) ([] :files)
                     {}
-                  :: 'Map 'String 'Dynamic
+                  :: 'Map 'String $ :: 'Map 'Tag 'Dynamic
               div
                 {} $ :class-name $ str-spaced css/global css/fullscreen css/column
                 div
@@ -232,11 +232,9 @@
             div
               {} $ :class-name $ str-spaced css/column
               let
-                  defs $ if (some? file)
-                    keys $ assert-type
-                      option:unwrap-or (get file :defs) ({})
-                      :: 'Map 'String 'Dynamic
-                    #{}
+                  defs $ keys $ assert-type
+                    option:unwrap-or (get file :defs) ({})
+                    :: 'Map 'String 'Dynamic
                 list->
                   {} $ :class-name $ str-spaced css/column
                   -> defs &set:to-list (sort &compare)
@@ -256,9 +254,13 @@
         'comp-file-entry $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn comp-file-entry (states files)
             let
-                cursor $ option:unwrap-or (get states :cursor) ([])
-                state $ option:unwrap-or (get states :data)
-                  {} (:selected nil) (:query |)
+                cursor $ decode-map-as
+                  option:unwrap-or (get states :cursor) ([])
+                  :: 'List 'Dynamic
+                state $ decode-map-as
+                  option:unwrap-or (get states :data)
+                    {} (:selected |) (:query |)
+                  :: 'Map 'Tag 'String
                 selected $ assert-type
                   option:unwrap-or (get state :selected) |
                   , 'String
@@ -282,7 +284,7 @@
                     :style $ {} (:overflow-y :auto) (:max-height |40%)
                       :border-bottom $ str "|1px solid " $ hsl 0 0 95
                   let
-                      ns-names $ if (some? files) (keys files) (#{})
+                      ns-names $ keys files
                     list-> ({})
                       -> ns-names &set:to-list (sort &compare)
                         filter $ fn (name) (includes? name query)
@@ -318,10 +320,10 @@
                         hint-fn $ {} (:async true)
                           :features $ #{} :js-ffi
                         let
-                            event-host $ unsafe-coerce
+                            event-host $ js-cast
                               option:unwrap $ get e :event
                               , 'js-ffi.browser/EventHost
-                            target $ unsafe-coerce
+                            target $ js-cast
                               option:unwrap $ js-nullish->option $ event-host :target
                               , 'app.types/FileInputHost
                             files-host $ option:unwrap $ js-nullish->option (target :files)
@@ -334,7 +336,8 @@
                     div ({}) (<> "|Pick IR file")
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'respo.schema/Element)
-            :args $ [] 'Dynamic $ :: 'Map 'String 'Dynamic
+            :args $ [] (:: 'Map 'Dynamic 'Dynamic)
+              :: 'Map 'String $ :: 'Map 'Tag 'Dynamic
             :features $ #{} :js-ffi
         'comp-fn $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-fn (f)
@@ -367,7 +370,8 @@
               {}
                 :class-name $ str-spaced css/column css-code-symbol
                 :style $ merge $ {} (:display :inline-flex)
-                :on-click $ fn (e d!) (d! :preview expr)
+                :on-click $ fn (e d!)
+                  d! $ :: :preview expr
               <> $ str $ option:unwrap-or (get expr :def) |
               div
                 {} $ :class-name css/row-middle
@@ -410,7 +414,8 @@
             div
               {} (:class-name css/column)
                 :style $ {} $ :display :inline-flex
-                :on-click $ fn (e d!) (d! :preview expr)
+                :on-click $ fn (e d!)
+                  d! $ :: :preview expr
               <> (str "|ir " kind) style-tiny-hint
               <> (to-lispy-string expr) css-code-default
           :examples $ []
@@ -422,7 +427,8 @@
               {}
                 :class-name $ str-spaced css/column css-code-symbol
                 :style $ merge $ {} (:display :inline-flex)
-                :on-click $ fn (e d!) (d! :preview expr)
+                :on-click $ fn (e d!)
+                  d! $ :: :preview expr
               <> $ str $ option:unwrap-or (get expr :val) nil
               <> |local style-tiny-hint
               <>
@@ -463,7 +469,8 @@
             div
               {} (:class-name css/column)
                 :style $ {} (:display :inline-flex) (:line-height |1.2)
-                :on-click $ fn (e d!) (d! :preview expr)
+                :on-click $ fn (e d!)
+                  d! $ :: :preview expr
               <>
                 str |. $ option:unwrap-or (get expr :method) nil
                 , css-code-method
@@ -475,13 +482,14 @@
             :args $ [] 'Dynamic
         'comp-preview $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-preview (data)
-            if (some? data)
+            if (non-nil? data)
               div
                 {} $ :class-name css-preview-tip
                 div $ {} $ :inner-text
                   trim $ format-cirru-edn data
                 div $ {} (:inner-text "|×") (:class-name css-preview-close)
-                  :on-click $ fn (e d!) (d! :preview nil)
+                  :on-click $ fn (e d!)
+                    d! $ :: :preview nil
               div $ {}
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'respo.schema/Component)
@@ -544,7 +552,8 @@
               div
                 {}
                   :style $ merge $ {} (:display :inline-block)
-                  :on-click $ fn (e d!) (d! :preview expr)
+                  :on-click $ fn (e d!)
+                    d! $ :: :preview expr
                 <> $ str $ option:unwrap-or (get expr :alias) |
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'respo.schema/Component)
@@ -560,7 +569,8 @@
               {}
                 :class-name $ str-spaced css/column css-code-symbol
                 :style $ merge $ {} (:display :inline-flex)
-                :on-click $ fn (e d!) (d! :preview expr)
+                :on-click $ fn (e d!)
+                  d! $ :: :preview expr
               <> $ str $ option:unwrap-or (get expr :val) nil
               div ({})
                 <>
@@ -743,7 +753,7 @@
                             option:unwrap $ get t :args
                             , indent
                         if
-                          some? $ option:unwrap-or (get t :return)
+                          non-nil? $ option:unwrap-or (get t :return)
                             option:unwrap-or (get t :return-type) nil
                           [] |:return $ format-type-info
                             option:unwrap-or (get t :return)
@@ -758,7 +768,14 @@
                         entries $ []
                           if
                             option:some? $ get t :tag
-                            [] |:tag $ turn-string $ option:unwrap (get t :tag)
+                            [] |:tag $ let
+                                label $ option:unwrap $ get t :tag
+                              cond
+                                  string? label
+                                  , label
+                                (tag? label) (.to-string label)
+                                (symbol? label) (.to-string label)
+                                true $ format-type-display label
                           if
                             option:some? $ get t :payload
                             [] |:payload $ format-type-info
@@ -773,7 +790,14 @@
                           entries $ []
                             if
                               option:some? $ get t :name
-                              [] |:name $ turn-string $ option:unwrap (get t :name)
+                              [] |:name $ let
+                                  label $ option:unwrap $ get t :name
+                                cond
+                                    string? label
+                                    , label
+                                  (tag? label) (.to-string label)
+                                  (symbol? label) (.to-string label)
+                                  true $ format-type-display label
                             if
                               option:some? $ get t :fields
                               [] |:fields $ format-type-info
@@ -810,6 +834,24 @@
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Dynamic)
             :args $ [] 'Dynamic 'String
+          :tests $ [] $ %{} 'TestEntry (:name |legacy-type-labels)
+            :code $ quote $ do
+              assert=
+                [] |tuple ([] |:tag |ready) |nil
+                format-type-info
+                  {} (:kind :tuple) (:tag :ready)
+                  , |
+              assert=
+                [] |record ([] |:name |Thing) |nil
+                format-type-info
+                  {} (:kind :record) (:name 'Thing)
+                  , |
+              assert=
+                [] |fn |nil $ [] |:return "|do false"
+                format-type-info
+                  {} (:kind :fn) (:return false)
+                  , |
+            :tags $ #{} :unit
         'kind-string? $ %{} 'CodeEntry
           :doc "|Validate a string discriminator read from an open Calcit IR map."
           :code $ quote $ defn kind-string? (x expected)
@@ -900,22 +942,20 @@
     'app.main $ %{} 'FileEntry
       :defs $ {}
         '*reel $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ defatom *reel (typed/new-reel schema/store)
+          :code $ quote $ defref *reel (typed/new-reel schema/store)
           :examples $ []
           :schema $ :: 'Ref $ :: 'reel.typed/State 'app.types/Op 'app.types/StoreData
         'dispatch! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn dispatch! (op)
             when config/dev? $ println |Dispatch: op
             let
-                typed-op $ assert-type op 'Enum
+                typed-op $ if (enum? op) op $ raise "|Expected an operation Enum"
                 control $ typed/decode-control typed-op
-              reset! *reel $ assert-type
-                match control
-                  (:some action) (typed/apply-control updater @*reel action)
-                  (:none)
-                    typed/record-op updater @*reel (assert-type typed-op 'app.types/Op) (generate-id!)
-                      :timestamp $ shared/date-now-snapshot
-                :: 'reel.typed/State 'app.types/Op 'app.types/StoreData
+              reset! *reel $ match control
+                (:some action) (typed/apply-control updater @*reel action)
+                (:none)
+                  typed/record-op updater @*reel (types/decode-op typed-op) (generate-id!)
+                    :timestamp $ shared/date-now-snapshot
               , &unit
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Unit)
@@ -925,7 +965,7 @@
           :code $ quote $ defn main! () (load-console-formatter!)
             println "|Running mode:" $ if config/dev? |dev |release
             render-app!
-            add-watch *reel :changes $ fn (reel prev) (render-app!)
+            add-watch! *reel :changes $ fn (reel prev) (render-app!)
             listen-devtools! |a dispatch!
             browser/set-before-unload! $ fn (event) (persist-storage!)
             browser/set-interval! persist-storage! 60000
@@ -944,10 +984,14 @@
             :args $ []
             :features $ #{} :js-ffi
         'mount-target $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ def mount-target
-            option:unwrap $ browser/query-selector |.app
+          :code $ quote $ defn mount-target ()
+            js-cast
+              option:unwrap $ browser/query-selector |.app
+              , 'respo.dom/DomElement
           :examples $ []
-          :schema $ :: 'js-ffi.browser/DomElementHost
+          :schema $ :: 'Fn $ {} (:return 'respo.dom/DomElement)
+            :args $ []
+            :features $ #{} :js-ffi
         'persist-storage! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn persist-storage! ()
             browser/storage-set!
@@ -961,8 +1005,8 @@
         'reload! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn reload! ()
             if (nil? build-errors)
-              do (remove-watch *reel :changes) (clear-cache!)
-                add-watch *reel :changes $ fn (reel prev) (render-app!)
+              do (remove-watch! *reel :changes) (clear-cache!)
+                add-watch! *reel :changes $ fn (reel prev) (render-app!)
                 reset! *reel $ typed/refresh updater @*reel schema/store
                 hud! |ok~ |Ok
               hud! |error build-errors
@@ -972,7 +1016,7 @@
             :features $ #{} :js-ffi
         'render-app! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn render-app! ()
-            render! mount-target (comp-container @*reel) dispatch!
+            render! (mount-target) (comp-container @*reel) dispatch!
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Unit)
             :args $ []
@@ -1000,7 +1044,7 @@
             app.config :as config
             js-ffi.browser :as browser
             js-ffi.shared :as shared
-            |./calcit.build-errors :default build-errors
+            |./calcit.build-errors.mjs :default build-errors
             |bottom-tip :default hud!
     'app.schema $ %{} 'FileEntry
       :defs $ {} $ 'store
@@ -1049,20 +1093,65 @@
           :schema $ :: 'Trait
           :tags $ #{} :ffi :js-host
         'Op $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ defenum Op (:states 'List 'Dynamic) (:ir-data 'Dynamic) (:preview 'Dynamic) (:hydrate-storage 'app.types/StoreData) (:new-bookmark 'app.types/Bookmark) (:point-to 'Number) (:remove-bookmark 'Number) (:reel/toggle) (:reel/recall 'Number) (:reel/merge) (:reel/reset) (:reel/step) (:reel/run) (:reel/remove 'Number)
+          :code $ quote $ defenum Op
+            :states (:: 'List 'Dynamic) 'Dynamic
+            :ir-data 'Dynamic
+            :preview 'Dynamic
+            :hydrate-storage 'app.types/StoreData
+            :new-bookmark 'app.types/Bookmark
+            :point-to 'Number
+            :remove-bookmark 'Number
+            :reel/toggle
+            :reel/recall 'Number
+            :reel/merge
+            :reel/reset
+            :reel/step
+            :reel/run
+            :reel/remove 'Number
           :examples $ []
           :schema $ :: 'EnumDef
         'StoreData $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ defstruct StoreData (:states 'Map) (:ir 'Dynamic) (:preview 'Dynamic)
+          :code $ quote $ defstruct StoreData
+            :states $ :: 'Map 'Dynamic 'Dynamic
+            :ir 'Dynamic
+            :preview 'Dynamic
             :bookmarks $ :: 'List 'app.types/Bookmark
             :pointer 'Number
           :examples $ []
-          :schema $ :: 'Enum
+          :schema $ :: 'StructDef
+        'decode-op $ %{} 'CodeEntry (:doc |)
+          :code $ quote $ defn decode-op (op)
+            match op
+              (:states cursor data)
+                Op :states
+                  decode-map-as cursor $ :: 'List 'Dynamic
+                  , data
+              (:ir-data data) (Op :ir-data data)
+              (:preview data) (Op :preview data)
+              (:hydrate-storage data)
+                Op :hydrate-storage $ .unwrap $ decode-store data
+              (:new-bookmark bookmark)
+                match bookmark
+                  (:bookmark ns name)
+                    Op :new-bookmark $ Bookmark :bookmark (decode-map-as ns 'String) (decode-map-as name 'String)
+                  _ $ raise "|Expected a bookmark operation target"
+              (:point-to index)
+                Op :point-to $ decode-map-as index 'Number
+              (:remove-bookmark index)
+                Op :remove-bookmark $ decode-map-as index 'Number
+              _ $ raise "|Unknown application operation"
+          :examples $ []
+          :schema $ :: 'Fn $ {} (:return 'app.types/Op)
+            :args $ [] 'Enum
         'decode-store $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn decode-store (data)
-            match (try-decode-map-as data app.types/StoreData)
-              (:ok store) (Option :some store)
-              (:err message) (Option :none)
+            if (struct? data)
+              struct-match data
+                app.types/StoreData stored $ Option :some stored
+                _ _ $ Option :none
+              match (try-decode-map-as data app.types/StoreData)
+                (:ok store) (Option :some store)
+                (:err message) (Option :none)
           :examples $ []
           :schema $ :: 'Fn $ {}
             :args $ [] 'Dynamic
@@ -1075,9 +1164,9 @@
           :code $ quote $ defn updater (store op op-id op-time)
             match op
               (:states cursor data)
-                assoc store :states $ assert-type
+                assoc store :states $ decode-map-as
                   update-state-tree (:states store) cursor data
-                  , 'Map
+                  :: 'Map 'Dynamic 'Dynamic
               (:ir-data data)
                 -> store (assoc :ir data)
                   assoc :bookmarks $ []
