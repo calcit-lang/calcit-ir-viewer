@@ -46,14 +46,14 @@
       :unresolved 1
       :unsafeCoerce 0
     |app.comp.container/comp-file-entry $ {} (:codeDynamic 0)
-      :codeNil 1
+      :codeNil 0
       :declaredOptional 0
       :deprecatedCalls 0
       :schemaDynamic 0
       :typeNone 0
       :typeNotFull 1
-      :unresolved 1
-      :unsafeCoerce 2
+      :unresolved 0
+      :unsafeCoerce 0
     |app.comp.container/comp-fn $ {} (:codeDynamic 0)
       :codeNil 0
       :declaredOptional 0
@@ -226,14 +226,14 @@
       :unresolved 1
       :unsafeCoerce 0
   :metrics $ {} (:codeDynamic 0)
-    :codeNil 16
+    :codeNil 15
     :declaredOptional 0
     :deprecatedCalls 0
     :schemaDynamic 22
     :typeNone 0
     :typeNotFull 23
-    :unresolved 38
-    :unsafeCoerce 2
+    :unresolved 37
+    :unsafeCoerce 0
   :scope $ {} (:includeDependencies false)
     :namespace nil
     :namespacePrefix nil
