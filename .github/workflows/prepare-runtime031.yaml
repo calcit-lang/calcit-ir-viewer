@@ -1,0 +1,55 @@
+name: Prepare isolated IR acceptance
+on:
+  push:
+    branches: [prepare/ir-viewer-runtime031]
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v6.5.0
+        with:
+          node-version: 24
+          package-manager-cache: false
+      - run: corepack enable && corepack prepare yarn@4.18.0 --activate
+      - uses: calcit-lang/setup-calcit@v1.5.0
+        with:
+          tools: calcit,caps
+          caps-version: "0.1.1"
+          deps-file: deps.cirru
+      - name: Prepare exact public source
+        run: |
+          set -euo pipefail
+          test "$(git hash-object calcit.cirru)" = 06f800cd2de3dd8482d71d8ff3c20ee5282e717e
+          caps --strict --ci
+          yarn install --immutable
+          caps verify --toolchain
+          mkdir -p acceptance
+      - name: Collect strict failure without changing source
+        run: |
+          calcit calcit.cirru fix --workflow strict --verify --format json > acceptance/strict.json
+        continue-on-error: true
+      - name: Build isolated runtime and public IR
+        env:
+          VITE_BASE_URL: ./
+        run: |
+          set -euo pipefail
+          yarn build
+          node --test scripts/ir-viewer-regression.test.mjs
+          calcit calcit.cirru test app.comp.container/format-type-info --require-match
+          calcit calcit.cirru ir
+          test -s program-ir.cirru
+          cp program-ir.cirru acceptance/program-ir.cirru
+          cp -R dist acceptance/dist
+          git diff --exit-code -- calcit.cirru
+      - uses: actions/upload-artifact@v7.0.1
+        if: always()
+        with:
+          name: ir-acceptance-${{ github.run_id }}-${{ github.run_attempt }}
+          path: acceptance
+          if-no-files-found: error
+          retention-days: 7
