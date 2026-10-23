@@ -232,7 +232,7 @@
             div
               {} $ :class-name $ str-spaced css/column
               let
-                  defs $ keys $ assert-type
+                  defs $ keys $ decode-map-as
                     .unwrap-or (get file :defs) ({})
                     :: 'Map 'String 'Dynamic
                 list->
@@ -328,7 +328,7 @@
                               , 'app.types/FileInputHost
                             files-host $ .unwrap $ js-nullish->option (target :files)
                             file-host $ .unwrap $ js-nullish->option (files-host .item 0)
-                            text $ assert-type
+                            text $ decode-map-as
                               js-await $ file-host .text
                               , 'String
                           js-set target :value |
@@ -345,10 +345,10 @@
               {} $ :class-name css-pad8
               div ({})
                 <> $ str "|Name: "
-                  assert-type
+                  decode-map-as
                     .unwrap-or (get f :ns) |
                     , 'String
-                  , |/ $ assert-type
+                  , |/ $ decode-map-as
                     .unwrap-or (get f :name) |
                     , 'String
               div ({})
@@ -445,10 +445,10 @@
               {} $ :class-name css-pad8
               div ({})
                 <> $ str "|Macro name: "
-                  assert-type
+                  decode-map-as
                     .unwrap-or (get f :ns) |
                     , 'String
-                  , |/ $ assert-type
+                  , |/ $ decode-map-as
                     .unwrap-or (get f :name) |
                     , 'String
               div ({})
@@ -989,7 +989,8 @@
                 listen-devtools! |a dispatch!
                 browser/set-before-unload! $ fn (event) (persist-storage!)
                 browser/set-interval! persist-storage! 60000
-                do (schedule-storage!) (persist-storage!)
+                schedule-storage!
+                persist-storage!
                 println "|App started."
                 , &unit
             , &unit
@@ -1020,6 +1021,7 @@
                 reset! *reel $ typed/refresh updater @*reel schema/store
                 hud! |ok~ |Ok
               hud! |error build-errors
+            , &unit
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Unit)
             :args $ []
