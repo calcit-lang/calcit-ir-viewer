@@ -2,10 +2,11 @@
 
 本项目使用 canonical `calcit.cirru` 作为源码快照，不再维护 `compact.cirru`。
 
-开始查询或修改前，先读取当前 CLI 指南：
+开始查询或修改前，先读取匹配项目声明版本的紧凑契约；首次接触、digest 变化或涉及新能力时读取完整指南：
 
 ```bash
-calcit docs agents --full
+calcit docs agents --contract
+calcit docs agents --full # 首次接触、契约变化或按需查阅
 ```
 
 需要了解升级、快照格式、依赖或结构化编辑时，直接查询内置文档：

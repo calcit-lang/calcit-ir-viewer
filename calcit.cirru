@@ -133,7 +133,7 @@
                 <> (str expr) css-code-tag
               (calcit-tag? expr)
                 <>
-                  str |: $ option:unwrap-or (get expr :val) |
+                  str |: $ .unwrap-or (get expr :val) |
                   , css-code-tag
               (list? expr)
                 div
@@ -160,7 +160,7 @@
               (calcit-proc? expr) (comp-proc expr)
               (calcit-fn? expr)
                 <>
-                  str $ option:unwrap-or (get expr :name) |
+                  str $ .unwrap-or (get expr :name) |
                   , css-code-fn
               (calcit-syntax? expr) (comp-syntax expr)
               (calcit-method? expr) (comp-method expr)
@@ -181,11 +181,11 @@
             let
                 store $ :store reel
                 states $ :states store
-                cursor $ option:unwrap-or (get states :cursor) ([])
+                cursor $ .unwrap-or (get states :cursor) ([])
                 pointer $ :pointer store
                 bookmarks $ :bookmarks store
                 files $ decode-map-as
-                  option:unwrap-or
+                  .unwrap-or
                     get-in (:ir store) ([] :files)
                     {}
                   :: 'Map 'String $ :: 'Map 'Tag 'Dynamic
@@ -203,7 +203,7 @@
                           {} (:class-name css/expand)
                             :style $ {} $ :padding-bottom 120
                           let
-                              declaration $ option:unwrap-or
+                              declaration $ .unwrap-or
                                 get-in (:ir store) ([] :files ns :defs definition)
                                 , nil
                             if (calcit-fn? declaration) (comp-fn declaration)
@@ -233,7 +233,7 @@
               {} $ :class-name $ str-spaced css/column
               let
                   defs $ keys $ assert-type
-                    option:unwrap-or (get file :defs) ({})
+                    .unwrap-or (get file :defs) ({})
                     :: 'Map 'String 'Dynamic
                 list->
                   {} $ :class-name $ str-spaced css/column
@@ -255,17 +255,17 @@
           :code $ quote $ defn comp-file-entry (states files)
             let
                 cursor $ decode-map-as
-                  option:unwrap-or (get states :cursor) ([])
+                  .unwrap-or (get states :cursor) ([])
                   :: 'List 'Dynamic
                 state $ decode-map-as
-                  option:unwrap-or (get states :data)
+                  .unwrap-or (get states :data)
                     {} (:selected |) (:query |)
                   :: 'Map 'Tag 'String
                 selected $ assert-type
-                  option:unwrap-or (get state :selected) |
+                  .unwrap-or (get state :selected) |
                   , 'String
                 query $ assert-type
-                  option:unwrap-or (get state :query) |
+                  .unwrap-or (get state :query) |
                   , 'String
               div
                 {}
@@ -278,7 +278,7 @@
                     :style $ {} $ :width |100%
                     :on-input $ fn (e d!)
                       d! $ :: :states cursor $ assoc state :query
-                        option:unwrap $ get e :value
+                        .unwrap $ get e :value
                 div
                   {} (:class-name css/expand)
                     :style $ {} (:overflow-y :auto) (:max-height |40%)
@@ -304,7 +304,7 @@
                   if
                     not $ blank? selected
                     comp-file selected
-                      option:unwrap-or (get files selected) ({})
+                      .unwrap-or (get files selected) ({})
                       , |
                     div
                       {} $ :class-name $ str-spaced css-pad8 css/font-fancy
@@ -321,13 +321,13 @@
                           :features $ #{} :js-ffi
                         let
                             event-host $ js-cast
-                              option:unwrap $ get e :event
+                              .unwrap $ get e :event
                               , 'js-ffi.browser/EventHost
                             target $ js-cast
-                              option:unwrap $ js-nullish->option $ event-host :target
+                              .unwrap $ js-nullish->option $ event-host :target
                               , 'app.types/FileInputHost
-                            files-host $ option:unwrap $ js-nullish->option (target :files)
-                            file-host $ option:unwrap $ js-nullish->option (files-host .item 0)
+                            files-host $ .unwrap $ js-nullish->option (target :files)
+                            file-host $ .unwrap $ js-nullish->option (files-host .item 0)
                             text $ assert-type
                               js-await $ file-host .text
                               , 'String
@@ -346,20 +346,20 @@
               div ({})
                 <> $ str "|Name: "
                   assert-type
-                    option:unwrap-or (get f :ns) |
+                    .unwrap-or (get f :ns) |
                     , 'String
                   , |/ $ assert-type
-                    option:unwrap-or (get f :name) |
+                    .unwrap-or (get f :name) |
                     , 'String
               div ({})
                 <> $ str |Args:
                 comp-code
-                  option:unwrap $ get f :args
+                  .unwrap $ get f :args
                   , false
               div ({})
                 <> $ str |Code:
                 comp-code
-                  option:unwrap $ get f :code
+                  .unwrap $ get f :code
                   , false
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'respo.schema/Component)
@@ -372,38 +372,38 @@
                 :style $ merge $ {} (:display :inline-flex)
                 :on-click $ fn (e d!)
                   d! $ :: :preview expr
-              <> $ str $ option:unwrap-or (get expr :def) |
+              <> $ str $ .unwrap-or (get expr :def) |
               div
                 {} $ :class-name css/row-middle
                 <>
-                  str $ option:unwrap-or (get expr :ns) nil
+                  str $ .unwrap-or (get expr :ns) nil
                   , style-import-ns
                 a $ {} (:class-name css/link) (:inner-text |goto)
                   :style $ {} $ :font-size 10
                   :on-click $ fn (e d!)
                     d! $ :: :new-bookmark $ :: :bookmark
-                      option:unwrap-or (get expr :ns) nil
-                      option:unwrap-or (get expr :def) nil
+                      .unwrap-or (get expr :ns) nil
+                      .unwrap-or (get expr :def) nil
               when
                 and
-                  option:some? $ get expr :info
-                  option:some? $ get
-                    option:unwrap-or (get expr :info) nil
+                  .some? $ get expr :info
+                  .some? $ get
+                    .unwrap-or (get expr :info) nil
                     , :kind
                 <>
-                  str "|import " $ option:unwrap-or
+                  str "|import " $ .unwrap-or
                     get
-                      option:unwrap-or (get expr :info) nil
+                      .unwrap-or (get expr :info) nil
                       , :kind
                     , |
                   , style-tiny-hint
               when
-                option:some? $ get expr :type-hint
+                .some? $ get expr :type-hint
                 div
                   {} $ :class-name css/row-middle
                   <>
                     str |type: $ let
-                        t $ option:unwrap $ get expr :type-hint
+                        t $ .unwrap $ get expr :type-hint
                       format-type-display $ format-type-info t |
                     , style-tiny-hint
           :examples $ []
@@ -429,11 +429,11 @@
                 :style $ merge $ {} (:display :inline-flex)
                 :on-click $ fn (e d!)
                   d! $ :: :preview expr
-              <> $ str $ option:unwrap-or (get expr :val) nil
+              <> $ str $ .unwrap-or (get expr :val) nil
               <> |local style-tiny-hint
               <>
                 str |type: $ let
-                    t $ option:unwrap-or (get expr :type-info) |unknown
+                    t $ .unwrap-or (get expr :type-info) |unknown
                   format-type-display $ format-type-info t |
                 , style-tiny-hint
           :examples $ []
@@ -446,20 +446,20 @@
               div ({})
                 <> $ str "|Macro name: "
                   assert-type
-                    option:unwrap-or (get f :ns) |
+                    .unwrap-or (get f :ns) |
                     , 'String
                   , |/ $ assert-type
-                    option:unwrap-or (get f :name) |
+                    .unwrap-or (get f :name) |
                     , 'String
               div ({})
                 <> $ str |Args:
                 comp-code
-                  option:unwrap $ get f :args
+                  .unwrap $ get f :args
                   , false
               div ({})
                 <> $ str |Code:
                 comp-code
-                  option:unwrap $ get f :code
+                  .unwrap $ get f :code
                   , false
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'respo.schema/Component)
@@ -472,10 +472,10 @@
                 :on-click $ fn (e d!)
                   d! $ :: :preview expr
               <>
-                str |. $ option:unwrap-or (get expr :method) nil
+                str |. $ .unwrap-or (get expr :method) nil
                 , css-code-method
               <>
-                str "|method " $ option:unwrap-or (get expr :behavior) nil
+                str "|method " $ .unwrap-or (get expr :behavior) nil
                 , style-tiny-hint
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'respo.schema/Component)
@@ -500,29 +500,29 @@
               {} (:class-name css/column)
                 :style $ {} (:display :inline-flex) (:line-height |1.2)
               <>
-                str $ option:unwrap-or (get expr :name) |
+                str $ .unwrap-or (get expr :name) |
                 , css-code-proc
               <> |proc style-tiny-hint
               if
                 or
-                  option:some? $ get expr :arg-types
-                  option:some? $ get expr :return-type
+                  .some? $ get expr :arg-types
+                  .some? $ get expr :return-type
                 <>
                   str
                     if
-                      option:some? $ get expr :arg-types
+                      .some? $ get expr :arg-types
                       format-type-display $ [] |args: $ format-type-info
-                        option:unwrap $ get expr :arg-types
+                        .unwrap $ get expr :arg-types
                         , |
                       , |
                     if
-                      option:some? $ get expr :return-type
+                      .some? $ get expr :return-type
                       str
                         if
-                          option:some? $ get expr :arg-types
+                          .some? $ get expr :arg-types
                           , &newline |
                         format-type-display $ [] |return: $ format-type-info
-                          option:unwrap $ get expr :return-type
+                          .unwrap $ get expr :return-type
                           , |
                       , |
                   , style-tiny-hint
@@ -535,7 +535,7 @@
             div
               {} (:class-name css/column)
                 :style $ {} (:display :inline-flex) (:line-height |1.2)
-              <> $ str $ option:unwrap-or (get expr :code) |
+              <> $ str $ .unwrap-or (get expr :code) |
               <> "|js raw" style-tiny-hint
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'respo.schema/Component)
@@ -554,7 +554,7 @@
                   :style $ merge $ {} (:display :inline-block)
                   :on-click $ fn (e d!)
                     d! $ :: :preview expr
-                <> $ str $ option:unwrap-or (get expr :alias) |
+                <> $ str $ .unwrap-or (get expr :alias) |
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'respo.schema/Component)
             :args $ [] 'Dynamic
@@ -571,10 +571,10 @@
                 :style $ merge $ {} (:display :inline-flex)
                 :on-click $ fn (e d!)
                   d! $ :: :preview expr
-              <> $ str $ option:unwrap-or (get expr :val) nil
+              <> $ str $ .unwrap-or (get expr :val) nil
               div ({})
                 <>
-                  str $ option:unwrap-or (get expr :ns) |
+                  str $ .unwrap-or (get expr :ns) |
                   , css-code-symbol-ns
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'respo.schema/Component)
@@ -585,7 +585,7 @@
               {} (:class-name css/column)
                 :style $ {} (:display :inline-flex) (:line-height |1.2)
               <>
-                str $ option:unwrap-or (get expr :name) |
+                str $ .unwrap-or (get expr :name) |
                 , css-code-syntax
               <> |syntax style-tiny-hint
           :examples $ []
@@ -748,16 +748,16 @@
                   let
                       entries $ []
                         if
-                          option:some? $ get t :args
+                          .some? $ get t :args
                           [] |:args $ format-type-info
-                            option:unwrap $ get t :args
+                            .unwrap $ get t :args
                             , indent
                         if
-                          non-nil? $ option:unwrap-or (get t :return)
-                            option:unwrap-or (get t :return-type) nil
+                          non-nil? $ .unwrap-or (get t :return)
+                            .unwrap-or (get t :return-type) nil
                           [] |:return $ format-type-info
-                            option:unwrap-or (get t :return)
-                              option:unwrap-or (get t :return-type) nil
+                            .unwrap-or (get t :return)
+                              .unwrap-or (get t :return-type) nil
                             , indent
                     -> entries
                       map $ fn (x)
@@ -767,9 +767,9 @@
                     let
                         entries $ []
                           if
-                            option:some? $ get t :tag
+                            .some? $ get t :tag
                             [] |:tag $ let
-                                label $ option:unwrap $ get t :tag
+                                label $ .unwrap $ get t :tag
                               cond
                                   string? label
                                   , label
@@ -777,9 +777,9 @@
                                 (symbol? label) (.to-string label)
                                 true $ format-type-display label
                           if
-                            option:some? $ get t :payload
+                            .some? $ get t :payload
                             [] |:payload $ format-type-info
-                              option:unwrap $ get t :payload
+                              .unwrap $ get t :payload
                               , indent
                       -> entries
                         map $ fn (x)
@@ -789,9 +789,9 @@
                       let
                           entries $ []
                             if
-                              option:some? $ get t :name
+                              .some? $ get t :name
                               [] |:name $ let
-                                  label $ option:unwrap $ get t :name
+                                  label $ .unwrap $ get t :name
                                 cond
                                     string? label
                                     , label
@@ -799,9 +799,9 @@
                                   (symbol? label) (.to-string label)
                                   true $ format-type-display label
                             if
-                              option:some? $ get t :fields
+                              .some? $ get t :fields
                               [] |:fields $ format-type-info
-                                option:unwrap $ get t :fields
+                                .unwrap $ get t :fields
                                 , indent
                         -> entries
                           map $ fn (x)
@@ -810,9 +810,9 @@
                       if (kind-tag? t :optional)
                         let
                             entries $ [] $ if
-                              option:some? $ get t :inner
+                              .some? $ get t :inner
                               [] |:inner $ format-type-info
-                                option:unwrap $ get t :inner
+                                .unwrap $ get t :inner
                                 , indent
                           -> entries
                             map $ fn (x)
@@ -821,9 +821,9 @@
                         if (kind-tag? t :variadic)
                           let
                               entries $ [] $ if
-                                option:some? $ get t :inner
+                                .some? $ get t :inner
                                 [] |:inner $ format-type-info
-                                  option:unwrap $ get t :inner
+                                  .unwrap $ get t :inner
                                   , indent
                             -> entries
                               map $ fn (x)
@@ -929,7 +929,7 @@
       :defs $ {}
         'dev? $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def dev?
-            = |dev $ option:unwrap-or (get-env |mode) |release
+            = |dev $ .unwrap-or (get-env |mode) |release
           :examples $ []
           :schema $ :: 'Bool
         'site $ %{} 'CodeEntry (:doc |)
@@ -999,7 +999,7 @@
             :features $ #{} :js-ffi
         'mount-target $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn mount-target ()
-            option:unwrap $ respo.ffi.browser/query-selector |.app
+            .unwrap $ respo.ffi.browser/query-selector |.app
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'respo.dom/DomElement)
             :args $ []
