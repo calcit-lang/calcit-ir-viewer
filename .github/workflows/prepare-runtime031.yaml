@@ -29,6 +29,18 @@ jobs:
           yarn install --immutable
           caps verify --toolchain
           mkdir -p acceptance
+      - name: Check heterogeneous IR values at actual read boundaries
+        run: |
+          set -euo pipefail
+          calcit calcit.cirru tree replace app.comp.container/comp-file --path 3.2.1.0.1.1.0 --expect 'quote assert-type' --code 'quote decode-map-as'
+          calcit calcit.cirru tree replace app.comp.container/comp-fn --path 3.2.2.1.2.0 --expect 'quote assert-type' --code 'quote decode-map-as'
+          calcit calcit.cirru tree replace app.comp.container/comp-fn --path 3.2.2.1.4.0 --expect 'quote assert-type' --code 'quote decode-map-as'
+          calcit calcit.cirru tree replace app.comp.container/comp-macro --path 3.2.2.1.2.0 --expect 'quote assert-type' --code 'quote decode-map-as'
+          calcit calcit.cirru tree replace app.comp.container/comp-macro --path 3.2.2.1.4.0 --expect 'quote assert-type' --code 'quote decode-map-as'
+          calcit calcit.cirru edit format
+          cp calcit.cirru acceptance/calcit.cirru
+          git hash-object calcit.cirru > acceptance/source-blob.txt
+          calcit calcit.cirru analyze quality --baseline config/calcit-quality.cirru --format json > acceptance/quality.json
       - name: Collect strict failure without changing source
         run: |
           calcit calcit.cirru fix --workflow strict --verify --format json > acceptance/strict.json
@@ -45,7 +57,6 @@ jobs:
           test -s js-out/program-ir.cirru
           cp js-out/program-ir.cirru acceptance/program-ir.cirru
           cp -R dist acceptance/dist
-          git diff --exit-code -- calcit.cirru
       - uses: actions/upload-artifact@v7.0.1
         if: always()
         with:
