@@ -42,8 +42,8 @@ jobs:
           node --test scripts/ir-viewer-regression.test.mjs
           calcit calcit.cirru test app.comp.container/format-type-info --require-match
           calcit calcit.cirru ir
-          test -s program-ir.cirru
-          cp program-ir.cirru acceptance/program-ir.cirru
+          test -s js-out/program-ir.cirru
+          cp js-out/program-ir.cirru acceptance/program-ir.cirru
           cp -R dist acceptance/dist
           git diff --exit-code -- calcit.cirru
       - uses: actions/upload-artifact@v7.0.1
