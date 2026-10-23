@@ -38,6 +38,7 @@ jobs:
           calcit calcit.cirru tree replace app.comp.container/comp-macro --path 3.2.2.1.2.0 --expect 'quote assert-type' --code 'quote decode-map-as'
           calcit calcit.cirru tree replace app.comp.container/comp-macro --path 3.2.2.1.4.0 --expect 'quote assert-type' --code 'quote decode-map-as'
           calcit calcit.cirru tree replace app.comp.container/comp-file-entry --path 3.2.5.2.3.1.3.1.3.1.4.1.0 --expect 'quote assert-type' --code 'quote decode-map-as'
+          calcit calcit.cirru tree insert app.main/reload! --path 3 --at after --code 'quote &unit'
           calcit calcit.cirru edit format
           cp calcit.cirru acceptance/calcit.cirru
           git hash-object calcit.cirru > acceptance/source-blob.txt
