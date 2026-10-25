@@ -10,13 +10,20 @@ Demo http://repo.calcit-lang.org/calcit-ir-viewer/ .
 
 本分支将 Calcit / `@calcit/procs` 配对为正式 `0.30.1`，
 Respo 0.16.124、Reel 0.6.41、UI 0.8.0 均使用精确正式 tag。
-升级后重启开发服务并刷新页面，不混用旧 runtime。本轮正式 CI 与实际完整恢复验收仍待完成。
+升级后重启开发服务并刷新页面，不混用旧 runtime。该依赖迁移已在 #29 合并。
 原有 IR 导入、书签和预览行为保留；不改变生产路径或自动部署后端。
 存档保留原字段布局；恢复时验证字段与书签载荷，并将历史匿名书签还原为声明的 Bookmark 类型。
 
 本轮通过官方受保护事务迁移 72 处旧 Option helper 到 `.some?` / `.unwrap` / `.unwrap-or`，
 保留全部 schema、原生测试、10 项 Node 回归和四处页面 `hud!`，不新增强转、预算或校验脚本。
 原有 IndexedDB、旧副本兼容、失败暂停覆盖和单次在途写入策略不变。
+
+本轮仅将三处已确认 List 接收者的 `count` 改为首选方法 `.len`：
+代码预览中两个 `list?` 分支和删除书签后的边界计算。正式 0.30.1 查询确认
+方法仍指向核心 List 计数，107 个生成 JS 模块前后逐字节一致，不改变导入、
+IndexedDB、恢复失败处理、页面提示或书签格式，也不新增校验脚本。
+受保护准备 CI 的完整 strict、原质量基线、原生 1 项、Node 前后各 10 项及构建通过；
+这是源码与生成结果验收，不把此前的真实导入/刷新恢复验收冒充本轮重新执行。
 
 完整 IR 存档改存 IndexedDB（`keyval-store` 数据库中的 `calcit-ir-viewer` 键），
 不再受 localStorage 的小容量限制。首次启动优先恢复 IndexedDB；没有记录时兼容读取

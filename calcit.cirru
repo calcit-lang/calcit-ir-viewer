@@ -142,7 +142,7 @@
                     :style $ merge
                       if
                         and
-                          <= (count expr) 3
+                          <= (.len expr) 3
                           every? expr calcit-literal?
                         {} $ :display :inline-flex
                         {}
@@ -150,7 +150,7 @@
                         {} $ :display :inline-block
                         {}
                   , & $ let
-                      size $ count expr
+                      size $ .len expr
                     map-indexed expr $ fn (idx x)
                       comp-code x $ = (inc idx) size
               (calcit-import? expr) (comp-import expr)
@@ -1381,7 +1381,7 @@
                       < index $ :pointer store
                       dec $ :pointer store
                       :pointer store
-                    max-index $ dec $ count bookmarks
+                    max-index $ dec $ .len bookmarks
                     next-pointer $ cond
                         empty? bookmarks
                         , 0
