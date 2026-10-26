@@ -53,8 +53,9 @@ jobs:
           test -f deps.cirru
           test ! -e compact.cirru
           test ! -e package.cirru
+          source_blob="$(git hash-object calcit.cirru)"
           calcit calcit.cirru edit format
-          git diff --exit-code -- calcit.cirru
+          test "$(git hash-object calcit.cirru)" = "$source_blob"
           calcit calcit.cirru --check-only --all-defs
           calcit calcit.cirru fix --workflow strict --verify --format json | jq -e '.data.workflow.status == "passed" and .diagnostics == []'
           calcit calcit.cirru test app.comp.container/format-type-info --require-match
