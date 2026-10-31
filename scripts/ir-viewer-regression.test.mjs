@@ -116,7 +116,7 @@ test('preview click and close decode operations and round-trip through Reel', ()
   assert.equal(field(field(reel, clt.init_tags(['store']).store), t.preview), null);
 });
 
-const loadSnapshot = (key, legacy = () => clt._PCT_none()) => new Promise(resolve => loadSaved(key, legacy, resolve));
+const loadSnapshot = (key, legacy = () => clt._PCT__$o__$o_(clt.Option, clt.newTag('none'))) => new Promise(resolve => loadSaved(key, legacy, resolve));
 const saveSnapshot = (key, value) => new Promise(resolve => saveSaved(key, value, resolve));
 const resultTag = result => clt._$n_enum_$o_nth(result, 0).value;
 
@@ -135,7 +135,7 @@ test('legacy storage remains readable until saved and IndexedDB then takes prece
   const legacyStore = updater(store, op(t['new-bookmark'], bookmark), 'legacy-bookmark', 1);
   const legacyText = clt.format_cirru_edn(legacyStore);
   let legacyReads = 0;
-  const readLegacy = () => { legacyReads++; return clt._PCT_some(legacyText); };
+  const readLegacy = () => { legacyReads++; return clt._PCT__$o__$o_(clt.Option, clt.newTag('some'), legacyText); };
   const loaded = await loadSnapshot('ir-viewer-legacy', readLegacy);
   assert.equal(resultTag(loaded), 'ok');
   assert.equal(await readDB('ir-viewer-legacy'), undefined);

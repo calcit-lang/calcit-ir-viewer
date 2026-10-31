@@ -6,22 +6,18 @@
     {} (:description |) (:init-fn 'app.main/main!) (:mode :js) (:reload-fn 'app.main/reload!) (:target :browser)
       :feature-policy $ {}
       :modules $ [] |respo.calcit/ |respo-ui.calcit/ |reel.calcit/
-      :type-slots $ {}
+      :type-slots $ {} $ :dispatch-op |app.schema/DispatchOp
   :files $ {}
     'app.comp.container $ %{} 'FileEntry
       :defs $ {}
         'calcit-fn? $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn calcit-fn? (x) (kind-tag? x :fn)
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Bool)
-            :args $ [] 'T
-            :generics $ [] 'T
+          :schema $ quote $ Fn T (-> Bool) (:generics T)
         'calcit-import? $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn calcit-import? (x) (kind-tag? x :import)
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Bool)
-            :args $ [] 'T
-            :generics $ [] 'T
+          :schema $ quote $ Fn T (-> Bool) (:generics T)
         'calcit-literal? $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn calcit-literal? (x)
             let
@@ -29,63 +25,43 @@
               ; println |DETECTHING: x ret
               , ret
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Bool)
-            :args $ [] 'T
-            :generics $ [] 'T
+          :schema $ quote $ Fn T (-> Bool) (:generics T)
         'calcit-local? $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn calcit-local? (x) (kind-tag? x :local)
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Bool)
-            :args $ [] 'T
-            :generics $ [] 'T
+          :schema $ quote $ Fn T (-> Bool) (:generics T)
         'calcit-macro? $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn calcit-macro? (x) (kind-tag? x :macro)
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Bool)
-            :args $ [] 'T
-            :generics $ [] 'T
+          :schema $ quote $ Fn T (-> Bool) (:generics T)
         'calcit-method? $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn calcit-method? (x) (kind-tag? x :method)
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Bool)
-            :args $ [] 'T
-            :generics $ [] 'T
+          :schema $ quote $ Fn T (-> Bool) (:generics T)
         'calcit-proc? $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn calcit-proc? (x) (kind-tag? x :proc)
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Bool)
-            :args $ [] 'T
-            :generics $ [] 'T
+          :schema $ quote $ Fn T (-> Bool) (:generics T)
         'calcit-raw-code? $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn calcit-raw-code? (x) (kind-tag? x :raw-code)
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Bool)
-            :args $ [] 'T
-            :generics $ [] 'T
+          :schema $ quote $ Fn T (-> Bool) (:generics T)
         'calcit-registered? $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn calcit-registered? (x) (kind-tag? x :registered)
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Bool)
-            :args $ [] 'T
-            :generics $ [] 'T
+          :schema $ quote $ Fn T (-> Bool) (:generics T)
         'calcit-symbol? $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn calcit-symbol? (x) (kind-tag? x :symbol)
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Bool)
-            :args $ [] 'T
-            :generics $ [] 'T
+          :schema $ quote $ Fn T (-> Bool) (:generics T)
         'calcit-syntax? $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn calcit-syntax? (x) (kind-tag? x :syntax)
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Bool)
-            :args $ [] 'T
-            :generics $ [] 'T
+          :schema $ quote $ Fn T (-> Bool) (:generics T)
         'calcit-tag? $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn calcit-tag? (x) (kind-string? x |tag)
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Bool)
-            :args $ [] 'T
-            :generics $ [] 'T
+          :schema $ quote $ Fn T (-> Bool) (:generics T)
         'comp-bookmarks $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-bookmarks (bookmarks pointer)
             list->
@@ -98,10 +74,9 @@
                     div
                       {}
                         :on-click $ fn (e d!)
-                          hint-fn $ {} (:return 'Unit)
-                            :args $ [] 'Map $ :: 'Fn
-                              {} (:return 'Unit)
-                                :args $ [] 'Dynamic
+                          hint-fn $ Fn (Map Tag Dynamic)
+                            Fn Enum $ -> Unit
+                            -> Unit
                           d! $ :: :point-to idx
                         :class-name $ str-spaced style-bookmark $ if (= pointer idx) style-bookmark-selected
                       <> $ str ns |/ definition
@@ -110,22 +85,19 @@
                         :type $ Option :none
                         :disabled $ Option :none
                         :on-click $ Option :some $ fn (e d!)
-                          hint-fn $ {} (:return 'Unit)
-                            :args $ [] 'Map $ :: 'Fn
-                              {} (:return 'Unit)
-                                :args $ [] 'Dynamic
+                          hint-fn $ Fn (Map Tag Dynamic)
+                            Fn Enum $ -> Unit
+                            -> Unit
                           d! $ :: :remove-bookmark idx
                         :class-name $ Option :some style-close
                         :style $ Option :none
                   _ $ eprintln "|unknown bookmark" b
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'respo.schema/Component)
-            :args $ [] (:: 'List 'app.types/Bookmark) 'Number
+          :schema $ quote $ Fn (List app.types/Bookmark) Number (-> respo.schema/Component)
         'comp-cirru-quote $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-cirru-quote (expr) (comp-ir-kind expr :cirru-quote)
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'respo.schema/Component)
-            :args $ [] 'Dynamic
+          :schema $ quote $ Fn Dynamic (-> respo.schema/Component)
         'comp-code $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-code (expr last?)
             cond
@@ -174,8 +146,7 @@
                 {} $ :class-name css-code-default
                 <> $ to-lispy-string expr
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'respo.schema/Component)
-            :args $ [] 'Dynamic 'Bool
+          :schema $ quote $ Fn Dynamic Bool (-> respo.schema/Component)
         'comp-container $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-container (reel)
             let
@@ -220,13 +191,11 @@
                 when dev? $ comp-typed-reel (>> states :reel) reel $ {}
                 when dev? $ comp-inspect |Store store $ {} (:bottom 0)
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'respo.schema/Component)
-            :args $ [] $ :: 'reel.typed/State 'app.types/Op 'app.types/StoreData
+          :schema $ quote $ Fn (reel.typed/State app.types/Op app.types/StoreData) (-> respo.schema/Component)
         'comp-enum $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-enum (expr) (comp-ir-kind expr :enum)
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'respo.schema/Component)
-            :args $ [] 'Dynamic
+          :schema $ quote $ Fn Dynamic (-> respo.schema/Component)
         'comp-file $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-file (ns file selected-def)
             div
@@ -249,8 +218,7 @@
                             d! $ :: :new-bookmark $ :: :bookmark ns name
                         <> name
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'respo.schema/Component)
-            :args $ [] 'String (:: 'Map 'Tag 'Dynamic) 'String
+          :schema $ quote $ Fn String (Map Tag Dynamic) String (-> respo.schema/Component)
         'comp-file-entry $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn comp-file-entry (states files)
             let
@@ -317,8 +285,7 @@
                     input $ {} (:type |file)
                       :style $ {} (:opacity 0.2) (:width 0) (:top 0) (:position :absolute) (:pointer-events :none)
                       :on-change $ fn (e d!)
-                        hint-fn $ {} (:async true)
-                          :features $ #{} :js-ffi
+                        hint-fn $ Async $ :features :js-ffi
                         let
                             event-host $ js-cast
                               .unwrap $ get e :event
@@ -335,10 +302,10 @@
                           d! $ :: :ir-data $ parse-cirru-edn text
                     div ({}) (<> "|Pick IR file")
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'respo.schema/Element)
-            :args $ [] (:: 'Map 'Dynamic 'Dynamic)
-              :: 'Map 'String $ :: 'Map 'Tag 'Dynamic
-            :features $ #{} :js-ffi
+          :schema $ quote $ Fn (Map Dynamic Dynamic)
+            Map String $ Map Tag Dynamic
+            -> respo.schema/Element
+            :features :js-ffi
         'comp-fn $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-fn (f)
             div
@@ -362,8 +329,7 @@
                   .unwrap $ get f :code
                   , false
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'respo.schema/Component)
-            :args $ [] 'Dynamic
+          :schema $ quote $ Fn Dynamic (-> respo.schema/Component)
         'comp-import $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-import (expr)
             div
@@ -407,8 +373,7 @@
                       format-type-display $ format-type-info t |
                     , style-tiny-hint
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'respo.schema/Component)
-            :args $ [] 'Dynamic
+          :schema $ quote $ Fn Dynamic (-> respo.schema/Component)
         'comp-ir-kind $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-ir-kind (expr kind)
             div
@@ -419,8 +384,7 @@
               <> (str "|ir " kind) style-tiny-hint
               <> (to-lispy-string expr) css-code-default
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'respo.schema/Component)
-            :args $ [] 'Dynamic 'Tag
+          :schema $ quote $ Fn Dynamic Tag (-> respo.schema/Component)
         'comp-local $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-local (expr)
             div
@@ -437,8 +401,7 @@
                   format-type-display $ format-type-info t |
                 , style-tiny-hint
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'respo.schema/Component)
-            :args $ [] 'Dynamic
+          :schema $ quote $ Fn Dynamic (-> respo.schema/Component)
         'comp-macro $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-macro (f)
             div
@@ -462,8 +425,7 @@
                   .unwrap $ get f :code
                   , false
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'respo.schema/Component)
-            :args $ [] 'Dynamic
+          :schema $ quote $ Fn Dynamic (-> respo.schema/Component)
         'comp-method $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-method (expr)
             div
@@ -478,8 +440,7 @@
                 str "|method " $ .unwrap-or (get expr :behavior) nil
                 , style-tiny-hint
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'respo.schema/Component)
-            :args $ [] 'Dynamic
+          :schema $ quote $ Fn Dynamic (-> respo.schema/Component)
         'comp-preview $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-preview (data)
             if (non-nil? data)
@@ -492,8 +453,7 @@
                     d! $ :: :preview nil
               div $ {}
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'respo.schema/Component)
-            :args $ [] 'Dynamic
+          :schema $ quote $ Fn Dynamic (-> respo.schema/Component)
         'comp-proc $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-proc (expr)
             div
@@ -528,8 +488,7 @@
                   , style-tiny-hint
                 <> |
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'respo.schema/Component)
-            :args $ [] 'Dynamic
+          :schema $ quote $ Fn Dynamic (-> respo.schema/Component)
         'comp-raw-code $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-raw-code (expr)
             div
@@ -538,13 +497,11 @@
               <> $ str $ .unwrap-or (get expr :code) |
               <> "|js raw" style-tiny-hint
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'respo.schema/Component)
-            :args $ [] 'Dynamic
+          :schema $ quote $ Fn Dynamic (-> respo.schema/Component)
         'comp-record $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-record (expr) (comp-ir-kind expr :record)
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'respo.schema/Component)
-            :args $ [] 'Dynamic
+          :schema $ quote $ Fn Dynamic (-> respo.schema/Component)
         'comp-registered $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-registered (expr)
             div
@@ -556,13 +513,11 @@
                     d! $ :: :preview expr
                 <> $ str $ .unwrap-or (get expr :alias) |
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'respo.schema/Component)
-            :args $ [] 'Dynamic
+          :schema $ quote $ Fn Dynamic (-> respo.schema/Component)
         'comp-struct $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-struct (expr) (comp-ir-kind expr :struct)
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'respo.schema/Component)
-            :args $ [] 'Dynamic
+          :schema $ quote $ Fn Dynamic (-> respo.schema/Component)
         'comp-symbol $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-symbol (expr)
             div
@@ -577,8 +532,7 @@
                   str $ .unwrap-or (get expr :ns) |
                   , css-code-symbol-ns
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'respo.schema/Component)
-            :args $ [] 'Dynamic
+          :schema $ quote $ Fn Dynamic (-> respo.schema/Component)
         'comp-syntax $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-syntax (expr)
             div
@@ -589,13 +543,11 @@
                 , css-code-syntax
               <> |syntax style-tiny-hint
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'respo.schema/Component)
-            :args $ [] 'Dynamic
+          :schema $ quote $ Fn Dynamic (-> respo.schema/Component)
         'comp-tuple $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-tuple (expr) (comp-ir-kind expr :tuple)
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'respo.schema/Component)
-            :args $ [] 'Dynamic
+          :schema $ quote $ Fn Dynamic (-> respo.schema/Component)
         'css-code-default $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defstyle css-code-default
             {} $ |$0 $ {}
@@ -604,12 +556,12 @@
               :white-space :pre
               :display :inline-block
           :examples $ []
-          :schema $ :: 'String
+          :schema $ quote String
         'css-code-expr $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defstyle css-code-expr
             {} $ |$0 $ {} (:border-width "|1px 0 0 1px") (:margin-left |14px) (:padding-left |2px) (:font-family ui/font-code) (:margin-bottom |2px) (:margin-top |4px) (:vertical-align :top) (:border-style :solid) (:border-radius |8px)
           :examples $ []
-          :schema $ :: 'String
+          :schema $ quote String
         'css-code-fn $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defstyle css-code-fn
             {} $ |$0 $ {}
@@ -618,7 +570,7 @@
               :white-space :pre-line
               :display :inline-block
           :examples $ []
-          :schema $ :: 'String
+          :schema $ quote String
         'css-code-method $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defstyle css-code-method
             {} $ |$0 $ {}
@@ -627,7 +579,7 @@
               :white-space :pre-line
               :display :inline-block
           :examples $ []
-          :schema $ :: 'String
+          :schema $ quote String
         'css-code-proc $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defstyle css-code-proc
             {} $ |$0 $ {}
@@ -636,25 +588,25 @@
               :white-space :pre-line
               :display :inline-block
           :examples $ []
-          :schema $ :: 'String
+          :schema $ quote String
         'css-code-symbol $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defstyle css-code-symbol
             {} $ |$0 $ {} (:display :inline-flex) (:margin "|0px 4px") (:padding "|0 4px") (:line-height |1.2)
           :examples $ []
-          :schema $ :: 'String
+          :schema $ quote String
         'css-code-symbol-ns $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defstyle css-code-symbol-ns
             {} $ |$0 $ {} (:font-size 8)
               :color $ hsl 0 0 80
               :font-family ui/font-normal
           :examples $ []
-          :schema $ :: 'String
+          :schema $ quote String
         'css-code-symbol-resolved-ns $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defstyle css-code-symbol-resolved-ns
             {} $ |$0 $ {} (:font-size |8px) (:white-space :nowrap) (:font-family ui/font-normal)
               :color $ hsl 0 80 70
           :examples $ []
-          :schema $ :: 'String
+          :schema $ quote String
         'css-code-syntax $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defstyle css-code-syntax
             {} $ |$0 $ {}
@@ -663,7 +615,7 @@
               :white-space :pre-line
               :display :inline-block
           :examples $ []
-          :schema $ :: 'String
+          :schema $ quote String
         'css-code-tag $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defstyle css-code-tag
             {} $ |$0 $ {}
@@ -672,7 +624,7 @@
               :white-space :pre-line
               :display :inline-block
           :examples $ []
-          :schema $ :: 'String
+          :schema $ quote String
         'css-expr-area $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defstyle css-expr-area
             {}
@@ -681,7 +633,7 @@
               (str "|&:has(." css-code-expr "|:hover)")
                 {} $ :border-color "|hsl(0,0%,92%)"
           :examples $ []
-          :schema $ :: 'String
+          :schema $ quote String
         'css-file-button $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defstyle css-file-button
             {}
@@ -699,19 +651,19 @@
                 :background-color $ hsl 200 90 76
               |$0:active $ {} (:transition-duration |0ms) (:transform "|scale(1.02)")
           :examples $ []
-          :schema $ :: 'String
+          :schema $ quote String
         'css-hover-item $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defstyle css-hover-item
             {}
               |& $ {} (:font-size 12) (:cursor :pointer)
               |&:hover $ {} $ :background-color "|hsl(350,0%,95%)"
           :examples $ []
-          :schema $ :: 'String
+          :schema $ quote String
         'css-pad8 $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defstyle css-pad8
             {} $ |& $ {} (:padding "|0 8px")
           :examples $ []
-          :schema $ :: 'String
+          :schema $ quote String
         'css-preview-close $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defstyle css-preview-close
             {} $ |$0 $ {} (:position :absolute) (:top 4) (:right 4)
@@ -719,7 +671,7 @@
               :cursor :pointer
               :font-size 14
           :examples $ []
-          :schema $ :: 'String
+          :schema $ quote String
         'css-preview-tip $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defstyle css-preview-tip
             {} $ |$0 $ {} (:position :absolute) (:bottom 0) (:right 0)
@@ -731,14 +683,12 @@
               :line-height |20px
               :padding 8
           :examples $ []
-          :schema $ :: 'String
+          :schema $ quote String
         'format-type-display $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn format-type-display (t)
             if (nil? t) |nil $ if (string? t) t $ trim (format-cirru-edn t)
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'String)
-            :args $ [] 'T
-            :generics $ [] 'T
+          :schema $ quote $ Fn T (-> String) (:generics T)
         'format-type-info $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn format-type-info (t indent)
             if (nil? t) |nil $ if
@@ -832,8 +782,7 @@
                           trim $ format-cirru-edn t
                 if (list? t) t $ trim $ format-cirru-edn t
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Dynamic)
-            :args $ [] 'Dynamic 'String
+          :schema $ quote $ Fn Dynamic String (-> Dynamic)
           :tests $ [] $ %{} 'TestEntry (:name |legacy-type-labels)
             :code $ quote $ do
               assert=
@@ -863,9 +812,7 @@
                 (:none) false
               , false
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Bool)
-            :args $ [] 'T 'String
-            :generics $ [] 'T
+          :schema $ quote $ Fn T String (-> Bool) (:generics T)
         'kind-tag? $ %{} 'CodeEntry
           :doc "|Validate a tag discriminator read from an open Calcit IR map."
           :code $ quote $ defn kind-tag? (x expected)
@@ -877,9 +824,7 @@
                 (:none) false
               , false
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Bool)
-            :args $ [] 'T 'Tag
-            :generics $ [] 'T
+          :schema $ quote $ Fn T Tag (-> Bool) (:generics T)
         'style-bookmark $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defstyle style-bookmark
             {}
@@ -888,31 +833,31 @@
               (str "|&:hover ." style-close)
                 {} $ :opacity 1
           :examples $ []
-          :schema $ :: 'String
+          :schema $ quote String
         'style-bookmark-selected $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defstyle style-bookmark-selected
             {} $ |& $ {}
               :background-color $ hsl 0 0 96
           :examples $ []
-          :schema $ :: 'String
+          :schema $ quote String
         'style-close $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defstyle style-close
             {} $ |& $ {} (:position :absolute) (:opacity 0) (:right 4) (:top 6) (:font-size 12) (:font-weight |100)
           :examples $ []
-          :schema $ :: 'String
+          :schema $ quote String
         'style-import-ns $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defstyle style-import-ns
             {} $ |& $ {} (:font-size 10)
               :color $ hsl 0 0 80
               :margin-left 4
           :examples $ []
-          :schema $ :: 'String
+          :schema $ quote String
         'style-tiny-hint $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defstyle style-tiny-hint
             {} $ |& $ {} (:font-size 10) (:margin-left 8) (:line-height |16px) (:white-space :pre-wrap)
               :color $ hsl 0 0 80
           :examples $ []
-          :schema $ :: 'String
+          :schema $ quote String
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.comp.container
           :require (respo-ui.core :as ui)
@@ -931,12 +876,12 @@
           :code $ quote $ def dev?
             = |dev $ .unwrap-or (get-env |mode) |release
           :examples $ []
-          :schema $ :: 'Bool
+          :schema $ quote Bool
         'site $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def site
             {} (:title |Calcit) (:icon |http://cdn.tiye.me/logo/mvc-works.png) (:storage-key |calcit-ir-viewer)
           :examples $ []
-          :schema $ :: 'Map 'Tag 'String
+          :schema $ quote $ Map Tag String
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.config
     'app.main $ %{} 'FileEntry
@@ -944,11 +889,11 @@
         '*reel $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defref *reel (typed/new-reel schema/store)
           :examples $ []
-          :schema $ :: 'Ref $ :: 'reel.typed/State 'app.types/Op 'app.types/StoreData
+          :schema $ quote $ Ref (reel.typed/State app.types/Op app.types/StoreData)
         '*storage-ready? $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defref *storage-ready? false
           :examples $ []
-          :schema $ :: 'Ref 'Bool
+          :schema $ quote $ Ref Bool
         'dispatch! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn dispatch! (op)
             when config/dev? $ println |Dispatch: op
@@ -962,9 +907,7 @@
                     :timestamp $ shared/date-now-snapshot
               , &unit
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Unit)
-            :args $ [] 'Dynamic
-            :features $ #{} :js-ffi
+          :schema $ quote $ Fn Enum (-> Unit) (:features :js-ffi)
         'main! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn main! () (load-console-formatter!)
             println "|Running mode:" $ if config/dev? |dev |release
@@ -995,24 +938,18 @@
                 , &unit
             , &unit
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Unit)
-            :args $ []
-            :features $ #{} :js-ffi
+          :schema $ quote $ Fn (-> Unit) (:features :js-ffi)
         'mount-target $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn mount-target ()
             .unwrap $ respo.ffi.browser/query-selector |.app
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'respo.dom/DomElement)
-            :args $ []
-            :features $ #{} :js-ffi
+          :schema $ quote $ Fn (-> respo.dom/DomElement) (:features :js-ffi)
         'persist-storage! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn persist-storage! ()
             when @*storage-ready? $ app.storage/flush-save!
             , &unit
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Unit)
-            :args $ []
-            :features $ #{} :js-ffi
+          :schema $ quote $ Fn (-> Unit) (:features :js-ffi)
         'reload! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn reload! ()
             if (nil? build-errors)
@@ -1023,26 +960,21 @@
               hud! |error build-errors
             , &unit
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Unit)
-            :args $ []
-            :features $ #{} :js-ffi
+          :schema $ quote $ Fn (-> Unit) (:features :js-ffi)
         'render-app! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn render-app! ()
             render! (mount-target) (comp-container @*reel) dispatch!
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Unit)
-            :args $ []
-            :features $ #{} :js-ffi
+          :schema $ quote $ Fn (-> Unit) (:features :js-ffi)
         'repeat! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn repeat! (duration cb)
             browser/set-interval! cb $ * 1000 duration
             , &unit
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Unit)
-            :args $ [] 'Number $ :: 'Fn
-              {} (:return 'Unit)
-                :args $ []
-            :features $ #{} :js-ffi
+          :schema $ quote $ Fn Number
+            Fn $ -> Unit
+            -> Unit
+            :features :js-ffi
         'schedule-storage! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn schedule-storage! ()
             when @*storage-ready? $ app.storage/queue-save!
@@ -1057,9 +989,7 @@
                       , &unit
             , &unit
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Unit)
-            :args $ []
-            :features $ #{} :js-ffi
+          :schema $ quote $ Fn (-> Unit) (:features :js-ffi)
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.main
           :require
@@ -1068,22 +998,28 @@
             app.updater :refer $ updater
             app.schema :as schema
             app.types :as types
-            reel.util :refer $ listen-devtools! generate-id!
             reel.typed :as typed
             app.config :as config
             js-ffi.browser :as browser
             js-ffi.shared :as shared
             |./calcit.build-errors.mjs :default build-errors
             |bottom-tip :default hud!
+            reel.util :refer $ listen-devtools!
     'app.schema $ %{} 'FileEntry
-      :defs $ {} $ 'store
-        %{} 'CodeEntry (:doc |)
+      :defs $ {}
+        'DispatchOp $ %{} 'CodeEntry
+          :doc "|Respo 的真实入口是开放 Enum；此代表值只为现有 CLI 的路径式 type-slot 配置提供显式 Enum schema，不会被派发，不是业务名义类型或默认事件。运行时仍保留原 enum? 守卫和受检业务解码。"
+          :code $ quote $ def DispatchOp
+            :: :states ([]) ({})
+          :examples $ []
+          :schema $ quote Enum
+        'store $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def store
             app.types/StoreData :states
               {} $ :cursor $ []
               , :ir nil :preview nil :bookmarks ([]) :pointer 0
           :examples $ []
-          :schema $ :: 'app.types/StoreData
+          :schema $ quote app.types/StoreData
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.schema
     'app.storage $ %{} 'FileEntry
@@ -1091,21 +1027,20 @@
         '*pending-save $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defref *pending-save (Option :none)
           :examples $ []
-          :schema $ :: 'Ref $ :: 'Option 'app.storage/SaveRequest
+          :schema $ quote $ Ref (Option app.storage/SaveRequest)
         '*save-timer $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defref *save-timer (Option :none)
           :examples $ []
-          :schema $ :: 'Ref $ :: 'Option 'Number
+          :schema $ quote $ Ref (Option Number)
         '*saving? $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defref *saving? false
           :examples $ []
-          :schema $ :: 'Ref 'Bool
+          :schema $ quote $ Ref Bool
         'SaveRequest $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defstruct SaveRequest (:key 'String) (:stored 'types/StoreData)
-            :complete! $ :: 'Fn $ {} (:return 'Unit)
-              :args $ [] $ :: 'Result 'Unit 'String
+            :complete! $ quote $ Fn (Result Unit String) (-> Unit)
           :examples $ []
-          :schema $ :: 'StructDef
+          :schema $ quote StructDef
         'arm-save! $ %{} 'CodeEntry (:doc "|重置自动保存的 1 秒尾沿定时器；计时结束仅刷新待存请求，不在用户每次输入时序列化完整 IR。")
           :code $ quote $ defn arm-save! ()
             match @*save-timer
@@ -1118,9 +1053,7 @@
               , 1000
             , &unit
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Unit)
-            :args $ []
-            :features $ #{} :js-ffi
+          :schema $ quote $ Fn (-> Unit) (:features :js-ffi)
         'decode-saved $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn decode-saved (text)
             try
@@ -1132,9 +1065,8 @@
               fn (message)
                 Result :err $ str "|Invalid saved IR Viewer state: " message
           :examples $ []
-          :schema $ :: 'Fn $ {}
-            :args $ [] 'String
-            :return $ :: 'Result (:: 'Option 'app.types/StoreData) 'String
+          :schema $ quote $ Fn String
+            -> $ Result (Option app.types/StoreData) String
         'flush-save! $ %{} 'CodeEntry
           :doc "|仅在有待存请求且无写入在途时序列化并提交，最多同时写入一次。期间的新编辑保留为最新待存快照；失败不覆盖更新的请求、不自旋重试，留待后续操作或周期刷新。页面关闭时异步提交仍只能尽力完成。"
           :code $ quote $ defn flush-save! ()
@@ -1166,9 +1098,7 @@
                     , &unit
             , &unit
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Unit)
-            :args $ []
-            :features $ #{} :js-ffi
+          :schema $ quote $ Fn (-> Unit) (:features :js-ffi)
         'load! $ %{} 'CodeEntry
           :doc "|异步优先读取 IndexedDB；无记录时才调用旧 localStorage 读取回调。Result 错误不删除或覆盖原记录。"
           :code $ quote $ defn load! (key read-legacy! complete!)
@@ -1190,14 +1120,13 @@
                 , &unit
             , &unit
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Unit)
-            :args $ [] 'String
-              :: 'Fn $ {}
-                :args $ []
-                :return $ :: 'Option 'String
-              :: 'Fn $ {} (:return 'Unit)
-                :args $ [] $ :: 'Result (:: 'Option 'app.types/StoreData) 'String
-            :features $ #{} :js-ffi
+          :schema $ quote $ Fn String
+            Fn $ -> $ Option String
+            Fn
+              Result (Option app.types/StoreData) String
+              -> Unit
+            -> Unit
+            :features :js-ffi
         'queue-save! $ %{} 'CodeEntry
           :doc "|为当前单存档排入最新不可变快照引用，重置 1 秒延迟；此处不序列化。被合并替换的待存请求不回调，仅实际提交的请求收到 Result。"
           :code $ quote $ defn queue-save! (key stored complete!)
@@ -1205,11 +1134,10 @@
             arm-save!
             , &unit
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Unit)
-            :args $ [] 'String 'app.types/StoreData $ :: 'Fn
-              {} (:return 'Unit)
-                :args $ [] $ :: 'Result 'Unit 'String
-            :features $ #{} :js-ffi
+          :schema $ quote $ Fn String app.types/StoreData
+            Fn (Result Unit String) (-> Unit)
+            -> Unit
+            :features :js-ffi
         'save! $ %{} 'CodeEntry
           :doc "|把完整 StoreData 序列化并异步提交到 IndexedDB；事务完成后回调 Result，不把写入失败当作成功。"
           :code $ quote $ defn save! (key stored complete!)
@@ -1227,11 +1155,10 @@
                 , &unit
             , &unit
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Unit)
-            :args $ [] 'String 'app.types/StoreData $ :: 'Fn
-              {} (:return 'Unit)
-                :args $ [] $ :: 'Result 'Unit 'String
-            :features $ #{} :js-ffi
+          :schema $ quote $ Fn String app.types/StoreData
+            Fn (Result Unit String) (-> Unit)
+            -> Unit
+            :features :js-ffi
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.storage
           :require (|idb-keyval :as idb) (app.types :as types) (js-ffi.shared :as shared) (js-ffi.contract :as contract) (js-ffi.browser :as browser)
@@ -1240,39 +1167,38 @@
         'Bookmark $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defenum Bookmark (:bookmark 'String 'String)
           :examples $ []
-          :schema $ :: 'EnumDef
+          :schema $ quote EnumDef
         'FileHost $ %{} 'CodeEntry (:doc |)
           :code $ quote $ deftrait FileHost (:name 'String) (:size 'Number) (:mime-type 'String) (:last-modified 'Number)
-            .text $ :: 'Fn $ {}
-              :args $ [] 'app.types/FileHost
-              :return 'JsObject
+            .text $ quote $ Fn app.types/FileHost (-> JsObject)
           :examples $ []
           :ffi $ {} (:backend :js) (:kind :external-object) (:target :browser)
             :names $ {} (:last-modified |lastModified) (:mime-type |type)
-          :schema $ :: 'Trait
+          :schema $ quote Trait
           :tags $ #{} :ffi :js-host
         'FileInputHost $ %{} 'CodeEntry (:doc |)
           :code $ quote $ deftrait FileInputHost (:value 'String)
-            :files $ :: 'JsNullish 'app.types/FileListHost
+            :files $ quote $ JsNullish app.types/FileListHost
           :examples $ []
           :ffi $ {} (:backend :js) (:kind :external-object) (:target :browser)
             :names $ {}
             :writable $ #{} :value
-          :schema $ :: 'Trait
+          :schema $ quote Trait
           :tags $ #{} :ffi :js-host
         'FileListHost $ %{} 'CodeEntry (:doc |)
           :code $ quote $ deftrait FileListHost (:length 'Number)
-            .item $ :: 'Fn $ {}
-              :args $ [] 'app.types/FileListHost 'Number
-              :return $ :: 'JsNullish 'app.types/FileHost
+            .item $ quote $ Fn app.types/FileListHost Number
+              -> $ JsNullish app.types/FileHost
           :examples $ []
           :ffi $ {} (:backend :js) (:kind :external-object) (:target :browser)
             :names $ {}
-          :schema $ :: 'Trait
+          :schema $ quote Trait
           :tags $ #{} :ffi :js-host
         'Op $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defenum Op
-            :states (:: 'List 'Dynamic) 'Dynamic
+            :states
+              quote $ List Dynamic
+              , 'Dynamic
             :ir-data 'Dynamic
             :preview 'Dynamic
             :hydrate-storage 'app.types/StoreData
@@ -1287,16 +1213,16 @@
             :reel/run
             :reel/remove 'Number
           :examples $ []
-          :schema $ :: 'EnumDef
+          :schema $ quote EnumDef
         'StoreData $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defstruct StoreData
-            :states $ :: 'Map 'Dynamic 'Dynamic
+            :states $ quote $ Map Dynamic Dynamic
             :ir 'Dynamic
             :preview 'Dynamic
-            :bookmarks $ :: 'List 'app.types/Bookmark
+            :bookmarks $ quote $ List app.types/Bookmark
             :pointer 'Number
           :examples $ []
-          :schema $ :: 'StructDef
+          :schema $ quote StructDef
         'decode-bookmark $ %{} 'CodeEntry
           :doc "|检查书签 variant 和两个 String 载荷，将历史匿名或已有命名书签规范化为当前 Bookmark。"
           :code $ quote $ defn decode-bookmark (bookmark)
@@ -1305,8 +1231,7 @@
                 Bookmark :bookmark (decode-map-as ns 'String) (decode-map-as name 'String)
               _ $ raise "|Expected a bookmark target"
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'app.types/Bookmark)
-            :args $ [] 'Enum
+          :schema $ quote $ Fn Enum (-> app.types/Bookmark)
         'decode-op $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn decode-op (op)
             match op
@@ -1326,17 +1251,17 @@
                 Op :remove-bookmark $ decode-map-as index 'Number
               _ $ raise "|Unknown application operation"
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'app.types/Op)
-            :args $ [] 'Enum
+          :schema $ quote $ Fn Enum (-> app.types/Op)
         'decode-store $ %{} 'CodeEntry
           :doc "|验证存档字段并规范化历史匿名书签，返回具有当前 StoreData/Bookmark 身份的受检值；不承诺保持输入对象身份。"
           :code $ quote $ defn decode-store (data)
             try
               let
                   raw $ if (struct? data)
-                    struct-match data
-                      StoreData stored $ .to-map stored
-                      _ _ $ raise "|Expected an IR Viewer store"
+                    if
+                      = (&struct:get-name data) :StoreData
+                      &struct:to-map data
+                      raise "|Expected an IR Viewer store"
                     decode-map-as data $ :: 'Map 'Tag 'Dynamic
                   bookmarks $ .unwrap $ get raw :bookmarks
                   normalized $ assoc raw :bookmarks $ if (list? bookmarks)
@@ -1349,9 +1274,8 @@
                     do (eprintln "|Invalid saved IR Viewer state: " message) (Option :none)
               fn (message) (eprintln "|Invalid saved IR Viewer state: " message) (Option :none)
           :examples $ []
-          :schema $ :: 'Fn $ {}
-            :args $ [] 'Dynamic
-            :return $ :: 'calcit.core/Option 'app.types/StoreData
+          :schema $ quote $ Fn Dynamic
+            -> $ calcit.core/Option app.types/StoreData
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.types
     'app.updater $ %{} 'FileEntry
@@ -1391,8 +1315,7 @@
                   -> store (assoc :bookmarks bookmarks) (assoc :pointer next-pointer)
               _ store
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'app.types/StoreData)
-            :args $ [] 'app.types/StoreData 'app.types/Op 'String 'Number
+          :schema $ quote $ Fn app.types/StoreData app.types/Op String Number (-> app.types/StoreData)
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.updater
           :require $ respo.cursor :refer $ update-state-tree
