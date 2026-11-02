@@ -41,6 +41,12 @@ function eventHandler(node, tag, accept = () => true) {
 }
 
 test('state updates modify the state tree without nesting another store', () => {
+  const mixed = list(t['file-entry'], '名称', 2);
+  const decoded = decode_op(clt._$o__$o_(t.states, mixed, false));
+  assert.equal(clt.format_cirru_edn(clt._$n_enum_$o_nth(decoded, 1)), clt.format_cirru_edn(mixed));
+  assert.equal(clt._$n_enum_$o_nth(decoded, 2), false);
+  assert.throws(() => decode_op(clt._$o__$o_(t.states, list(true), false)), /CursorKey/);
+
   const next = updater(store, op(t.states, list(t['file-entry']), map(t.query, 'alpha', t.selected, '')), 'state', 1);
   const states = field(next, t.states);
   assert.equal(field(field(field(states, t['file-entry']), t.data), t.query), 'alpha');
