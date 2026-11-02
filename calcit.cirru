@@ -78,7 +78,7 @@
                             Fn Enum $ -> Unit
                             -> Unit
                           d! $ :: :point-to idx
-                        :class-name $ str-spaced style-bookmark $ if (= pointer idx) style-bookmark-selected
+                        :class-name $ str-spaced style-bookmark $ if (= pointer idx) style-bookmark-selected |
                       <> $ str ns |/ definition
                       comp-close $ Option :some $ %{} respo-ui.schema/ButtonOptions
                         :kind $ Option :none
@@ -159,7 +159,7 @@
                   .unwrap-or
                     get-in (:ir store) ([] :files)
                     {}
-                  :: 'Map 'String $ :: 'Map 'Tag 'Dynamic
+                  quote $ Map String $ Map Tag Dynamic
               div
                 {} $ :class-name $ str-spaced css/global css/fullscreen css/column
                 div
@@ -188,8 +188,12 @@
                       {} $ :class-name css/expand
                       <> "|No bookmark selected"
                 comp-preview $ :preview store
-                when dev? $ comp-typed-reel (>> states :reel) reel $ {}
-                when dev? $ comp-inspect |Store store $ {} (:bottom 0)
+                if dev?
+                  Option :some $ comp-typed-reel (>> states :reel) reel $ {}
+                  Option :none
+                if dev?
+                  Option :some $ comp-inspect |Store store $ {} (:bottom 0)
+                  Option :none
           :examples $ []
           :schema $ quote $ Fn (reel.typed/State app.types/Op app.types/StoreData) (-> respo.schema/Component)
         'comp-enum $ %{} 'CodeEntry (:doc |)
@@ -203,7 +207,7 @@
               let
                   defs $ keys $ decode-map-as
                     .unwrap-or (get file :defs) ({})
-                    :: 'Map 'String 'Dynamic
+                    quote $ Map String Dynamic
                 list->
                   {} $ :class-name $ str-spaced css/column
                   -> defs &set:to-list (sort &compare)
@@ -224,11 +228,11 @@
             let
                 cursor $ decode-map-as
                   .unwrap-or (get states :cursor) ([])
-                  :: 'List 'Dynamic
+                  quote $ List Dynamic
                 state $ decode-map-as
                   .unwrap-or (get states :data)
                     {} (:selected |) (:query |)
-                  :: 'Map 'Tag 'String
+                  quote $ Map Tag String
                 selected $ assert-type
                   .unwrap-or (get state :selected) |
                   , 'String
@@ -350,28 +354,30 @@
                     d! $ :: :new-bookmark $ :: :bookmark
                       .unwrap-or (get expr :ns) nil
                       .unwrap-or (get expr :def) nil
-              when
+              if
                 and
                   .some? $ get expr :info
                   .some? $ get
                     .unwrap-or (get expr :info) nil
                     , :kind
-                <>
+                Option :some $ <>
                   str "|import " $ .unwrap-or
                     get
                       .unwrap-or (get expr :info) nil
                       , :kind
                     , |
                   , style-tiny-hint
-              when
+                Option :none
+              if
                 .some? $ get expr :type-hint
-                div
+                Option :some $ div
                   {} $ :class-name css/row-middle
                   <>
                     str |type: $ let
                         t $ .unwrap $ get expr :type-hint
                       format-type-display $ format-type-info t |
                     , style-tiny-hint
+                Option :none
           :examples $ []
           :schema $ quote $ Fn Dynamic (-> respo.schema/Component)
         'comp-ir-kind $ %{} 'CodeEntry (:doc |)
@@ -699,26 +705,30 @@
                       entries $ []
                         if
                           .some? $ get t :args
-                          [] |:args $ format-type-info
+                          Option :some $ [] |:args $ format-type-info
                             .unwrap $ get t :args
                             , indent
+                          Option :none
                         if
                           non-nil? $ .unwrap-or (get t :return)
                             .unwrap-or (get t :return-type) nil
-                          [] |:return $ format-type-info
+                          Option :some $ [] |:return $ format-type-info
                             .unwrap-or (get t :return)
                               .unwrap-or (get t :return-type) nil
                             , indent
+                          Option :none
                     -> entries
                       map $ fn (x)
-                        if (nil? x) |nil x
+                        match x
+                          (:some value) value
+                          (:none) |nil
                       prepend |fn
                   if (kind-tag? t :tuple)
                     let
                         entries $ []
                           if
                             .some? $ get t :tag
-                            [] |:tag $ let
+                            Option :some $ [] |:tag $ let
                                 label $ .unwrap $ get t :tag
                               cond
                                   string? label
@@ -726,21 +736,25 @@
                                 (tag? label) (.to-string label)
                                 (symbol? label) (.to-string label)
                                 true $ format-type-display label
+                            Option :none
                           if
                             .some? $ get t :payload
-                            [] |:payload $ format-type-info
+                            Option :some $ [] |:payload $ format-type-info
                               .unwrap $ get t :payload
                               , indent
+                            Option :none
                       -> entries
                         map $ fn (x)
-                          if (nil? x) |nil x
+                          match x
+                            (:some value) value
+                            (:none) |nil
                         prepend |tuple
                     if (kind-tag? t :record)
                       let
                           entries $ []
                             if
                               .some? $ get t :name
-                              [] |:name $ let
+                              Option :some $ [] |:name $ let
                                   label $ .unwrap $ get t :name
                                 cond
                                     string? label
@@ -748,36 +762,46 @@
                                   (tag? label) (.to-string label)
                                   (symbol? label) (.to-string label)
                                   true $ format-type-display label
+                              Option :none
                             if
                               .some? $ get t :fields
-                              [] |:fields $ format-type-info
+                              Option :some $ [] |:fields $ format-type-info
                                 .unwrap $ get t :fields
                                 , indent
+                              Option :none
                         -> entries
                           map $ fn (x)
-                            if (nil? x) |nil x
+                            match x
+                              (:some value) value
+                              (:none) |nil
                           prepend |record
                       if (kind-tag? t :optional)
                         let
                             entries $ [] $ if
                               .some? $ get t :inner
-                              [] |:inner $ format-type-info
+                              Option :some $ [] |:inner $ format-type-info
                                 .unwrap $ get t :inner
                                 , indent
+                              Option :none
                           -> entries
                             map $ fn (x)
-                              if (nil? x) |nil x
+                              match x
+                                (:some value) value
+                                (:none) |nil
                             prepend |optional
                         if (kind-tag? t :variadic)
                           let
                               entries $ [] $ if
                                 .some? $ get t :inner
-                                [] |:inner $ format-type-info
+                                Option :some $ [] |:inner $ format-type-info
                                   .unwrap $ get t :inner
                                   , indent
+                                Option :none
                             -> entries
                               map $ fn (x)
-                                if (nil? x) |nil x
+                                match x
+                                  (:some value) value
+                                  (:none) |nil
                               prepend |variadic
                           trim $ format-cirru-edn t
                 if (list? t) t $ trim $ format-cirru-edn t
@@ -1037,7 +1061,7 @@
           :examples $ []
           :schema $ quote $ Ref Bool
         'SaveRequest $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ defstruct SaveRequest (:key 'String) (:stored 'types/StoreData)
+          :code $ quote $ defstruct SaveRequest (:key String) (:stored types/StoreData)
             :complete! $ quote $ Fn (Result Unit String) (-> Unit)
           :examples $ []
           :schema $ quote StructDef
@@ -1165,9 +1189,13 @@
     'app.types $ %{} 'FileEntry
       :defs $ {}
         'Bookmark $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ defenum Bookmark (:bookmark 'String 'String)
+          :code $ quote $ defenum Bookmark (:bookmark String String)
           :examples $ []
           :schema $ quote EnumDef
+        'CursorKey $ %{} 'CodeEntry (:doc |)
+          :code $ quote $ defunion CursorKey Tag String Number
+          :examples $ []
+          :schema $ quote UnionDef
         'FileHost $ %{} 'CodeEntry (:doc |)
           :code $ quote $ deftrait FileHost (:name 'String) (:size 'Number) (:mime-type 'String) (:last-modified 'Number)
             .text $ quote $ Fn app.types/FileHost (-> JsObject)
@@ -1197,30 +1225,30 @@
         'Op $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defenum Op
             :states
-              quote $ List Dynamic
-              , 'Dynamic
-            :ir-data 'Dynamic
-            :preview 'Dynamic
-            :hydrate-storage 'app.types/StoreData
-            :new-bookmark 'app.types/Bookmark
-            :point-to 'Number
-            :remove-bookmark 'Number
+              quote $ List app.types/CursorKey
+              , Dynamic
+            :ir-data Dynamic
+            :preview Dynamic
+            :hydrate-storage app.types/StoreData
+            :new-bookmark app.types/Bookmark
+            :point-to Number
+            :remove-bookmark Number
             :reel/toggle
-            :reel/recall 'Number
+            :reel/recall Number
             :reel/merge
             :reel/reset
             :reel/step
             :reel/run
-            :reel/remove 'Number
+            :reel/remove Number
           :examples $ []
           :schema $ quote EnumDef
         'StoreData $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defstruct StoreData
             :states $ quote $ Map Dynamic Dynamic
-            :ir 'Dynamic
-            :preview 'Dynamic
+            :ir Dynamic
+            :preview Dynamic
             :bookmarks $ quote $ List app.types/Bookmark
-            :pointer 'Number
+            :pointer Number
           :examples $ []
           :schema $ quote StructDef
         'decode-bookmark $ %{} 'CodeEntry
@@ -1237,7 +1265,7 @@
             match op
               (:states cursor data)
                 Op :states
-                  decode-map-as cursor $ :: 'List 'Dynamic
+                  decode-map-as cursor $ quote $ List app.types/CursorKey
                   , data
               (:ir-data data) (Op :ir-data data)
               (:preview data) (Op :preview data)
@@ -1262,7 +1290,7 @@
                       = (&struct:get-name data) :StoreData
                       &struct:to-map data
                       raise "|Expected an IR Viewer store"
-                    decode-map-as data $ :: 'Map 'Tag 'Dynamic
+                    decode-map-as data $ quote $ Map Tag Dynamic
                   bookmarks $ .unwrap $ get raw :bookmarks
                   normalized $ assoc raw :bookmarks $ if (list? bookmarks)
                     map bookmarks $ fn (bookmark)
@@ -1286,7 +1314,7 @@
               (:states cursor data)
                 assoc store :states $ decode-map-as
                   update-state-tree (:states store) cursor data
-                  :: 'Map 'Dynamic 'Dynamic
+                  quote $ Map Dynamic Dynamic
               (:ir-data data)
                 -> store (assoc :ir data)
                   assoc :bookmarks $ []
