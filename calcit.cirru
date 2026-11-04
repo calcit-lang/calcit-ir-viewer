@@ -228,7 +228,7 @@
             let
                 cursor $ decode-map-as
                   .unwrap-or (get states :cursor) ([])
-                  quote $ List Dynamic
+                  quote $ List app.types/CursorKey
                 state $ decode-map-as
                   .unwrap-or (get states :data)
                     {} (:selected |) (:query |)
