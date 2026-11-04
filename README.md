@@ -11,6 +11,10 @@ Demo: http://repo.calcit-lang.org/calcit-ir-viewer/ 。
 
 文件面板的游标解码也复用已有 `CursorKey` union，不再在这一处退回 `List Dynamic`。
 这会更早拒绝非法游标元素；合法混合游标的派发、状态树和存档格式保持。
+恢复入口同样检查根 `:states/:cursor`，非法元素沿用原恢复失败提示与暂停覆盖流程，
+不等到渲染时才抛错；其他状态 payload 仍保持开放。
+旧 localStorage 回退读取使用已有受检 getter：只有 key 真正缺失才视为空存档，
+读取异常走同一恢复失败流程，避免后续空 IndexedDB 存档遮住旧副本。
 导入 IR、预览和历史类型展示仍是开放数据边界，不用有限 union 假称支持全部编译器输出。
 
 ### 完整恢复
