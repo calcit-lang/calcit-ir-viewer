@@ -228,7 +228,7 @@
             let
                 cursor $ decode-map-as
                   .unwrap-or (get states :cursor) ([])
-                  quote $ List Dynamic
+                  quote $ List app.types/CursorKey
                 state $ decode-map-as
                   .unwrap-or (get states :data)
                     {} (:selected |) (:query |)
@@ -937,7 +937,8 @@
             println "|Running mode:" $ if config/dev? |dev |release
             app.storage/load!
               .unwrap $ get config/site :storage-key
-              fn () $ browser/storage-get $ .unwrap (get config/site :storage-key)
+              fn () $ js-nullish->option $ .get-item (browser/window-local-storage)
+                .unwrap $ get config/site :storage-key
               fn (restored)
                 match restored
                   (:ok state)
@@ -1291,6 +1292,11 @@
                       &struct:to-map data
                       raise "|Expected an IR Viewer store"
                     decode-map-as data $ quote $ Map Tag Dynamic
+                  _cursor $ decode-map-as
+                    .unwrap-or
+                      get-in raw $ [] :states :cursor
+                      []
+                    quote $ List app.types/CursorKey
                   bookmarks $ .unwrap $ get raw :bookmarks
                   normalized $ assoc raw :bookmarks $ if (list? bookmarks)
                     map bookmarks $ fn (bookmark)

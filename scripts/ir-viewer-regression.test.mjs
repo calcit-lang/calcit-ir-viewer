@@ -46,6 +46,9 @@ test('state updates modify the state tree without nesting another store', () => 
   assert.equal(clt.format_cirru_edn(clt._$n_enum_$o_nth(decoded, 1)), clt.format_cirru_edn(mixed));
   assert.equal(clt._$n_enum_$o_nth(decoded, 2), false);
   assert.throws(() => decode_op(clt._$o__$o_(t.states, list(true), false)), /CursorKey/);
+  assert.throws(() => comp_file_entry(map(t.cursor, list(true), t.data, map(t.selected, '', t.query, '')), files), /CursorKey/);
+  assert.equal(clt.option_$o_some_$q_(decode_store(clt.assoc(store, t.states, map(t.cursor, mixed)))), true);
+  assert.equal(clt.option_$o_none_$q_(decode_store(clt.assoc(store, t.states, map(t.cursor, list(true))))), true);
 
   const next = updater(store, op(t.states, list(t['file-entry']), map(t.query, 'alpha', t.selected, '')), 'state', 1);
   const states = field(next, t.states);
@@ -159,6 +162,10 @@ test('legacy storage remains readable until saved and IndexedDB then takes prece
 });
 
 test('failed reads and writes report errors without replacing the saved snapshot', async () => {
+  const legacyFailure = await loadSnapshot('ir-viewer-unreadable-legacy', () => { throw new Error('synthetic legacy read failure'); });
+  assert.equal(resultTag(legacyFailure), 'err');
+  assert.match(legacyFailure.extra[0], /synthetic legacy read failure/);
+  assert.equal(await readDB('ir-viewer-unreadable-legacy'), undefined);
   const key = 'ir-viewer-failure';
   await writeDB(key, 'not valid Cirru EDN');
   assert.equal(resultTag(await loadSnapshot(key)), 'err');
