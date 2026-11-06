@@ -10,6 +10,7 @@ import { updater } from '../js-out/app.updater.mjs';
 import { comp_file_entry, comp_container, comp_import, comp_preview } from '../js-out/app.comp.container.mjs';
 import { new_reel, record_op } from '../js-out/reel.typed.mjs';
 import { make_string } from '../js-out/respo.render.html.mjs';
+import { event__GT_edn } from '../js-out/respo.util.format.mjs';
 import { component_$q_, component_tree } from '../js-out/respo.util.detect.mjs';
 import { load_$x_ as loadSaved, save_$x_ as saveSaved, queue_save_$x_ as queueSaved, flush_save_$x_ as flushSaved } from '../js-out/app.storage.mjs';
 
@@ -67,7 +68,7 @@ test('query dispatch is a single Enum and round-trips through updater/Reel/rende
   let reel = new_reel(initial);
   const input = eventHandler(comp_container(reel), t.input);
   assert.equal(typeof input, 'function');
-  input(map(t.value, 'alpha'), (...args) => {
+  input(event__GT_edn({type: 'input', target: {value: 'alpha'}}), (...args) => {
     assert.equal(args.length, 1);
     reel = record_op(updater, reel, args[0], 'query', 1);
   });
@@ -94,7 +95,7 @@ test('IR file import awaits file text and dispatches one ir-data Enum', async ()
   const target = { value: 'program-ir.cirru', files: { item: () => ({ text: async () => clt.format_cirru_edn(map(t.files, files)) }) } };
   const event = { target, currentTarget: target, type: 'change', defaultPrevented: false, eventPhase: 2, preventDefault() {}, stopPropagation() {} };
   let captured;
-  await handler(map(t.event, event), (...args) => { assert.equal(args.length, 1); captured = args[0]; });
+  await handler(event__GT_edn(event), (...args) => { assert.equal(args.length, 1); captured = args[0]; });
   assert.equal(target.value, '');
   assert.equal(clt._$n_enum_$o_nth(captured, 0), t['ir-data']);
   const next = updater(store, captured, 'file', 1);
