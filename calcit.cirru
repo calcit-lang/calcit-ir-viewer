@@ -74,8 +74,8 @@
                     div
                       {}
                         :on-click $ fn (e d!)
-                          hint-fn $ Fn (Map Tag Dynamic)
-                            Fn Enum $ -> Unit
+                          hint-fn $ Fn respo.schema/RespoEvent
+                            Fn AnyEnum $ -> Unit
                             -> Unit
                           d! $ :: :point-to idx
                         :class-name $ str-spaced style-bookmark $ if (= pointer idx) style-bookmark-selected |
@@ -85,8 +85,8 @@
                         :type $ Option :none
                         :disabled $ Option :none
                         :on-click $ Option :some $ fn (e d!)
-                          hint-fn $ Fn (Map Tag Dynamic)
-                            Fn Enum $ -> Unit
+                          hint-fn $ Fn respo.schema/RespoEvent
+                            Fn AnyEnum $ -> Unit
                             -> Unit
                           d! $ :: :remove-bookmark idx
                         :class-name $ Option :some style-close
@@ -159,7 +159,7 @@
                   .unwrap-or
                     get-in (:ir store) ([] :files)
                     {}
-                  quote $ Map String $ Map Tag Dynamic
+                  Map String $ Map Tag Dynamic
               div
                 {} $ :class-name $ str-spaced css/global css/fullscreen css/column
                 div
@@ -207,7 +207,7 @@
               let
                   defs $ keys $ decode-map-as
                     .unwrap-or (get file :defs) ({})
-                    quote $ Map String Dynamic
+                    Map String Dynamic
                 list->
                   {} $ :class-name $ str-spaced css/column
                   -> defs &set:to-list (sort &compare)
@@ -228,11 +228,11 @@
             let
                 cursor $ decode-map-as
                   .unwrap-or (get states :cursor) ([])
-                  quote $ List app.types/CursorKey
+                  List app.types/CursorKey
                 state $ decode-map-as
                   .unwrap-or (get states :data)
                     {} (:selected |) (:query |)
-                  quote $ Map Tag String
+                  Map Tag String
                 selected $ assert-type
                   .unwrap-or (get state :selected) |
                   , 'String
@@ -249,8 +249,11 @@
                   input $ {} (:value query) (:placeholder "|Search ns...") (:class-name css/input)
                     :style $ {} $ :width |100%
                     :on-input $ fn (e d!)
+                      hint-fn $ Fn respo.schema/RespoEvent
+                        Fn AnyEnum $ -> Unit
+                        -> Unit
                       d! $ :: :states cursor $ assoc state :query
-                        .unwrap $ get e :value
+                        decode-map-as (:value e) String
                 div
                   {} (:class-name css/expand)
                     :style $ {} (:overflow-y :auto) (:max-height |40%)
@@ -289,11 +292,13 @@
                     input $ {} (:type |file)
                       :style $ {} (:opacity 0.2) (:width 0) (:top 0) (:position :absolute) (:pointer-events :none)
                       :on-change $ fn (e d!)
-                        hint-fn $ Async $ :features :js-ffi
+                        hint-fn $ Fn respo.schema/RespoEvent
+                          Fn AnyEnum $ -> Unit
+                          -> Unit
+                          :async
+                          :features :js-ffi
                         let
-                            event-host $ js-cast
-                              .unwrap $ get e :event
-                              , 'js-ffi.browser/EventHost
+                            event-host $ js-cast (:event e) 'js-ffi.browser/EventHost
                             target $ js-cast
                               .unwrap $ js-nullish->option $ event-host :target
                               , 'app.types/FileInputHost
@@ -931,7 +936,7 @@
                     :timestamp $ shared/date-now-snapshot
               , &unit
           :examples $ []
-          :schema $ quote $ Fn Enum (-> Unit) (:features :js-ffi)
+          :schema $ quote $ Fn AnyEnum (-> Unit) (:features :js-ffi)
         'main! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn main! () (load-console-formatter!)
             println "|Running mode:" $ if config/dev? |dev |release
@@ -1037,7 +1042,7 @@
           :code $ quote $ def DispatchOp
             :: :states ([]) ({})
           :examples $ []
-          :schema $ quote Enum
+          :schema $ quote AnyEnum
         'store $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def store
             app.types/StoreData :states
@@ -1063,7 +1068,7 @@
           :schema $ quote $ Ref Bool
         'SaveRequest $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defstruct SaveRequest (:key String) (:stored types/StoreData)
-            :complete! $ quote $ Fn (Result Unit String) (-> Unit)
+            :complete! $ Fn (Result Unit String) (-> Unit)
           :examples $ []
           :schema $ quote StructDef
         'arm-save! $ %{} 'CodeEntry (:doc "|重置自动保存的 1 秒尾沿定时器；计时结束仅刷新待存请求，不在用户每次输入时序列化完整 IR。")
@@ -1199,7 +1204,7 @@
           :schema $ quote UnionDef
         'FileHost $ %{} 'CodeEntry (:doc |)
           :code $ quote $ deftrait FileHost (:name 'String) (:size 'Number) (:mime-type 'String) (:last-modified 'Number)
-            .text $ quote $ Fn app.types/FileHost (-> JsObject)
+            .text $ Fn app.types/FileHost $ -> JsObject
           :examples $ []
           :ffi $ {} (:backend :js) (:kind :external-object) (:target :browser)
             :names $ {} (:last-modified |lastModified) (:mime-type |type)
@@ -1207,7 +1212,7 @@
           :tags $ #{} :ffi :js-host
         'FileInputHost $ %{} 'CodeEntry (:doc |)
           :code $ quote $ deftrait FileInputHost (:value 'String)
-            :files $ quote $ JsNullish app.types/FileListHost
+            :files $ JsNullish app.types/FileListHost
           :examples $ []
           :ffi $ {} (:backend :js) (:kind :external-object) (:target :browser)
             :names $ {}
@@ -1216,8 +1221,7 @@
           :tags $ #{} :ffi :js-host
         'FileListHost $ %{} 'CodeEntry (:doc |)
           :code $ quote $ deftrait FileListHost (:length 'Number)
-            .item $ quote $ Fn app.types/FileListHost Number
-              -> $ JsNullish app.types/FileHost
+            .item $ Fn app.types/FileListHost Number $ -> (JsNullish app.types/FileHost)
           :examples $ []
           :ffi $ {} (:backend :js) (:kind :external-object) (:target :browser)
             :names $ {}
@@ -1225,9 +1229,7 @@
           :tags $ #{} :ffi :js-host
         'Op $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defenum Op
-            :states
-              quote $ List app.types/CursorKey
-              , Dynamic
+            :states (List app.types/CursorKey) Dynamic
             :ir-data Dynamic
             :preview Dynamic
             :hydrate-storage app.types/StoreData
@@ -1245,10 +1247,10 @@
           :schema $ quote EnumDef
         'StoreData $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defstruct StoreData
-            :states $ quote $ Map Dynamic Dynamic
+            :states $ Map Dynamic Dynamic
             :ir Dynamic
             :preview Dynamic
-            :bookmarks $ quote $ List app.types/Bookmark
+            :bookmarks $ List app.types/Bookmark
             :pointer Number
           :examples $ []
           :schema $ quote StructDef
@@ -1260,13 +1262,13 @@
                 Bookmark :bookmark (decode-map-as ns 'String) (decode-map-as name 'String)
               _ $ raise "|Expected a bookmark target"
           :examples $ []
-          :schema $ quote $ Fn Enum (-> app.types/Bookmark)
+          :schema $ quote $ Fn AnyEnum (-> app.types/Bookmark)
         'decode-op $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn decode-op (op)
             match op
               (:states cursor data)
                 Op :states
-                  decode-map-as cursor $ quote $ List app.types/CursorKey
+                  decode-map-as cursor $ List app.types/CursorKey
                   , data
               (:ir-data data) (Op :ir-data data)
               (:preview data) (Op :preview data)
@@ -1280,7 +1282,7 @@
                 Op :remove-bookmark $ decode-map-as index 'Number
               _ $ raise "|Unknown application operation"
           :examples $ []
-          :schema $ quote $ Fn Enum (-> app.types/Op)
+          :schema $ quote $ Fn AnyEnum (-> app.types/Op)
         'decode-store $ %{} 'CodeEntry
           :doc "|验证存档字段并规范化历史匿名书签，返回具有当前 StoreData/Bookmark 身份的受检值；不承诺保持输入对象身份。"
           :code $ quote $ defn decode-store (data)
@@ -1291,12 +1293,12 @@
                       = (&struct:get-name data) :StoreData
                       &struct:to-map data
                       raise "|Expected an IR Viewer store"
-                    decode-map-as data $ quote $ Map Tag Dynamic
+                    decode-map-as data $ Map Tag Dynamic
                   _cursor $ decode-map-as
                     .unwrap-or
                       get-in raw $ [] :states :cursor
                       []
-                    quote $ List app.types/CursorKey
+                    List app.types/CursorKey
                   bookmarks $ .unwrap $ get raw :bookmarks
                   normalized $ assoc raw :bookmarks $ if (list? bookmarks)
                     map bookmarks $ fn (bookmark)
@@ -1320,7 +1322,7 @@
               (:states cursor data)
                 assoc store :states $ decode-map-as
                   update-state-tree (:states store) cursor data
-                  quote $ Map Dynamic Dynamic
+                  Map Dynamic Dynamic
               (:ir-data data)
                 -> store (assoc :ir data)
                   assoc :bookmarks $ []
