@@ -181,10 +181,7 @@
                                   div
                                     {} $ :class-name css-pad8
                                     comp-code declaration false
-                            (:err _)
-                              div
-                                {} $ :class-name css-pad8
-                                comp-code nil false
+                            (:err _) (<> "|Bookmarked definition is no longer available" css-pad8)
                       _ $ div ({})
                         <> $ str "|unknown bookmark data: " bookmark
                     div
@@ -300,18 +297,22 @@
                           -> Unit
                           :async
                           :features :js-ffi
-                        let
-                            event-host $ js-cast (:event e) 'js-ffi.browser/EventHost
-                            target $ js-cast
-                              .unwrap $ js-nullish->option $ event-host :target
-                              , 'app.types/FileInputHost
-                            files-host $ .unwrap $ js-nullish->option (target :files)
-                            file-host $ .unwrap $ js-nullish->option (files-host .item 0)
-                            text $ decode-map-as
-                              js-await $ file-host .text
-                              , 'String
-                          js-set target :value |
-                          d! $ app.types/Op :ir-data $ decode-map-as (parse-cirru-edn text) (Map Tag Dynamic)
+                        try
+                          let
+                              event-host $ js-cast (:event e) 'js-ffi.browser/EventHost
+                              target $ js-cast
+                                .unwrap $ js-nullish->option $ event-host :target
+                                , 'app.types/FileInputHost
+                              files-host $ .unwrap $ js-nullish->option (target :files)
+                              file-host $ .unwrap $ js-nullish->option (files-host .item 0)
+                            js-set target :value |
+                            let
+                                text $ decode-map-as
+                                  js-await $ file-host .text
+                                  , 'String
+                              d! $ app.types/Op :ir-data $ decode-map-as (parse-cirru-edn text) (Map Tag Dynamic)
+                          fn (message)
+                            d! $ app.types/Op :import-failed message
                     div ({}) (<> "|Pick IR file")
           :examples $ []
           :schema $ quote $ Fn (Map Dynamic Dynamic)
@@ -356,16 +357,19 @@
                 <>
                   str $ .unwrap-or (get expr :ns) |
                   , style-import-ns
-                a $ {} (:class-name css/link) (:inner-text |goto)
-                  :style $ {} $ :font-size 10
-                  :on-click $ fn (e d!)
-                    d! $ app.types/Op :new-bookmark $ app.types/Bookmark :bookmark
-                      decode-map-as
-                        .unwrap $ get expr :ns
-                        , String
-                      decode-map-as
-                        .unwrap $ get expr :def
-                        , String
+                match (get expr :ns)
+                  (:some ns)
+                    match (get expr :def)
+                      (:some definition)
+                        if
+                          and (string? ns) (string? definition)
+                          Option :some $ a $ {} (:class-name css/link) (:inner-text |goto)
+                            :style $ {} $ :font-size 10
+                            :on-click $ fn (e d!)
+                              d! $ app.types/Op :new-bookmark $ app.types/Bookmark :bookmark ns definition
+                          Option :none
+                      (:none) (Option :none)
+                  (:none) (Option :none)
               if
                 and
                   .some? $ get expr :info
@@ -932,11 +936,18 @@
         'dispatch! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn dispatch! (op)
             when config/dev? $ println |Dispatch: op
-            reset! *reel $ match (typed/decode-control op)
-              (:some action) (typed/apply-control updater @*reel action)
-              (:none)
-                typed/record-op updater @*reel op (generate-id!)
-                  :timestamp $ shared/date-now-snapshot
+            match op
+              (:import-failed message)
+                do
+                  hud! |error $ str "|IR import failed: " message
+                  , &unit
+              _ $ do
+                reset! *reel $ match (typed/decode-control op)
+                  (:some action) (typed/apply-control updater @*reel action)
+                  (:none)
+                    typed/record-op updater @*reel op (generate-id!)
+                      :timestamp $ shared/date-now-snapshot
+                , &unit
             , &unit
           :examples $ []
           :schema $ quote $ Fn app.types/Op (-> Unit) (:features :js-ffi)
@@ -1228,6 +1239,7 @@
           :code $ quote $ defenum Op
             :states (List app.types/CursorKey) Dynamic
             :ir-data $ Map Tag Dynamic
+            :import-failed String
             :preview Dynamic
             :hydrate-storage app.types/StoreData
             :new-bookmark app.types/Bookmark
