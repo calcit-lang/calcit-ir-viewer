@@ -15,7 +15,7 @@ Demo: http://repo.calcit-lang.org/calcit-ir-viewer/ 。
 不等到渲染时才抛错；其他状态 payload 仍保持开放。
 旧 localStorage 回退读取使用已有受检 getter：只有 key 真正缺失才视为空存档，
 读取异常走同一恢复失败流程，避免后续空 IndexedDB 存档遮住旧副本。
-导入文件顶层必须是 Tag 键的 Map，内部节点仍按编译器实际输出读取。界面操作使用具名 `Op`。可预览的节点使用 Tag 键的 Map，关闭预览使用独立操作。Reel 控制和普通操作在分派时由 `ResolvedOp` union 区分。历史书签解码与存档结构保持兼容。
+导入文件顶层必须是 Tag 键的 Map，内部节点仍按编译器实际输出读取。界面操作使用具名 `Op`。可预览的节点使用 Map，保留节点内混合键的元数据。关闭预览使用独立操作。Reel 控制和普通操作在分派时由 `ResolvedOp` union 区分。历史书签解码与存档结构保持兼容。
 
 ### 完整恢复
 

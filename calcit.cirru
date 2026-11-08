@@ -350,7 +350,7 @@
                 :class-name $ str-spaced css/column css-code-symbol
                 :style $ merge $ {} (:display :inline-flex)
                 :on-click $ fn (e d!)
-                  d! $ app.types/Op :preview $ decode-map-as expr (Map Tag Dynamic)
+                  d! $ app.types/Op :preview $ decode-map-as expr (Map Dynamic Dynamic)
               <> $ str $ .unwrap-or (get expr :def) |
               div
                 {} $ :class-name css/row-middle
@@ -402,7 +402,7 @@
               {} (:class-name css/column)
                 :style $ {} $ :display :inline-flex
                 :on-click $ fn (e d!)
-                  d! $ app.types/Op :preview $ decode-map-as expr (Map Tag Dynamic)
+                  d! $ app.types/Op :preview $ decode-map-as expr (Map Dynamic Dynamic)
               <> (str "|ir " kind) style-tiny-hint
               <> (to-lispy-string expr) css-code-default
           :examples $ []
@@ -414,7 +414,7 @@
                 :class-name $ str-spaced css/column css-code-symbol
                 :style $ merge $ {} (:display :inline-flex)
                 :on-click $ fn (e d!)
-                  d! $ app.types/Op :preview $ decode-map-as expr (Map Tag Dynamic)
+                  d! $ app.types/Op :preview $ decode-map-as expr (Map Dynamic Dynamic)
               <> $ str $ .unwrap-or (get expr :val) |
               <> |local style-tiny-hint
               <>
@@ -454,7 +454,7 @@
               {} (:class-name css/column)
                 :style $ {} (:display :inline-flex) (:line-height |1.2)
                 :on-click $ fn (e d!)
-                  d! $ app.types/Op :preview $ decode-map-as expr (Map Tag Dynamic)
+                  d! $ app.types/Op :preview $ decode-map-as expr (Map Dynamic Dynamic)
               <>
                 str |. $ .unwrap-or (get expr :method) |
                 , css-code-method
@@ -532,7 +532,7 @@
                 {}
                   :style $ merge $ {} (:display :inline-block)
                   :on-click $ fn (e d!)
-                    d! $ app.types/Op :preview $ decode-map-as expr (Map Tag Dynamic)
+                    d! $ app.types/Op :preview $ decode-map-as expr (Map Dynamic Dynamic)
                 <> $ str $ .unwrap-or (get expr :alias) |
           :examples $ []
           :schema $ quote $ Fn Dynamic (-> respo.schema/Component)
@@ -547,7 +547,7 @@
                 :class-name $ str-spaced css/column css-code-symbol
                 :style $ merge $ {} (:display :inline-flex)
                 :on-click $ fn (e d!)
-                  d! $ app.types/Op :preview $ decode-map-as expr (Map Tag Dynamic)
+                  d! $ app.types/Op :preview $ decode-map-as expr (Map Dynamic Dynamic)
               <> $ str $ .unwrap-or (get expr :val) |
               div ({})
                 <>
@@ -1247,7 +1247,7 @@
             :states (List app.types/CursorKey) Dynamic
             :ir-data $ Map Tag Dynamic
             :import-failed String
-            :preview $ Map Tag Dynamic
+            :preview $ Map Dynamic Dynamic
             :close-preview
             :hydrate-storage app.types/StoreData
             :new-bookmark app.types/Bookmark
