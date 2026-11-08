@@ -1,11 +1,12 @@
 import assert from 'node:assert/strict';
+import { registerHooks } from 'node:module';
 import test from 'node:test';
 import 'fake-indexeddb/auto';
 import { IDBDatabase } from 'fake-indexeddb';
 import { get as readDB, set as writeDB } from 'idb-keyval';
 import * as clt from '../js-out/calcit.core.mjs';
 import { store } from '../js-out/app.schema.mjs';
-import { Op, Bookmark, decode_store, decode_op } from '../js-out/app.types.mjs';
+import { Op, Bookmark, decode_store } from '../js-out/app.types.mjs';
 import { updater } from '../js-out/app.updater.mjs';
 import { comp_file_entry, comp_container, comp_import, comp_preview } from '../js-out/app.comp.container.mjs';
 import { new_reel, record_op } from '../js-out/reel.typed.mjs';
@@ -43,10 +44,10 @@ function eventHandler(node, tag, accept = () => true) {
 
 test('state updates modify the state tree without nesting another store', () => {
   const mixed = list(t['file-entry'], '名称', 2);
-  const decoded = decode_op(clt._$o__$o_(t.states, mixed, false));
+  const decoded = op(t.states, mixed, false);
   assert.equal(clt.format_cirru_edn(clt._$n_enum_$o_nth(decoded, 1)), clt.format_cirru_edn(mixed));
   assert.equal(clt._$n_enum_$o_nth(decoded, 2), false);
-  assert.throws(() => decode_op(clt._$o__$o_(t.states, list(true), false)), /CursorKey/);
+  assert.throws(() => op(t.states, list(true), false), /Op::states.*declared type/);
   assert.throws(() => comp_file_entry(map(t.cursor, list(true), t.data, map(t.selected, '', t.query, '')), files), /CursorKey/);
   assert.equal(clt.option_$o_some_$q_(decode_store(clt.assoc(store, t.states, map(t.cursor, mixed)))), true);
   assert.equal(clt.option_$o_none_$q_(decode_store(clt.assoc(store, t.states, map(t.cursor, list(true))))), true);
@@ -106,24 +107,28 @@ test('IR file import awaits file text and dispatches one ir-data Enum', async ()
 test('bookmark removal clamps pointer and keeps preview unchanged', () => {
   const bookmark = clt._PCT__$o__$o_(Bookmark, clt.init_tags(['bookmark']).bookmark, 'app.alpha', 'main!');
   let next = updater(store, op(t['new-bookmark'], bookmark), 'bookmark', 1);
-  next = updater(next, op(t.preview, 'preview'), 'preview', 2);
+  const preview = map(t.value, 'preview');
+  next = updater(next, op(t.preview, preview), 'preview', 2);
   next = updater(next, op(t['remove-bookmark'], 0), 'remove', 3);
   assert.equal(clt.count(field(next, t.bookmarks)), 0);
   assert.equal(field(next, t.pointer), 0);
-  assert.equal(field(next, t.preview), 'preview');
+  assert.equal(field(next, t.preview), preview);
 });
 
-test('preview click and close decode operations and round-trip through Reel', () => {
-  let reel = new_reel(store);
-  const dispatch = (...args) => {
-    assert.equal(args.length, 1);
-    reel = record_op(updater, reel, decode_op(args[0]), 'preview', 1);
-  };
-  const expr = map(clt.init_tags(['ns']).ns, 'app.alpha', clt.init_tags(['def']).def, 'main!');
-  eventHandler(comp_import(expr), t.click)(map(), dispatch);
-  assert.equal(field(field(reel, clt.init_tags(['store']).store), t.preview), expr);
-  eventHandler(comp_preview(expr), t.click)(map(), dispatch);
-  assert.equal(field(field(reel, clt.init_tags(['store']).store), t.preview), null);
+test('mixed-key preview opens and closes through the runtime dispatcher', async () => {
+  // Match the extension resolution Vite provides for bottom-tip in the browser.
+  const hooks = registerHooks({
+    resolve(specifier, context, nextResolve) {
+      return nextResolve(specifier === 'virtual-dom/create-element' ? specifier + '.js' : specifier, context);
+    },
+  });
+  const { dispatch_$x_, _$s_reel } = await import('../js-out/app.main.mjs').finally(() => hooks.deregister());
+  const readPreview = () => field(field(clt.deref(_$s_reel), clt.newTag('store')), t.preview);
+  const expr = map(clt.newTag('ns'), 'app.alpha', clt.newTag('def'), 'main!', 'source-note', 'legacy metadata');
+  eventHandler(comp_import(expr), t.click)(map(), dispatch_$x_);
+  assert.equal(clt._$e_(readPreview(), expr), true);
+  eventHandler(comp_preview(readPreview()), t.click)(map(), dispatch_$x_);
+  assert.equal(readPreview(), null);
 });
 
 const loadSnapshot = (key, legacy = () => clt._PCT__$o__$o_(clt.Option, clt.newTag('none'))) => new Promise(resolve => loadSaved(key, legacy, resolve));

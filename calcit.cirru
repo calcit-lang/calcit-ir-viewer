@@ -350,7 +350,7 @@
                 :class-name $ str-spaced css/column css-code-symbol
                 :style $ merge $ {} (:display :inline-flex)
                 :on-click $ fn (e d!)
-                  d! $ app.types/Op :preview expr
+                  d! $ app.types/Op :preview $ decode-map-as expr (Map Dynamic Dynamic)
               <> $ str $ .unwrap-or (get expr :def) |
               div
                 {} $ :class-name css/row-middle
@@ -402,7 +402,7 @@
               {} (:class-name css/column)
                 :style $ {} $ :display :inline-flex
                 :on-click $ fn (e d!)
-                  d! $ app.types/Op :preview expr
+                  d! $ app.types/Op :preview $ decode-map-as expr (Map Dynamic Dynamic)
               <> (str "|ir " kind) style-tiny-hint
               <> (to-lispy-string expr) css-code-default
           :examples $ []
@@ -414,7 +414,7 @@
                 :class-name $ str-spaced css/column css-code-symbol
                 :style $ merge $ {} (:display :inline-flex)
                 :on-click $ fn (e d!)
-                  d! $ app.types/Op :preview expr
+                  d! $ app.types/Op :preview $ decode-map-as expr (Map Dynamic Dynamic)
               <> $ str $ .unwrap-or (get expr :val) |
               <> |local style-tiny-hint
               <>
@@ -454,7 +454,7 @@
               {} (:class-name css/column)
                 :style $ {} (:display :inline-flex) (:line-height |1.2)
                 :on-click $ fn (e d!)
-                  d! $ app.types/Op :preview expr
+                  d! $ app.types/Op :preview $ decode-map-as expr (Map Dynamic Dynamic)
               <>
                 str |. $ .unwrap-or (get expr :method) |
                 , css-code-method
@@ -472,7 +472,7 @@
                   trim $ format-cirru-edn data
                 div $ {} (:inner-text "|×") (:class-name css-preview-close)
                   :on-click $ fn (e d!)
-                    d! $ app.types/Op :preview nil
+                    d! $ app.types/Op :close-preview
               div $ {}
           :examples $ []
           :schema $ quote $ Fn Dynamic (-> respo.schema/Component)
@@ -532,7 +532,7 @@
                 {}
                   :style $ merge $ {} (:display :inline-block)
                   :on-click $ fn (e d!)
-                    d! $ app.types/Op :preview expr
+                    d! $ app.types/Op :preview $ decode-map-as expr (Map Dynamic Dynamic)
                 <> $ str $ .unwrap-or (get expr :alias) |
           :examples $ []
           :schema $ quote $ Fn Dynamic (-> respo.schema/Component)
@@ -547,7 +547,7 @@
                 :class-name $ str-spaced css/column css-code-symbol
                 :style $ merge $ {} (:display :inline-flex)
                 :on-click $ fn (e d!)
-                  d! $ app.types/Op :preview expr
+                  d! $ app.types/Op :preview $ decode-map-as expr (Map Dynamic Dynamic)
               <> $ str $ .unwrap-or (get expr :val) |
               div ({})
                 <>
@@ -942,10 +942,10 @@
                   hud! |error $ str "|IR import failed: " message
                   , &unit
               _ $ do
-                reset! *reel $ match (typed/decode-control op)
-                  (:some action) (typed/apply-control updater @*reel action)
-                  (:none)
-                    typed/record-op updater @*reel op (generate-id!)
+                reset! *reel $ match (resolve-op op)
+                  (reel.typed/Control control) (typed/apply-control updater @*reel control)
+                  (app.types/Op action)
+                    typed/record-op updater @*reel action (generate-id!)
                       :timestamp $ shared/date-now-snapshot
                 , &unit
             , &unit
@@ -1019,6 +1019,13 @@
             Fn $ -> Unit
             -> Unit
             :features :js-ffi
+        'resolve-op $ %{} 'CodeEntry (:doc |)
+          :code $ quote $ defn resolve-op (op)
+            match (typed/decode-control op)
+              (:some control) control
+              (:none) op
+          :examples $ []
+          :schema $ quote $ Fn app.types/Op (-> app.types/ResolvedOp)
         'schedule-storage! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn schedule-storage! ()
             when @*storage-ready? $ app.storage/queue-save!
@@ -1240,7 +1247,8 @@
             :states (List app.types/CursorKey) Dynamic
             :ir-data $ Map Tag Dynamic
             :import-failed String
-            :preview Dynamic
+            :preview $ Map Dynamic Dynamic
+            :close-preview
             :hydrate-storage app.types/StoreData
             :new-bookmark app.types/Bookmark
             :point-to Number
@@ -1254,6 +1262,10 @@
             :reel/remove Number
           :examples $ []
           :schema $ quote EnumDef
+        'ResolvedOp $ %{} 'CodeEntry (:doc |)
+          :code $ quote $ defunion ResolvedOp app.types/Op reel.typed/Control
+          :examples $ []
+          :schema $ quote UnionDef
         'StoreData $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defstruct StoreData
             :states $ Map Dynamic Dynamic
@@ -1272,27 +1284,6 @@
               _ $ raise "|Expected a bookmark target"
           :examples $ []
           :schema $ quote $ Fn AnyEnum (-> app.types/Bookmark)
-        'decode-op $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ defn decode-op (op)
-            match op
-              (:states cursor data)
-                Op :states
-                  decode-map-as cursor $ List app.types/CursorKey
-                  , data
-              (:ir-data data)
-                Op :ir-data $ decode-map-as data $ Map Tag Dynamic
-              (:preview data) (Op :preview data)
-              (:hydrate-storage data)
-                Op :hydrate-storage $ .unwrap $ decode-store data
-              (:new-bookmark bookmark)
-                Op :new-bookmark $ if (enum? bookmark) (decode-bookmark bookmark) (raise "|Expected a bookmark target")
-              (:point-to index)
-                Op :point-to $ decode-map-as index 'Number
-              (:remove-bookmark index)
-                Op :remove-bookmark $ decode-map-as index 'Number
-              _ $ raise "|Unknown application operation"
-          :examples $ []
-          :schema $ quote $ Fn AnyEnum (-> app.types/Op)
         'decode-store $ %{} 'CodeEntry
           :doc "|验证存档字段并规范化历史匿名书签，返回具有当前 StoreData/Bookmark 身份的受检值；不承诺保持输入对象身份。"
           :code $ quote $ defn decode-store (data)
@@ -1338,6 +1329,8 @@
                   assoc :bookmarks $ []
                   assoc :pointer 0
               (:preview data) (assoc store :preview data)
+              (:close-preview)
+                assoc store :preview $ :preview app.schema/store
               (:hydrate-storage data) data
               (:new-bookmark bookmark)
                 -> store
