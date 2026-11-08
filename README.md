@@ -5,7 +5,7 @@ Demo: http://repo.calcit-lang.org/calcit-ir-viewer/ 。
 
 ### 使用者影响
 
-本项目使用 Calcit 与 `@calcit/procs` 0.35.1，模块图使用正式版本 Reel 0.9.2、UI 0.15.1、Respo 0.19.4。升级后重新安装依赖、生成 JS 并刷新页面，基础样式可能随补丁变化。
+本项目使用 Calcit 与 `@calcit/procs` 0.37.0，模块图使用正式版本 Reel 0.10.0、UI 0.15.2、Respo 0.19.5。升级后重新安装依赖、生成 JS 并刷新页面，基础样式可能随补丁变化。
 
 组件状态游标只接受 Tag、字符串和数字。导入的 IR 与存档仍经原入口解码，IndexedDB 保存完整 IR。类型展示的可选字段使用显式 Option，并保留缺失字段的原占位文本。
 
@@ -15,7 +15,7 @@ Demo: http://repo.calcit-lang.org/calcit-ir-viewer/ 。
 不等到渲染时才抛错；其他状态 payload 仍保持开放。
 旧 localStorage 回退读取使用已有受检 getter：只有 key 真正缺失才视为空存档，
 读取异常走同一恢复失败流程，避免后续空 IndexedDB 存档遮住旧副本。
-导入 IR、预览和历史类型展示仍是开放数据边界，不用有限 union 假称支持全部编译器输出。
+导入文件顶层必须是 Tag 键的 Map，内部节点仍按编译器实际输出读取。界面操作使用具名 `Op`，历史书签和 Reel 控制继续由各自的入口解码。
 
 ### 完整恢复
 
