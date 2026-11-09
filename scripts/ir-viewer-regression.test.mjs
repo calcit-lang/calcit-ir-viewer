@@ -9,7 +9,7 @@ import { store } from '../js-out/app.schema.mjs';
 import { Op, Bookmark, decode_store } from '../js-out/app.types.mjs';
 import { updater } from '../js-out/app.updater.mjs';
 import { comp_file_entry, comp_container, comp_import, comp_preview } from '../js-out/app.comp.container.mjs';
-import { new_reel, record_op } from '../js-out/reel.typed.mjs';
+import { Control, new_reel, record_op } from '../js-out/reel.typed.mjs';
 import { make_string } from '../js-out/respo.render.html.mjs';
 import { event__GT_edn } from '../js-out/respo.util.format.mjs';
 import { component_$q_, component_tree } from '../js-out/respo.util.detect.mjs';
@@ -67,13 +67,14 @@ test('state updates modify the state tree without nesting another store', () => 
 test('query dispatch is a single Enum and round-trips through updater/Reel/render', () => {
   const initial = clt.assoc(store, t.ir, map(t.files, files));
   let reel = new_reel(initial);
-  const input = eventHandler(comp_container(reel), t.input);
+  const onControl = () => assert.fail('Query changes must use application dispatch');
+  const input = eventHandler(comp_container(reel, onControl), t.input);
   assert.equal(typeof input, 'function');
   input(event__GT_edn({type: 'input', target: {value: 'alpha'}}), (...args) => {
     assert.equal(args.length, 1);
     reel = record_op(updater, reel, args[0], 'query', 1);
   });
-  const html = make_string(comp_container(reel));
+  const html = make_string(comp_container(reel, onControl));
   assert.match(html, /app.alpha/);
   assert.doesNotMatch(html, /app.beta/);
 });
@@ -115,20 +116,28 @@ test('bookmark removal clamps pointer and keeps preview unchanged', () => {
   assert.equal(field(next, t.preview), preview);
 });
 
-test('mixed-key preview opens and closes through the runtime dispatcher', async () => {
+test('runtime dispatch preserves mixed-key preview and separates Reel controls', async () => {
   // Match the extension resolution Vite provides for bottom-tip in the browser.
   const hooks = registerHooks({
     resolve(specifier, context, nextResolve) {
       return nextResolve(specifier === 'virtual-dom/create-element' ? specifier + '.js' : specifier, context);
     },
   });
-  const { dispatch_$x_, _$s_reel } = await import('../js-out/app.main.mjs').finally(() => hooks.deregister());
+  const { dispatch_$x_, on_control_$x_, _$s_reel } = await import('../js-out/app.main.mjs').finally(() => hooks.deregister());
   const readPreview = () => field(field(clt.deref(_$s_reel), clt.newTag('store')), t.preview);
   const expr = map(clt.newTag('ns'), 'app.alpha', clt.newTag('def'), 'main!', 'source-note', 'legacy metadata');
   eventHandler(comp_import(expr), t.click)(map(), dispatch_$x_);
   assert.equal(clt._$e_(readPreview(), expr), true);
   eventHandler(comp_preview(readPreview()), t.click)(map(), dispatch_$x_);
   assert.equal(readPreview(), null);
+
+  const beforeControl = clt.deref(_$s_reel);
+  const display = clt.newTag('display?');
+  const records = clt.newTag('records');
+  on_control_$x_(clt._PCT__$o__$o_(Control, clt.newTag('toggle')));
+  const afterControl = clt.deref(_$s_reel);
+  assert.equal(field(afterControl, display), !field(beforeControl, display));
+  assert.equal(field(afterControl, records), field(beforeControl, records));
 });
 
 const loadSnapshot = (key, legacy = () => clt._PCT__$o__$o_(clt.Option, clt.newTag('none'))) => new Promise(resolve => loadSaved(key, legacy, resolve));
