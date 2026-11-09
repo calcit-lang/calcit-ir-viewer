@@ -148,7 +148,7 @@
           :examples $ []
           :schema $ quote $ Fn Dynamic Bool (-> respo.schema/Component)
         'comp-container $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ defcomp comp-container (reel)
+          :code $ quote $ defcomp comp-container (reel on-control)
             let
                 store $ :store reel
                 states $ :states store
@@ -189,13 +189,15 @@
                       <> "|No bookmark selected"
                 comp-preview $ :preview store
                 if dev?
-                  Option :some $ comp-typed-reel (>> states :reel) reel $ {}
+                  Option :some $ comp-typed-reel (>> states :reel) reel ({}) on-control
                   Option :none
                 if dev?
                   Option :some $ comp-inspect |Store store $ {} (:bottom 0)
                   Option :none
           :examples $ []
-          :schema $ quote $ Fn (reel.typed/State app.types/Op app.types/StoreData) (-> respo.schema/Component)
+          :schema $ quote $ Fn (reel.typed/State app.types/Op app.types/StoreData)
+            Fn reel.typed/Control $ -> Unit
+            -> respo.schema/Component
         'comp-enum $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-enum (expr) (comp-ir-kind expr :enum)
           :examples $ []
@@ -933,24 +935,25 @@
           :code $ quote $ defref *storage-ready? false
           :examples $ []
           :schema $ quote $ Ref Bool
-        'dispatch! $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ defn dispatch! (op)
+        'apply-op! $ %{} 'CodeEntry (:doc |)
+          :code $ quote $ defn apply-op! (op)
             when config/dev? $ println |Dispatch: op
             match op
-              (:import-failed message)
-                do
-                  hud! |error $ str "|IR import failed: " message
-                  , &unit
-              _ $ do
-                reset! *reel $ match (resolve-op op)
-                  (reel.typed/Control control) (typed/apply-control updater @*reel control)
-                  (app.types/Op action)
-                    typed/record-op updater @*reel action (generate-id!)
-                      :timestamp $ shared/date-now-snapshot
-                , &unit
+              (reel.typed/Control control)
+                reset! *reel $ typed/apply-control updater @*reel control
+              (app.types/Op action)
+                match action
+                  (:import-failed message)
+                    hud! |error $ str "|IR import failed: " message
+                  _ $ reset! *reel $ typed/record-op updater @*reel action (generate-id!)
+                    :timestamp $ shared/date-now-snapshot
             , &unit
           :examples $ []
-          :schema $ quote $ Fn app.types/Op (-> Unit) (:features :js-ffi)
+          :schema $ quote $ Fn app.types/ResolvedOp (-> Unit) (:features :js-ffi)
+        'dispatch! $ %{} 'CodeEntry (:doc |)
+          :code $ quote $ defn dispatch! (op) (apply-op! op)
+          :examples $ []
+          :schema $ quote $ Fn app.types/Op (-> Unit)
         'main! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn main! () (load-console-formatter!)
             println "|Running mode:" $ if config/dev? |dev |release
@@ -973,7 +976,7 @@
                       , &unit
                 render-app!
                 add-watch! *reel :changes $ fn (reel prev) (render-app!) (schedule-storage!)
-                listen-devtools-toggle! |a $ fn () $ dispatch! (types/Op :reel/toggle)
+                listen-devtools! |a on-control!
                 browser/set-before-unload! $ fn (event) (persist-storage!)
                 browser/set-interval! persist-storage! 60000
                 schedule-storage!
@@ -988,6 +991,10 @@
             .unwrap $ respo.ffi.browser/query-selector |.app
           :examples $ []
           :schema $ quote $ Fn (-> respo.dom/DomElement) (:features :js-ffi)
+        'on-control! $ %{} 'CodeEntry (:doc |)
+          :code $ quote $ defn on-control! (control) (apply-op! control)
+          :examples $ []
+          :schema $ quote $ Fn reel.typed/Control (-> Unit)
         'persist-storage! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn persist-storage! ()
             when @*storage-ready? $ app.storage/flush-save!
@@ -1007,7 +1014,9 @@
           :schema $ quote $ Fn (-> Unit) (:features :js-ffi)
         'render-app! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn render-app! ()
-            render! (mount-target) (comp-container @*reel) dispatch!
+            render-with! (mount-target)
+              fn () $ comp-container @*reel on-control!
+              , dispatch!
           :examples $ []
           :schema $ quote $ Fn (-> Unit) (:features :js-ffi)
         'repeat! $ %{} 'CodeEntry (:doc |)
@@ -1019,13 +1028,6 @@
             Fn $ -> Unit
             -> Unit
             :features :js-ffi
-        'resolve-op $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ defn resolve-op (op)
-            match (typed/decode-control op)
-              (:some control) control
-              (:none) op
-          :examples $ []
-          :schema $ quote $ Fn app.types/Op (-> app.types/ResolvedOp)
         'schedule-storage! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn schedule-storage! ()
             when @*storage-ready? $ app.storage/queue-save!
@@ -1044,7 +1046,7 @@
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.main
           :require
-            respo.core :refer $ render! clear-cache!
+            respo.core :refer $ render-with! clear-cache!
             app.comp.container :refer $ comp-container
             app.updater :refer $ updater
             app.schema :as schema
@@ -1055,7 +1057,7 @@
             js-ffi.shared :as shared
             |./calcit.build-errors.mjs :default build-errors
             |bottom-tip :default hud!
-            reel.util :refer $ listen-devtools-toggle!
+            reel.util :refer $ listen-devtools!
     'app.schema $ %{} 'FileEntry
       :defs $ {} $ 'store
         %{} 'CodeEntry (:doc |)
@@ -1253,13 +1255,6 @@
             :new-bookmark app.types/Bookmark
             :point-to Number
             :remove-bookmark Number
-            :reel/toggle
-            :reel/recall Number
-            :reel/merge
-            :reel/reset
-            :reel/step
-            :reel/run
-            :reel/remove Number
           :examples $ []
           :schema $ quote EnumDef
         'ResolvedOp $ %{} 'CodeEntry (:doc |)
