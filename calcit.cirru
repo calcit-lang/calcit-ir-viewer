@@ -64,34 +64,33 @@
           :schema $ quote $ Fn T (-> Bool) (:generics T)
         'comp-bookmarks $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-bookmarks (bookmarks pointer)
-            list->
+            keyed->
               {} (:class-name css/column)
                 :style $ {} (:overflow-y :auto) (:width 300)
                   :border-right $ str "|1px solid " $ hsl 0 0 90
               -> bookmarks $ map-indexed $ fn (idx b)
-                [] idx $ match b
-                  (:bookmark ns definition)
-                    div
-                      {}
-                        :on-click $ fn (e d!)
-                          hint-fn $ Fn respo.schema/RespoEvent
-                            Fn app.types/Op $ -> Unit
-                            -> Unit
-                          d! $ app.types/Op :point-to idx
-                        :class-name $ str-spaced style-bookmark $ if (= pointer idx) style-bookmark-selected |
-                      <> $ str ns |/ definition
-                      comp-close $ Option :some $ %{} respo-ui.schema/ButtonOptions
-                        :kind $ Option :none
-                        :type $ Option :none
-                        :disabled $ Option :none
-                        :on-click $ Option :some $ fn (e d!)
-                          hint-fn $ Fn respo.schema/RespoEvent
-                            Fn app.types/Op $ -> Unit
-                            -> Unit
-                          d! $ app.types/Op :remove-bookmark idx
-                        :class-name $ Option :some style-close
-                        :style $ Option :none
-                  _ $ eprintln "|unknown bookmark" b
+                keyed-element idx $ match b $
+                  :bookmark ns definition
+                  div
+                    {}
+                      :on-click $ fn (e d!)
+                        hint-fn $ Fn respo.schema/RespoEvent
+                          Fn app.types/Op $ -> Unit
+                          -> Unit
+                        d! $ app.types/Op :point-to idx
+                      :class-name $ str-spaced style-bookmark $ if (= pointer idx) style-bookmark-selected |
+                    <> $ str ns |/ definition
+                    comp-close $ Option :some $ %{} respo-ui.schema/ButtonOptions
+                      :kind $ Option :none
+                      :type $ Option :none
+                      :disabled $ Option :none
+                      :on-click $ Option :some $ fn (e d!)
+                        hint-fn $ Fn respo.schema/RespoEvent
+                          Fn app.types/Op $ -> Unit
+                          -> Unit
+                        d! $ app.types/Op :remove-bookmark idx
+                      :class-name $ Option :some style-close
+                      :style $ Option :none
           :examples $ []
           :schema $ quote $ Fn (List app.types/Bookmark) Number (-> respo.schema/Component)
         'comp-cirru-quote $ %{} 'CodeEntry (:doc |)
@@ -210,11 +209,11 @@
                   defs $ keys $ decode-map-as
                     .unwrap-or (get file :defs) ({})
                     Map String Dynamic
-                list->
+                keyed->
                   {} $ :class-name $ str-spaced css/column
                   -> defs &set:to-list (sort &compare)
                     map $ fn (name)
-                      [] name $ div
+                      keyed-element name $ div
                         {}
                           :class-name $ str-spaced css-pad8 css-hover-item css/font-code!
                           :style $ if (= name selected-def)
@@ -262,11 +261,11 @@
                       :border-bottom $ str "|1px solid " $ hsl 0 0 95
                   let
                       ns-names $ keys files
-                    list-> ({})
+                    keyed-> ({})
                       -> ns-names &set:to-list (sort &compare)
                         filter $ fn (name) (includes? name query)
                         map $ fn (name)
-                          [] name $ div
+                          keyed-element name $ div
                             {}
                               :on-click $ fn (e d!)
                                 d! $ app.types/Op :states cursor $ assoc state :selected name
@@ -902,7 +901,7 @@
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.comp.container
           :require (respo-ui.core :as ui)
-            respo.core :refer $ defcomp defeffect <> >> div button textarea span input pre list-> a
+            respo.core :refer $ defcomp defeffect <> >> div button textarea span input pre keyed-> keyed-element a
             respo.comp.space :refer $ =<
             respo.comp.inspect :refer $ comp-inspect
             reel.comp.reel :refer $ comp-typed-reel
@@ -1278,7 +1277,7 @@
                 Bookmark :bookmark (decode-map-as ns 'String) (decode-map-as name 'String)
               _ $ raise "|Expected a bookmark target"
           :examples $ []
-          :schema $ quote $ Fn AnyEnum (-> app.types/Bookmark)
+          :schema $ quote $ Fn AnyEnum (-> app.types/Bookmark) (:open :decode)
         'decode-store $ %{} 'CodeEntry
           :doc "|验证存档字段并规范化历史匿名书签，返回具有当前 StoreData/Bookmark 身份的受检值；不承诺保持输入对象身份。"
           :code $ quote $ defn decode-store (data)
