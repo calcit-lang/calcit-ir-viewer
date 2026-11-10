@@ -80,17 +80,14 @@
                         d! $ app.types/Op :point-to idx
                       :class-name $ str-spaced style-bookmark $ if (= pointer idx) style-bookmark-selected |
                     <> $ str ns |/ definition
-                    comp-close $ Option :some $ %{} respo-ui.schema/ButtonOptions
-                      :kind $ Option :none
-                      :type $ Option :none
-                      :disabled $ Option :none
-                      :on-click $ Option :some $ fn (e d!)
+                    comp-close $ Some $ %{} respo-ui.schema/ButtonOptions (:kind None) (:type None) (:disabled None)
+                      :on-click $ Some $ fn (e d!)
                         hint-fn $ Fn respo.schema/RespoEvent
                           Fn app.types/Op $ -> Unit
                           -> Unit
                         d! $ app.types/Op :remove-bookmark idx
-                      :class-name $ Option :some style-close
-                      :style $ Option :none
+                      :class-name $ Some style-close
+                      :style None
           :examples $ []
           :schema $ quote $ Fn (List app.types/Bookmark) Number (-> respo.schema/Component)
         'comp-cirru-quote $ %{} 'CodeEntry (:doc |)
@@ -133,9 +130,11 @@
                 <>
                   str $ .unwrap-or (get expr :name) |
                   , css-code-fn
-              (calcit-syntax? expr) (comp-syntax expr)
+              (calcit-syntax? expr)
+                comp-syntax $ str $ .unwrap-or (get expr :name) |
               (calcit-method? expr) (comp-method expr)
-              (calcit-raw-code? expr) (comp-raw-code expr)
+              (calcit-raw-code? expr)
+                comp-raw-code $ str $ .unwrap-or (get expr :code) |
               (kind-tag? expr :cirru-quote) (comp-cirru-quote expr)
               (kind-tag? expr :tuple) (comp-tuple expr)
               (kind-tag? expr :struct) (comp-struct expr)
@@ -188,11 +187,11 @@
                       <> "|No bookmark selected"
                 comp-preview $ :preview store
                 if dev?
-                  Option :some $ comp-typed-reel (>> states :reel) reel ({}) on-control
-                  Option :none
+                  Some $ comp-typed-reel (>> states :reel) reel ({}) on-control
+                  , None
                 if dev?
-                  Option :some $ comp-inspect |Store store $ {} (:bottom 0)
-                  Option :none
+                  Some $ comp-inspect |Store store $ {} (:bottom 0)
+                  , None
           :examples $ []
           :schema $ quote $ Fn (reel.typed/State app.types/Op app.types/StoreData)
             Fn reel.typed/Control $ -> Unit
@@ -236,10 +235,10 @@
                   Map Tag String
                 selected $ assert-type
                   .unwrap-or (get state :selected) |
-                  , 'String
+                  , String
                 query $ assert-type
                   .unwrap-or (get state :query) |
-                  , 'String
+                  , String
               div
                 {}
                   :class-name $ str-spaced css/column
@@ -364,37 +363,37 @@
                       (:some definition)
                         if
                           and (string? ns) (string? definition)
-                          Option :some $ a $ {} (:class-name css/link) (:inner-text |goto)
+                          Some $ a $ {} (:class-name css/link) (:inner-text |goto)
                             :style $ {} $ :font-size 10
                             :on-click $ fn (e d!)
                               d! $ app.types/Op :new-bookmark $ app.types/Bookmark :bookmark ns definition
-                          Option :none
-                      (:none) (Option :none)
-                  (:none) (Option :none)
+                          , None
+                      (:none) None
+                  (:none) None
               if
                 and
                   .some? $ get expr :info
                   .some? $ get
                     .unwrap $ get expr :info
                     , :kind
-                Option :some $ <>
+                Some $ <>
                   str "|import " $ .unwrap-or
                     get
                       .unwrap $ get expr :info
                       , :kind
                     , |
                   , style-tiny-hint
-                Option :none
+                , None
               if
                 .some? $ get expr :type-hint
-                Option :some $ div
+                Some $ div
                   {} $ :class-name css/row-middle
                   <>
                     str |type: $ let
                         t $ .unwrap $ get expr :type-hint
                       format-type-display $ format-type-info t |
                     , style-tiny-hint
-                Option :none
+                , None
           :examples $ []
           :schema $ quote $ Fn Dynamic (-> respo.schema/Component)
         'comp-ir-kind $ %{} 'CodeEntry (:doc |)
@@ -513,14 +512,14 @@
           :examples $ []
           :schema $ quote $ Fn Dynamic (-> respo.schema/Component)
         'comp-raw-code $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ defcomp comp-raw-code (expr)
+          :code $ quote $ defcomp comp-raw-code (label)
             div
               {} (:class-name css/column)
                 :style $ {} (:display :inline-flex) (:line-height |1.2)
-              <> $ str $ .unwrap-or (get expr :code) |
+              <> label
               <> "|js raw" style-tiny-hint
           :examples $ []
-          :schema $ quote $ Fn Dynamic (-> respo.schema/Component)
+          :schema $ quote $ Fn String (-> respo.schema/Component)
         'comp-record $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-record (expr) (comp-ir-kind expr :record)
           :examples $ []
@@ -557,16 +556,14 @@
           :examples $ []
           :schema $ quote $ Fn Dynamic (-> respo.schema/Component)
         'comp-syntax $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ defcomp comp-syntax (expr)
+          :code $ quote $ defcomp comp-syntax (label)
             div
               {} (:class-name css/column)
                 :style $ {} (:display :inline-flex) (:line-height |1.2)
-              <>
-                str $ .unwrap-or (get expr :name) |
-                , css-code-syntax
+              <> label css-code-syntax
               <> |syntax style-tiny-hint
           :examples $ []
-          :schema $ quote $ Fn Dynamic (-> respo.schema/Component)
+          :schema $ quote $ Fn String (-> respo.schema/Component)
         'comp-tuple $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-tuple (expr) (comp-ir-kind expr :tuple)
           :examples $ []
@@ -722,17 +719,16 @@
                       entries $ []
                         if
                           .some? $ get t :args
-                          Option :some $ [] |:args $ format-type-info
+                          Some $ [] |:args $ format-type-info
                             .unwrap $ get t :args
                             , indent
-                          Option :none
+                          , None
                         match
                           .or-else (get t :return)
                             fn () $ get t :return-type
                           (:some return-type)
-                            if (nil? return-type) (Option :none)
-                              Option :some $ [] |:return $ format-type-info return-type indent
-                          (:none) (Option :none)
+                            if (nil? return-type) None $ Some $ [] |:return (format-type-info return-type indent)
+                          (:none) None
                     -> entries
                       map $ fn (x)
                         match x
@@ -744,7 +740,7 @@
                         entries $ []
                           if
                             .some? $ get t :tag
-                            Option :some $ [] |:tag $ let
+                            Some $ [] |:tag $ let
                                 label $ .unwrap $ get t :tag
                               cond
                                   string? label
@@ -752,13 +748,13 @@
                                 (tag? label) (.to-string label)
                                 (symbol? label) (.to-string label)
                                 true $ format-type-display label
-                            Option :none
+                            , None
                           if
                             .some? $ get t :payload
-                            Option :some $ [] |:payload $ format-type-info
+                            Some $ [] |:payload $ format-type-info
                               .unwrap $ get t :payload
                               , indent
-                            Option :none
+                            , None
                       -> entries
                         map $ fn (x)
                           match x
@@ -770,7 +766,7 @@
                           entries $ []
                             if
                               .some? $ get t :name
-                              Option :some $ [] |:name $ let
+                              Some $ [] |:name $ let
                                   label $ .unwrap $ get t :name
                                 cond
                                     string? label
@@ -778,13 +774,13 @@
                                   (tag? label) (.to-string label)
                                   (symbol? label) (.to-string label)
                                   true $ format-type-display label
-                              Option :none
+                              , None
                             if
                               .some? $ get t :fields
-                              Option :some $ [] |:fields $ format-type-info
+                              Some $ [] |:fields $ format-type-info
                                 .unwrap $ get t :fields
                                 , indent
-                              Option :none
+                              , None
                         -> entries
                           map $ fn (x)
                             match x
@@ -795,10 +791,10 @@
                         let
                             entries $ [] $ if
                               .some? $ get t :inner
-                              Option :some $ [] |:inner $ format-type-info
+                              Some $ [] |:inner $ format-type-info
                                 .unwrap $ get t :inner
                                 , indent
-                              Option :none
+                              , None
                           -> entries
                             map $ fn (x)
                               match x
@@ -809,10 +805,10 @@
                           let
                               entries $ [] $ if
                                 .some? $ get t :inner
-                                Option :some $ [] |:inner $ format-type-info
+                                Some $ [] |:inner $ format-type-info
                                   .unwrap $ get t :inner
                                   , indent
-                                Option :none
+                                , None
                             -> entries
                               map $ fn (x)
                                 match x
@@ -848,7 +844,7 @@
               match (get x :kind)
                 (:some value)
                   and (string? value)
-                    = (assert-type value 'String) expected
+                    = (assert-type value String) expected
                 (:none) false
               , false
           :examples $ []
@@ -860,7 +856,7 @@
               match (get x :kind)
                 (:some value)
                   and (tag? value)
-                    = (assert-type value 'Tag) expected
+                    = (assert-type value Tag) expected
                 (:none) false
               , false
           :examples $ []
@@ -929,7 +925,7 @@
         '*reel $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defref *reel (typed/new-reel schema/store)
           :examples $ []
-          :schema $ quote $ Ref (reel.typed/State app.types/Op app.types/StoreData)
+          :schema $ quote $ Ref (typed/State types/Op types/StoreData)
         '*storage-ready? $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defref *storage-ready? false
           :examples $ []
@@ -948,11 +944,11 @@
                     :timestamp $ shared/date-now-snapshot
             , &unit
           :examples $ []
-          :schema $ quote $ Fn app.types/ResolvedOp (-> Unit) (:features :js-ffi)
+          :schema $ quote $ Fn types/ResolvedOp (-> Unit) (:features :js-ffi)
         'dispatch! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn dispatch! (op) (apply-op! op)
           :examples $ []
-          :schema $ quote $ Fn app.types/Op (-> Unit)
+          :schema $ quote $ Fn types/Op (-> Unit)
         'main! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn main! () (load-console-formatter!)
             println "|Running mode:" $ if config/dev? |dev |release
@@ -993,7 +989,7 @@
         'on-control! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn on-control! (control) (apply-op! control)
           :examples $ []
-          :schema $ quote $ Fn reel.typed/Control (-> Unit)
+          :schema $ quote $ Fn typed/Control (-> Unit)
         'persist-storage! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn persist-storage! ()
             when @*storage-ready? $ app.storage/flush-save!
@@ -1071,11 +1067,11 @@
     'app.storage $ %{} 'FileEntry
       :defs $ {}
         '*pending-save $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ defref *pending-save (Option :none)
+          :code $ quote $ defref *pending-save None
           :examples $ []
-          :schema $ quote $ Ref (Option app.storage/SaveRequest)
+          :schema $ quote $ Ref (Option SaveRequest)
         '*save-timer $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ defref *save-timer (Option :none)
+          :code $ quote $ defref *save-timer None
           :examples $ []
           :schema $ quote $ Ref (Option Number)
         '*saving? $ %{} 'CodeEntry (:doc |)
@@ -1092,10 +1088,8 @@
             match @*save-timer
               (:some timer) (browser/clear-timeout! timer)
               (:none) &unit
-            reset! *save-timer $ Option :some $ browser/set-timeout!
-              fn ()
-                reset! *save-timer $ Option :none
-                flush-save!
+            reset! *save-timer $ Some $ browser/set-timeout!
+              fn () (reset! *save-timer None) (flush-save!)
               , 1000
             , &unit
           :examples $ []
@@ -1106,27 +1100,25 @@
               match
                 types/decode-store $ parse-cirru-edn text
                 (:some stored)
-                  Result :ok $ Option :some stored
+                  Result :ok $ Some stored
                 (:none) (Result :err "|Invalid saved IR Viewer state")
               fn (message)
                 Result :err $ str "|Invalid saved IR Viewer state: " message
           :examples $ []
           :schema $ quote $ Fn String
-            -> $ Result (Option app.types/StoreData) String
+            -> $ Result (Option types/StoreData) String
         'flush-save! $ %{} 'CodeEntry
           :doc "|仅在有待存请求且无写入在途时序列化并提交，最多同时写入一次。期间的新编辑保留为最新待存快照；失败不覆盖更新的请求、不自旋重试，留待后续操作或周期刷新。页面关闭时异步提交仍只能尽力完成。"
           :code $ quote $ defn flush-save! ()
             match @*save-timer
               (:some timer) (browser/clear-timeout! timer)
               (:none) &unit
-            reset! *save-timer $ Option :none
+            reset! *save-timer None
             when (not @*saving?)
               match @*pending-save
                 (:none) &unit
                 (:some request)
-                  do
-                    reset! *pending-save $ Option :none
-                    reset! *saving? true
+                  do (reset! *pending-save None) (reset! *saving? true)
                     save! (:key request) (:stored request)
                       fn (result) (reset! *saving? false)
                         match result
@@ -1137,7 +1129,7 @@
                           (:err message)
                             match @*pending-save
                               (:none)
-                                reset! *pending-save $ Option :some request
+                                reset! *pending-save $ Some request
                               (:some _) &unit
                         (:complete! request) result
                         , &unit
@@ -1154,8 +1146,7 @@
                   complete! $ if (js-nullish? raw)
                     match (read-legacy!)
                       (:some text) (decode-saved text)
-                      (:none)
-                        Result :ok $ Option :none
+                      (:none) (Result :ok None)
                     decode-saved $ contract/expect-string "|IndexedDB snapshot" raw
                   , &unit
                 fn (error)
@@ -1169,18 +1160,18 @@
           :schema $ quote $ Fn String
             Fn $ -> $ Option String
             Fn
-              Result (Option app.types/StoreData) String
+              Result (Option types/StoreData) String
               -> Unit
             -> Unit
             :features :js-ffi
         'queue-save! $ %{} 'CodeEntry
           :doc "|为当前单存档排入最新不可变快照引用，重置 1 秒延迟；此处不序列化。被合并替换的待存请求不回调，仅实际提交的请求收到 Result。"
           :code $ quote $ defn queue-save! (key stored complete!)
-            reset! *pending-save $ Option :some $ SaveRequest :key key :stored stored :complete! complete!
+            reset! *pending-save $ Some $ SaveRequest :key key :stored stored :complete! complete!
             arm-save!
             , &unit
           :examples $ []
-          :schema $ quote $ Fn String app.types/StoreData
+          :schema $ quote $ Fn String types/StoreData
             Fn (Result Unit String) (-> Unit)
             -> Unit
             :features :js-ffi
@@ -1201,7 +1192,7 @@
                 , &unit
             , &unit
           :examples $ []
-          :schema $ quote $ Fn String app.types/StoreData
+          :schema $ quote $ Fn String types/StoreData
             Fn (Result Unit String) (-> Unit)
             -> Unit
             :features :js-ffi
@@ -1277,7 +1268,7 @@
                 Bookmark :bookmark (decode-map-as ns 'String) (decode-map-as name 'String)
               _ $ raise "|Expected a bookmark target"
           :examples $ []
-          :schema $ quote $ Fn AnyEnum (-> app.types/Bookmark) (:open :decode)
+          :schema $ quote $ Fn AnyEnum (-> Bookmark) (:open :decode)
         'decode-store $ %{} 'CodeEntry
           :doc "|验证存档字段并规范化历史匿名书签，返回具有当前 StoreData/Bookmark 身份的受检值；不承诺保持输入对象身份。"
           :code $ quote $ defn decode-store (data)
@@ -1300,13 +1291,13 @@
                       if (enum? bookmark) (decode-bookmark bookmark) (raise "|Expected a bookmark Enum")
                     raise "|Expected a bookmark List"
                 match (try-decode-map-as normalized app.types/StoreData)
-                  (:ok stored) (Option :some stored)
+                  (:ok stored) (Some stored)
                   (:err message)
-                    do (eprintln "|Invalid saved IR Viewer state: " message) (Option :none)
-              fn (message) (eprintln "|Invalid saved IR Viewer state: " message) (Option :none)
+                    do (eprintln "|Invalid saved IR Viewer state: " message) None
+              fn (message) (eprintln "|Invalid saved IR Viewer state: " message) None
           :examples $ []
           :schema $ quote $ Fn Dynamic
-            -> $ calcit.core/Option app.types/StoreData
+            -> $ Option StoreData
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.types
     'app.updater $ %{} 'FileEntry
