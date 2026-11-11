@@ -5,7 +5,7 @@ Demo: http://repo.calcit-lang.org/calcit-ir-viewer/ 。
 
 ### 使用者影响
 
-本项目使用 Calcit 与 `@calcit/procs` 0.40.0，模块图使用正式版本 Reel 0.11.0、UI 0.15.2、Respo 0.19.5。升级后重新安装依赖、生成 JS 并刷新页面，基础样式可能随补丁变化。
+本项目使用 Calcit 与 `@calcit/procs` 0.41.0，模块图使用正式版本 Reel 0.11.0、UI 0.15.2、Respo 0.19.5。升级后重新安装依赖、生成 JS 并刷新页面，基础样式可能随补丁变化。
 
 组件状态游标只接受 Tag、字符串和数字。导入的 IR 与存档仍经原入口解码，IndexedDB 保存完整 IR。类型展示的可选字段使用显式 Option，并保留缺失字段的原占位文本。
 
@@ -27,13 +27,23 @@ Demo: http://repo.calcit-lang.org/calcit-ir-viewer/ 。
 
 Node.js 24、Yarn 4.18.0、Caps 0.1.1。新解析 npm 版本须已发布至少 60 分钟，无单包例外；已有 immutable 锁版本不重新计算年龄。
 
-```sh
+以下命令在 Bash 中运行。
+
+```bash
+set -euo pipefail
 caps --strict --ci
 yarn install --immutable
 caps verify --toolchain
 calcit --check-only --all-defs
 calcit fix --workflow strict --verify --format edn
-calcit analyze quality --baseline config/calcit-quality.cirru
+calcit calcit.cirru analyze weak-types --only coverage --coverage-level none,partial --format json |
+  jq -e --slurpfile budget config/weak-types-budget.json '
+    all(.data.definitions[]; .coverage == $budget[0].coverage[.id])'
+calcit calcit.cirru analyze weak-types --format json |
+  jq -e --slurpfile budget config/weak-types-budget.json '
+    all(.data.definitions[]; .id as $id |
+      all(.occurrences | map(.kind) + map(select(.intent == "unresolved") | .intent) | group_by(.)[];
+        length <= ($budget[0].weak[$id][.[0]] // 0)))'
 calcit test app.comp.container/format-type-info --require-match
 yarn build
 node --test scripts/ir-viewer-regression.test.mjs
@@ -44,7 +54,7 @@ node --test scripts/ir-viewer-regression.test.mjs
 原测试中的 9 MiB 合成 IR/IndexedDB 回归不代替真实浏览器文件导入与刷新验收。源码仅 calcit.cirru/deps.cirru，js-out/dist 不入库。
 
 本轮保留原门禁，按 0.34.2 实测将 `dispatch!` 的不完整类型上限从 1 收紧到 0，
-全局从 23 收紧到 22；其他预算不变。`analyze quality` 的既有退役提示保留，不因此删除基线或跳过检查。
+Calcit 0.41.0 的现行报告按定义限制弱类型和覆盖率。语法名称与原始 JS 片段的两个渲染组件只接收 String，输入文件仍由原解析入口处理。
 
 ### 前端部署
 
