@@ -27,7 +27,9 @@ Demo: http://repo.calcit-lang.org/calcit-ir-viewer/ 。
 
 Node.js 24、Yarn 4.18.0、Caps 0.1.1。新解析 npm 版本须已发布至少 60 分钟，无单包例外；已有 immutable 锁版本不重新计算年龄。
 
-```sh
+以下命令在 Bash 中运行。
+
+```bash
 set -euo pipefail
 caps --strict --ci
 yarn install --immutable
