@@ -149,7 +149,7 @@
                 {} $ :class-name css-code-default
                 <> $ to-lispy-string expr
           :examples $ []
-          :schema $ quote $ Fn Dynamic Bool (-> respo.schema/Component)
+          :schema $ quote $ Fn Input Bool (-> respo.schema/Component) (:generics Input)
         'comp-container $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-container (reel on-control)
             let
@@ -347,7 +347,7 @@
                   .unwrap $ get f :code
                   , false
           :examples $ []
-          :schema $ quote $ Fn Dynamic (-> respo.schema/Component)
+          :schema $ quote $ Fn Input (-> respo.schema/Component) (:generics Input)
         'comp-import $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-import (expr)
             div
@@ -480,7 +480,7 @@
                     d! $ app.types/Op :close-preview
               div $ {}
           :examples $ []
-          :schema $ quote $ Fn Dynamic (-> respo.schema/Component)
+          :schema $ quote $ Fn Input (-> respo.schema/Component) (:generics Input)
         'comp-proc $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-proc (expr)
             div
@@ -823,7 +823,7 @@
                           trim $ format-cirru-edn t
                 if (list? t) t $ trim $ format-cirru-edn t
           :examples $ []
-          :schema $ quote $ Fn Dynamic String (-> Dynamic)
+          :schema $ quote $ Fn Input String (-> Dynamic) (:generics Input)
           :tests $ [] $ %{} 'TestEntry (:name |legacy-type-labels)
             :code $ quote $ do
               assert=
@@ -1301,8 +1301,9 @@
                     do (eprintln "|Invalid saved IR Viewer state: " message) None
               fn (message) (eprintln "|Invalid saved IR Viewer state: " message) None
           :examples $ []
-          :schema $ quote $ Fn Dynamic
+          :schema $ quote $ Fn Input
             -> $ Option StoreData
+            :generics Input
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.types
     'app.updater $ %{} 'FileEntry
