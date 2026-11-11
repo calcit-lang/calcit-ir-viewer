@@ -28,13 +28,20 @@ Demo: http://repo.calcit-lang.org/calcit-ir-viewer/ 。
 Node.js 24、Yarn 4.18.0、Caps 0.1.1。新解析 npm 版本须已发布至少 60 分钟，无单包例外；已有 immutable 锁版本不重新计算年龄。
 
 ```sh
+set -euo pipefail
 caps --strict --ci
 yarn install --immutable
 caps verify --toolchain
 calcit --check-only --all-defs
 calcit fix --workflow strict --verify --format edn
-calcit analyze weak-types --only coverage
-calcit analyze weak-types
+calcit calcit.cirru analyze weak-types --only coverage --coverage-level none,partial --format json |
+  jq -e --slurpfile budget config/weak-types-budget.json '
+    all(.data.definitions[]; .coverage == $budget[0].coverage[.id])'
+calcit calcit.cirru analyze weak-types --format json |
+  jq -e --slurpfile budget config/weak-types-budget.json '
+    all(.data.definitions[]; .id as $id |
+      all(.occurrences | map(.kind) + map(select(.intent == "unresolved") | .intent) | group_by(.)[];
+        length <= ($budget[0].weak[$id][.[0]] // 0)))'
 calcit test app.comp.container/format-type-info --require-match
 yarn build
 node --test scripts/ir-viewer-regression.test.mjs
