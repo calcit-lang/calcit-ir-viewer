@@ -5,7 +5,7 @@ Demo: http://repo.calcit-lang.org/calcit-ir-viewer/ 。
 
 ### 使用者影响
 
-本项目使用 Calcit 与 `@calcit/procs` 0.41.0，模块图使用正式版本 Reel 0.11.0、UI 0.15.2、Respo 0.19.5。升级后重新安装依赖、生成 JS 并刷新页面，基础样式可能随补丁变化。
+本项目使用 Calcit 与 `@calcit/procs` 0.41.1，模块图使用正式版本 Reel 0.11.0、UI 0.15.2、Respo 0.19.5。升级后重新安装依赖、生成 JS 并刷新页面，基础样式可能随补丁变化。
 
 组件状态游标只接受 Tag、字符串和数字。导入的 IR 与存档仍经原入口解码，IndexedDB 保存完整 IR。类型展示的可选字段使用显式 Option，并保留缺失字段的原占位文本。
 
@@ -54,7 +54,7 @@ node --test scripts/ir-viewer-regression.test.mjs
 原测试中的 9 MiB 合成 IR/IndexedDB 回归不代替真实浏览器文件导入与刷新验收。源码仅 calcit.cirru/deps.cirru，js-out/dist 不入库。
 
 本轮保留原门禁，按 0.34.2 实测将 `dispatch!` 的不完整类型上限从 1 收紧到 0，
-Calcit 0.41.0 的现行报告按定义限制弱类型和覆盖率。语法名称与原始 JS 片段的两个渲染组件只接收 String，输入文件仍由原解析入口处理。
+Calcit 0.41.1 的现行报告按定义限制弱类型和覆盖率。语法名称与原始 JS 片段的两个渲染组件只接收 String，输入文件仍由原解析入口处理。
 
 ### 前端部署
 
