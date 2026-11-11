@@ -93,7 +93,7 @@
         'comp-cirru-quote $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-cirru-quote (expr) (comp-ir-kind expr :cirru-quote)
           :examples $ []
-          :schema $ quote $ Fn Dynamic (-> respo.schema/Component)
+          :schema $ quote $ Fn (Map Dynamic V) (-> respo.schema/Component) (:generics V)
         'comp-code $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-code (expr last?)
             cond
@@ -135,11 +135,16 @@
               (calcit-method? expr) (comp-method expr)
               (calcit-raw-code? expr)
                 comp-raw-code $ str $ .unwrap-or (get expr :code) |
-              (kind-tag? expr :cirru-quote) (comp-cirru-quote expr)
-              (kind-tag? expr :tuple) (comp-tuple expr)
-              (kind-tag? expr :struct) (comp-struct expr)
-              (kind-tag? expr :enum) (comp-enum expr)
-              (kind-tag? expr :record) (comp-record expr)
+              (kind-tag? expr :cirru-quote)
+                comp-cirru-quote $ decode-map-as expr $ Map Dynamic Dynamic
+              (kind-tag? expr :tuple)
+                comp-tuple $ decode-map-as expr $ Map Dynamic Dynamic
+              (kind-tag? expr :struct)
+                comp-struct $ decode-map-as expr $ Map Dynamic Dynamic
+              (kind-tag? expr :enum)
+                comp-enum $ decode-map-as expr $ Map Dynamic Dynamic
+              (kind-tag? expr :record)
+                comp-record $ decode-map-as expr $ Map Dynamic Dynamic
               true $ pre
                 {} $ :class-name css-code-default
                 <> $ to-lispy-string expr
@@ -199,7 +204,7 @@
         'comp-enum $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-enum (expr) (comp-ir-kind expr :enum)
           :examples $ []
-          :schema $ quote $ Fn Dynamic (-> respo.schema/Component)
+          :schema $ quote $ Fn (Map Dynamic V) (-> respo.schema/Component) (:generics V)
         'comp-file $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-file (ns file selected-def)
             div
@@ -402,11 +407,11 @@
               {} (:class-name css/column)
                 :style $ {} $ :display :inline-flex
                 :on-click $ fn (e d!)
-                  d! $ app.types/Op :preview $ decode-map-as expr (Map Dynamic Dynamic)
+                  d! $ app.types/Op :preview expr
               <> (str "|ir " kind) style-tiny-hint
               <> (to-lispy-string expr) css-code-default
           :examples $ []
-          :schema $ quote $ Fn Dynamic Tag (-> respo.schema/Component)
+          :schema $ quote $ Fn (Map Dynamic V) Tag (-> respo.schema/Component) (:generics V)
         'comp-local $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-local (expr)
             div
@@ -523,7 +528,7 @@
         'comp-record $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-record (expr) (comp-ir-kind expr :record)
           :examples $ []
-          :schema $ quote $ Fn Dynamic (-> respo.schema/Component)
+          :schema $ quote $ Fn (Map Dynamic V) (-> respo.schema/Component) (:generics V)
         'comp-registered $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-registered (expr)
             div
@@ -539,7 +544,7 @@
         'comp-struct $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-struct (expr) (comp-ir-kind expr :struct)
           :examples $ []
-          :schema $ quote $ Fn Dynamic (-> respo.schema/Component)
+          :schema $ quote $ Fn (Map Dynamic V) (-> respo.schema/Component) (:generics V)
         'comp-symbol $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-symbol (expr)
             div
@@ -567,7 +572,7 @@
         'comp-tuple $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-tuple (expr) (comp-ir-kind expr :tuple)
           :examples $ []
-          :schema $ quote $ Fn Dynamic (-> respo.schema/Component)
+          :schema $ quote $ Fn (Map Dynamic V) (-> respo.schema/Component) (:generics V)
         'css-code-default $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defstyle css-code-default
             {} $ |$0 $ {}
