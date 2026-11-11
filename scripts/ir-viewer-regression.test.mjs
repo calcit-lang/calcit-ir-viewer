@@ -8,7 +8,7 @@ import * as clt from '../js-out/calcit.core.mjs';
 import { store } from '../js-out/app.schema.mjs';
 import { Op, Bookmark, decode_store } from '../js-out/app.types.mjs';
 import { updater } from '../js-out/app.updater.mjs';
-import { comp_file_entry, comp_container, comp_import, comp_preview } from '../js-out/app.comp.container.mjs';
+import { comp_code, comp_file_entry, comp_container, comp_import, comp_preview } from '../js-out/app.comp.container.mjs';
 import { Control, new_reel, record_op } from '../js-out/reel.typed.mjs';
 import { make_string } from '../js-out/respo.render.html.mjs';
 import { event__GT_edn } from '../js-out/respo.util.format.mjs';
@@ -128,6 +128,13 @@ test('runtime dispatch preserves mixed-key preview and separates Reel controls',
   const expr = map(clt.newTag('ns'), 'app.alpha', clt.newTag('def'), 'main!', 'source-note', 'legacy metadata');
   eventHandler(comp_import(expr), t.click)(map(), dispatch_$x_);
   assert.equal(clt._$e_(readPreview(), expr), true);
+  for (const kind of ['cirru-quote', 'tuple', 'struct', 'enum', 'record']) {
+    const node = map(clt.newTag('kind'), clt.newTag(kind), 'source-note', 'legacy metadata');
+    const click = eventHandler(comp_code(node, false), t.click);
+    assert.equal(typeof click, 'function', kind);
+    click(map(), dispatch_$x_);
+    assert.equal(clt._$e_(readPreview(), node), true, kind);
+  }
   eventHandler(comp_preview(readPreview()), t.click)(map(), dispatch_$x_);
   assert.equal(readPreview(), null);
 
