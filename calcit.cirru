@@ -90,10 +90,6 @@
                       :style None
           :examples $ []
           :schema $ quote $ Fn (List app.types/Bookmark) Number (-> respo.schema/Component)
-        'comp-cirru-quote $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ defcomp comp-cirru-quote (expr) (comp-ir-kind expr :cirru-quote)
-          :examples $ []
-          :schema $ quote $ Fn (Map Dynamic V) (-> respo.schema/Component) (:generics V)
         'comp-code $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-code (expr last?)
             cond
@@ -135,19 +131,15 @@
               (calcit-method? expr) (comp-method expr)
               (calcit-raw-code? expr)
                 comp-raw-code $ str $ .unwrap-or (get expr :code) |
-              (kind-tag? expr :cirru-quote)
-                comp-cirru-quote $ decode-map-as expr $ Map Dynamic Dynamic
-              (kind-tag? expr :tuple)
-                comp-tuple $ decode-map-as expr $ Map Dynamic Dynamic
-              (kind-tag? expr :struct)
-                comp-struct $ decode-map-as expr $ Map Dynamic Dynamic
-              (kind-tag? expr :enum)
-                comp-enum $ decode-map-as expr $ Map Dynamic Dynamic
-              (kind-tag? expr :record)
-                comp-record $ decode-map-as expr $ Map Dynamic Dynamic
-              true $ pre
-                {} $ :class-name css-code-default
-                <> $ to-lispy-string expr
+              true $ match (preview-kind expr)
+                (:some kind)
+                  comp-ir-kind
+                    decode-map-as expr $ Map Dynamic Dynamic
+                    , kind
+                (:none)
+                  pre
+                    {} $ :class-name css-code-default
+                    <> $ to-lispy-string expr
           :examples $ []
           :schema $ quote $ Fn Input Bool (-> respo.schema/Component) (:generics Input)
         'comp-container $ %{} 'CodeEntry (:doc |)
@@ -201,10 +193,6 @@
           :schema $ quote $ Fn (reel.typed/State app.types/Op app.types/StoreData)
             Fn reel.typed/Control $ -> Unit
             -> respo.schema/Component
-        'comp-enum $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ defcomp comp-enum (expr) (comp-ir-kind expr :enum)
-          :examples $ []
-          :schema $ quote $ Fn (Map Dynamic V) (-> respo.schema/Component) (:generics V)
         'comp-file $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-file (ns file selected-def)
             div
@@ -411,7 +399,7 @@
               <> (str "|ir " kind) style-tiny-hint
               <> (to-lispy-string expr) css-code-default
           :examples $ []
-          :schema $ quote $ Fn (Map Dynamic V) Tag (-> respo.schema/Component) (:generics V)
+          :schema $ quote $ Fn (Map K V) Tag (-> respo.schema/Component) (:generics K V)
         'comp-local $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-local (expr)
             div
@@ -525,10 +513,6 @@
               <> "|js raw" style-tiny-hint
           :examples $ []
           :schema $ quote $ Fn String (-> respo.schema/Component)
-        'comp-record $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ defcomp comp-record (expr) (comp-ir-kind expr :record)
-          :examples $ []
-          :schema $ quote $ Fn (Map Dynamic V) (-> respo.schema/Component) (:generics V)
         'comp-registered $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-registered (expr)
             div
@@ -541,10 +525,6 @@
                 <> $ str $ .unwrap-or (get expr :alias) |
           :examples $ []
           :schema $ quote $ Fn Dynamic (-> respo.schema/Component)
-        'comp-struct $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ defcomp comp-struct (expr) (comp-ir-kind expr :struct)
-          :examples $ []
-          :schema $ quote $ Fn (Map Dynamic V) (-> respo.schema/Component) (:generics V)
         'comp-symbol $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-symbol (expr)
             div
@@ -569,10 +549,6 @@
               <> |syntax style-tiny-hint
           :examples $ []
           :schema $ quote $ Fn String (-> respo.schema/Component)
-        'comp-tuple $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ defcomp comp-tuple (expr) (comp-ir-kind expr :tuple)
-          :examples $ []
-          :schema $ quote $ Fn (Map Dynamic V) (-> respo.schema/Component) (:generics V)
         'css-code-default $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defstyle css-code-default
             {} $ |$0 $ {}
@@ -866,6 +842,25 @@
               , false
           :examples $ []
           :schema $ quote $ Fn T Tag (-> Bool) (:generics T)
+        'preview-kind $ %{} 'CodeEntry (:doc |)
+          :code $ quote $ defn preview-kind (x)
+            if (map? x)
+              match (get x :kind)
+                (:some value)
+                  if (tag? value)
+                    let
+                        kind $ assert-type value Tag
+                      if
+                        contains? (#{} :cirru-quote :tuple :struct :enum :record) kind
+                        Some kind
+                        , None
+                    , None
+                (:none) None
+              , None
+          :examples $ []
+          :schema $ quote $ Fn T
+            -> $ Option Tag
+            :generics T
         'style-bookmark $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defstyle style-bookmark
             {}
@@ -949,11 +944,11 @@
                     :timestamp $ shared/date-now-snapshot
             , &unit
           :examples $ []
-          :schema $ quote $ Fn types/ResolvedOp (-> Unit) (:features :js-ffi)
+          :schema $ quote $ Fn types/ResolvedOp (-> Unit) (:features :io :js-ffi :state)
         'dispatch! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn dispatch! (op) (apply-op! op)
           :examples $ []
-          :schema $ quote $ Fn types/Op (-> Unit)
+          :schema $ quote $ Fn types/Op (-> Unit) (:features :io :state)
         'main! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn main! () (load-console-formatter!)
             println "|Running mode:" $ if config/dev? |dev |release
@@ -985,7 +980,7 @@
                 , &unit
             , &unit
           :examples $ []
-          :schema $ quote $ Fn (-> Unit) (:features :js-ffi)
+          :schema $ quote $ Fn (-> Unit) (:features :io :js-ffi :state)
         'mount-target $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn mount-target ()
             .unwrap $ respo.ffi.browser/query-selector |.app
@@ -994,13 +989,13 @@
         'on-control! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn on-control! (control) (apply-op! control)
           :examples $ []
-          :schema $ quote $ Fn typed/Control (-> Unit)
+          :schema $ quote $ Fn typed/Control (-> Unit) (:features :io :state)
         'persist-storage! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn persist-storage! ()
             when @*storage-ready? $ app.storage/flush-save!
             , &unit
           :examples $ []
-          :schema $ quote $ Fn (-> Unit) (:features :js-ffi)
+          :schema $ quote $ Fn (-> Unit) (:features :js-ffi :state)
         'reload! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn reload! ()
             if (nil? build-errors)
@@ -1011,14 +1006,14 @@
               hud! |error build-errors
             , &unit
           :examples $ []
-          :schema $ quote $ Fn (-> Unit) (:features :js-ffi)
+          :schema $ quote $ Fn (-> Unit) (:features :io :js-ffi :state)
         'render-app! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn render-app! ()
             render-with! (mount-target)
               fn () $ comp-container @*reel on-control!
               , dispatch!
           :examples $ []
-          :schema $ quote $ Fn (-> Unit) (:features :js-ffi)
+          :schema $ quote $ Fn (-> Unit) (:features :io :js-ffi :state)
         'repeat! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn repeat! (duration cb)
             browser/set-interval! cb $ * 1000 duration
@@ -1042,7 +1037,7 @@
                       , &unit
             , &unit
           :examples $ []
-          :schema $ quote $ Fn (-> Unit) (:features :js-ffi)
+          :schema $ quote $ Fn (-> Unit) (:features :js-ffi :state)
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.main
           :require
@@ -1098,7 +1093,7 @@
               , 1000
             , &unit
           :examples $ []
-          :schema $ quote $ Fn (-> Unit) (:features :js-ffi)
+          :schema $ quote $ Fn (-> Unit) (:features :js-ffi :state)
         'decode-saved $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn decode-saved (text)
             try
@@ -1112,6 +1107,7 @@
           :examples $ []
           :schema $ quote $ Fn String
             -> $ Result (Option types/StoreData) String
+            :features :io
         'flush-save! $ %{} 'CodeEntry
           :doc "|仅在有待存请求且无写入在途时序列化并提交，最多同时写入一次。期间的新编辑保留为最新待存快照；失败不覆盖更新的请求、不自旋重试，留待后续操作或周期刷新。页面关闭时异步提交仍只能尽力完成。"
           :code $ quote $ defn flush-save! ()
@@ -1141,7 +1137,7 @@
                     , &unit
             , &unit
           :examples $ []
-          :schema $ quote $ Fn (-> Unit) (:features :js-ffi)
+          :schema $ quote $ Fn (-> Unit) (:features :js-ffi :state)
         'load! $ %{} 'CodeEntry
           :doc "|异步优先读取 IndexedDB；无记录时才调用旧 localStorage 读取回调。Result 错误不删除或覆盖原记录。"
           :code $ quote $ defn load! (key read-legacy! complete!)
@@ -1168,7 +1164,7 @@
               Result (Option types/StoreData) String
               -> Unit
             -> Unit
-            :features :js-ffi
+            :features :io :js-ffi
         'queue-save! $ %{} 'CodeEntry
           :doc "|为当前单存档排入最新不可变快照引用，重置 1 秒延迟；此处不序列化。被合并替换的待存请求不回调，仅实际提交的请求收到 Result。"
           :code $ quote $ defn queue-save! (key stored complete!)
@@ -1179,7 +1175,7 @@
           :schema $ quote $ Fn String types/StoreData
             Fn (Result Unit String) (-> Unit)
             -> Unit
-            :features :js-ffi
+            :features :js-ffi :state
         'save! $ %{} 'CodeEntry
           :doc "|把完整 StoreData 序列化并异步提交到 IndexedDB；事务完成后回调 Result，不把写入失败当作成功。"
           :code $ quote $ defn save! (key stored complete!)
@@ -1304,6 +1300,7 @@
           :schema $ quote $ Fn Input
             -> $ Option StoreData
             :generics Input
+            :features :io
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.types
     'app.updater $ %{} 'FileEntry

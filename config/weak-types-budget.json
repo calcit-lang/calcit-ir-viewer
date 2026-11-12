@@ -1,39 +1,20 @@
 {
   "coverage": {
-    "app.comp.container/comp-cirru-quote": "partial",
-    "app.comp.container/comp-code": "partial",
-    "app.comp.container/comp-enum": "partial",
     "app.comp.container/comp-file": "partial",
     "app.comp.container/comp-file-entry": "partial",
     "app.comp.container/comp-fn": "partial",
     "app.comp.container/comp-import": "partial",
-    "app.comp.container/comp-ir-kind": "partial",
     "app.comp.container/comp-local": "partial",
     "app.comp.container/comp-macro": "partial",
     "app.comp.container/comp-method": "partial",
     "app.comp.container/comp-preview": "partial",
     "app.comp.container/comp-proc": "partial",
-    "app.comp.container/comp-record": "partial",
     "app.comp.container/comp-registered": "partial",
-    "app.comp.container/comp-struct": "partial",
     "app.comp.container/comp-symbol": "partial",
-    "app.comp.container/comp-tuple": "partial",
     "app.comp.container/format-type-info": "partial",
     "app.types/decode-store": "partial"
   },
   "weak": {
-    "app.comp.container/comp-cirru-quote": {
-      "schema-dynamic": 1,
-      "unresolved": 1
-    },
-    "app.comp.container/comp-code": {
-      "schema-dynamic": 1,
-      "unresolved": 1
-    },
-    "app.comp.container/comp-enum": {
-      "schema-dynamic": 1,
-      "unresolved": 1
-    },
     "app.comp.container/comp-file": {
       "schema-dynamic": 1,
       "unresolved": 1
@@ -46,10 +27,6 @@
       "unresolved": 1
     },
     "app.comp.container/comp-import": {
-      "schema-dynamic": 1,
-      "unresolved": 1
-    },
-    "app.comp.container/comp-ir-kind": {
       "schema-dynamic": 1,
       "unresolved": 1
     },
@@ -73,23 +50,11 @@
       "schema-dynamic": 1,
       "unresolved": 1
     },
-    "app.comp.container/comp-record": {
-      "schema-dynamic": 1,
-      "unresolved": 1
-    },
     "app.comp.container/comp-registered": {
       "schema-dynamic": 1,
       "unresolved": 1
     },
-    "app.comp.container/comp-struct": {
-      "schema-dynamic": 1,
-      "unresolved": 1
-    },
     "app.comp.container/comp-symbol": {
-      "schema-dynamic": 1,
-      "unresolved": 1
-    },
-    "app.comp.container/comp-tuple": {
       "schema-dynamic": 1,
       "unresolved": 1
     },
