@@ -428,7 +428,7 @@
                   format-type-display $ format-type-info t |
                 , style-tiny-hint
           :examples $ []
-          :schema $ quote $ Fn Dynamic (-> respo.schema/Component)
+          :schema $ quote $ Fn Expr (-> respo.schema/Component) (:generics Expr)
         'comp-macro $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-macro (f)
             div
@@ -559,7 +559,7 @@
                   str $ .unwrap-or (get expr :ns) |
                   , css-code-symbol-ns
           :examples $ []
-          :schema $ quote $ Fn Dynamic (-> respo.schema/Component)
+          :schema $ quote $ Fn Expr (-> respo.schema/Component) (:generics Expr)
         'comp-syntax $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-syntax (label)
             div
