@@ -34,23 +34,11 @@
       "schema-dynamic": 1,
       "unresolved": 1
     },
-    "app.comp.container/comp-macro": {
-      "schema-dynamic": 1,
-      "unresolved": 1
-    },
-    "app.comp.container/comp-method": {
-      "schema-dynamic": 1,
-      "unresolved": 1
-    },
     "app.comp.container/comp-preview": {
       "schema-dynamic": 1,
       "unresolved": 1
     },
     "app.comp.container/comp-proc": {
-      "schema-dynamic": 1,
-      "unresolved": 1
-    },
-    "app.comp.container/comp-registered": {
       "schema-dynamic": 1,
       "unresolved": 1
     },

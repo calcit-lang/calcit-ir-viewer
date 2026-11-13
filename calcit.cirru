@@ -427,25 +427,25 @@
               div ({})
                 <> $ str "|Macro name: "
                   .unwrap-or
-                    .map (get f :ns)
+                    .map (&map:get f :ns)
                       fn (value) (decode-map-as value String)
                     , |
                   , |/ $ .unwrap-or
-                    .map (get f :name)
+                    .map (&map:get f :name)
                       fn (value) (decode-map-as value String)
                     , |
               div ({})
                 <> $ str |Args:
                 comp-code
-                  .unwrap $ get f :args
+                  .unwrap $ &map:get f :args
                   , false
               div ({})
                 <> $ str |Code:
                 comp-code
-                  .unwrap $ get f :code
+                  .unwrap $ &map:get f :code
                   , false
           :examples $ []
-          :schema $ quote $ Fn (Map Dynamic V) (-> respo.schema/Component) (:generics V)
+          :schema $ quote $ Fn (Map K V) (-> respo.schema/Component) (:generics K V)
         'comp-method $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-method (expr)
             div
@@ -455,16 +455,16 @@
                   d! $ app.types/Op :preview expr
               <>
                 str |. $ .unwrap-or
-                  .map (get expr :method) str
+                  .map (&map:get expr :method) str
                   , |
                 , css-code-method
               <>
                 str "|method " $ .unwrap-or
-                  .map (get expr :behavior) str
+                  .map (&map:get expr :behavior) str
                   , |
                 , style-tiny-hint
           :examples $ []
-          :schema $ quote $ Fn (Map Dynamic V) (-> respo.schema/Component) (:generics V)
+          :schema $ quote $ Fn (Map K V) (-> respo.schema/Component) (:generics K V)
         'comp-preview $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-preview (data)
             if (non-nil? data)
@@ -532,10 +532,10 @@
                   :on-click $ fn (e d!)
                     d! $ app.types/Op :preview expr
                 <> $ str $ .unwrap-or
-                  .map (get expr :alias) str
+                  .map (&map:get expr :alias) str
                   , |
           :examples $ []
-          :schema $ quote $ Fn (Map Dynamic V) (-> respo.schema/Component) (:generics V)
+          :schema $ quote $ Fn (Map K V) (-> respo.schema/Component) (:generics K V)
         'comp-symbol $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-symbol (expr)
             div

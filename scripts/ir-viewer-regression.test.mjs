@@ -146,7 +146,7 @@ test('runtime dispatch preserves mixed-key preview and separates Reel controls',
   eventHandler(comp_import(expr), t.click)(map(), dispatch_$x_);
   assert.equal(clt._$e_(readPreview(), expr), true);
   for (const kind of ['cirru-quote', 'tuple', 'struct', 'enum', 'record', 'method', 'registered']) {
-    const node = map(clt.newTag('kind'), clt.newTag(kind), 'source-note', 'legacy metadata');
+    const node = map(clt.newTag('kind'), clt.newTag(kind), 'source-note', 'legacy metadata', true, 'legacy Boolean key');
     const click = eventHandler(comp_code(node, false), t.click);
     assert.equal(typeof click, 'function', kind);
     click(map(), dispatch_$x_);
