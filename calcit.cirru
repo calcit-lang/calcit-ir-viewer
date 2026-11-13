@@ -221,7 +221,7 @@
                             d! $ app.types/Op :new-bookmark $ app.types/Bookmark :bookmark ns name
                         <> name
           :examples $ []
-          :schema $ quote $ Fn String (Map Tag Dynamic) String (-> respo.schema/Component)
+          :schema $ quote $ Fn String (Map Tag V) String (-> respo.schema/Component) (:generics V)
         'comp-file-entry $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn comp-file-entry (states files)
             let
@@ -314,9 +314,10 @@
                             d! $ app.types/Op :import-failed message
                     div ({}) (<> "|Pick IR file")
           :examples $ []
-          :schema $ quote $ Fn (Map Dynamic Dynamic)
-            Map String $ Map Tag Dynamic
+          :schema $ quote $ Fn respo.schema/States
+            Map String $ Map Tag V
             -> respo.schema/Element
+            :generics V
             :features :js-ffi
         'comp-fn $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-fn (f)
