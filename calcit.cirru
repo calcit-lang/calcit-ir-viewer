@@ -172,7 +172,8 @@
                             get-in (:ir store) ([] :files ns :defs definition)
                             (:ok declaration)
                               if (calcit-fn? declaration) (comp-fn declaration)
-                                if (calcit-macro? declaration) (comp-macro declaration)
+                                if (calcit-macro? declaration)
+                                  comp-macro $ decode-map-as declaration $ Map Tag Dynamic
                                   div
                                     {} $ :class-name css-pad8
                                     comp-code declaration false
@@ -423,12 +424,14 @@
               {} $ :class-name css-pad8
               div ({})
                 <> $ str "|Macro name: "
-                  decode-map-as
-                    .unwrap-or (get f :ns) |
-                    , 'String
-                  , |/ $ decode-map-as
-                    .unwrap-or (get f :name) |
-                    , 'String
+                  .unwrap-or
+                    .map (get f :ns)
+                      fn (value) (decode-map-as value String)
+                    , |
+                  , |/ $ .unwrap-or
+                    .map (get f :name)
+                      fn (value) (decode-map-as value String)
+                    , |
               div ({})
                 <> $ str |Args:
                 comp-code
@@ -440,7 +443,7 @@
                   .unwrap $ get f :code
                   , false
           :examples $ []
-          :schema $ quote $ Fn Dynamic (-> respo.schema/Component)
+          :schema $ quote $ Fn (Map Tag V) (-> respo.schema/Component) (:generics V)
         'comp-method $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-method (expr)
             div
