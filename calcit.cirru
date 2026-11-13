@@ -117,18 +117,23 @@
                       size $ .len expr
                     map-indexed expr $ fn (idx x)
                       comp-code x $ = (inc idx) size
-              (calcit-import? expr) (comp-import expr)
+              (calcit-import? expr)
+                comp-import $ decode-map-as expr $ Map Dynamic Dynamic
               (calcit-local? expr) (comp-local expr)
-              (calcit-registered? expr) (comp-registered expr)
-              (calcit-symbol? expr) (comp-symbol expr)
-              (calcit-proc? expr) (comp-proc expr)
+              (calcit-registered? expr)
+                comp-registered $ decode-map-as expr $ Map Dynamic Dynamic
+              (calcit-symbol? expr)
+                comp-symbol $ decode-map-as expr $ Map Dynamic Dynamic
+              (calcit-proc? expr)
+                comp-proc $ decode-map-as expr $ Map Dynamic Dynamic
               (calcit-fn? expr)
                 <>
                   str $ .unwrap-or (get expr :name) |
                   , css-code-fn
               (calcit-syntax? expr)
                 comp-syntax $ str $ .unwrap-or (get expr :name) |
-              (calcit-method? expr) (comp-method expr)
+              (calcit-method? expr)
+                comp-method $ decode-map-as expr $ Map Dynamic Dynamic
               (calcit-raw-code? expr)
                 comp-raw-code $ str $ .unwrap-or (get expr :code) |
               true $ match (preview-kind expr)
@@ -172,7 +177,8 @@
                             get-in (:ir store) ([] :files ns :defs definition)
                             (:ok declaration)
                               if (calcit-fn? declaration) (comp-fn declaration)
-                                if (calcit-macro? declaration) (comp-macro declaration)
+                                if (calcit-macro? declaration)
+                                  comp-macro $ decode-map-as declaration $ Map Dynamic Dynamic
                                   div
                                     {} $ :class-name css-pad8
                                     comp-code declaration false
@@ -343,16 +349,20 @@
                 :class-name $ str-spaced css/column css-code-symbol
                 :style $ merge $ {} (:display :inline-flex)
                 :on-click $ fn (e d!)
-                  d! $ app.types/Op :preview $ decode-map-as expr (Map Dynamic Dynamic)
-              <> $ str $ .unwrap-or (get expr :def) |
+                  d! $ app.types/Op :preview expr
+              <> $ .unwrap-or
+                .map (&map:get expr :def) str
+                , |
               div
                 {} $ :class-name css/row-middle
                 <>
-                  str $ .unwrap-or (get expr :ns) |
+                  .unwrap-or
+                    .map (&map:get expr :ns) str
+                    , |
                   , style-import-ns
-                match (get expr :ns)
+                match (&map:get expr :ns)
                   (:some ns)
-                    match (get expr :def)
+                    match (&map:get expr :def)
                       (:some definition)
                         if
                           and (string? ns) (string? definition)
@@ -365,30 +375,30 @@
                   (:none) None
               if
                 and
-                  .some? $ get expr :info
+                  .some? $ &map:get expr :info
                   .some? $ get
-                    .unwrap $ get expr :info
+                    .unwrap $ &map:get expr :info
                     , :kind
                 Some $ <>
                   str "|import " $ .unwrap-or
                     get
-                      .unwrap $ get expr :info
+                      .unwrap $ &map:get expr :info
                       , :kind
                     , |
                   , style-tiny-hint
                 , None
               if
-                .some? $ get expr :type-hint
+                .some? $ &map:get expr :type-hint
                 Some $ div
                   {} $ :class-name css/row-middle
                   <>
                     str |type: $ let
-                        t $ .unwrap $ get expr :type-hint
+                        t $ .unwrap $ &map:get expr :type-hint
                       format-type-display $ format-type-info t |
                     , style-tiny-hint
                 , None
           :examples $ []
-          :schema $ quote $ Fn Dynamic (-> respo.schema/Component)
+          :schema $ quote $ Fn (Map K V) (-> respo.schema/Component) (:generics K V)
         'comp-ir-kind $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-ir-kind (expr kind)
             div
@@ -423,39 +433,45 @@
               {} $ :class-name css-pad8
               div ({})
                 <> $ str "|Macro name: "
-                  decode-map-as
-                    .unwrap-or (get f :ns) |
-                    , 'String
-                  , |/ $ decode-map-as
-                    .unwrap-or (get f :name) |
-                    , 'String
+                  .unwrap-or
+                    .map (&map:get f :ns)
+                      fn (value) (decode-map-as value String)
+                    , |
+                  , |/ $ .unwrap-or
+                    .map (&map:get f :name)
+                      fn (value) (decode-map-as value String)
+                    , |
               div ({})
                 <> $ str |Args:
                 comp-code
-                  .unwrap $ get f :args
+                  .unwrap $ &map:get f :args
                   , false
               div ({})
                 <> $ str |Code:
                 comp-code
-                  .unwrap $ get f :code
+                  .unwrap $ &map:get f :code
                   , false
           :examples $ []
-          :schema $ quote $ Fn Dynamic (-> respo.schema/Component)
+          :schema $ quote $ Fn (Map K V) (-> respo.schema/Component) (:generics K V)
         'comp-method $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-method (expr)
             div
               {} (:class-name css/column)
                 :style $ {} (:display :inline-flex) (:line-height |1.2)
                 :on-click $ fn (e d!)
-                  d! $ app.types/Op :preview $ decode-map-as expr (Map Dynamic Dynamic)
+                  d! $ app.types/Op :preview expr
               <>
-                str |. $ .unwrap-or (get expr :method) |
+                str |. $ .unwrap-or
+                  .map (&map:get expr :method) str
+                  , |
                 , css-code-method
               <>
-                str "|method " $ .unwrap-or (get expr :behavior) |
+                str "|method " $ .unwrap-or
+                  .map (&map:get expr :behavior) str
+                  , |
                 , style-tiny-hint
           :examples $ []
-          :schema $ quote $ Fn Dynamic (-> respo.schema/Component)
+          :schema $ quote $ Fn (Map K V) (-> respo.schema/Component) (:generics K V)
         'comp-preview $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-preview (data)
             if (non-nil? data)
@@ -475,35 +491,37 @@
               {} (:class-name css/column)
                 :style $ {} (:display :inline-flex) (:line-height |1.2)
               <>
-                str $ .unwrap-or (get expr :name) |
+                .unwrap-or
+                  .map (&map:get expr :name) str
+                  , |
                 , css-code-proc
               <> |proc style-tiny-hint
               if
                 or
-                  .some? $ get expr :arg-types
-                  .some? $ get expr :return-type
+                  .some? $ &map:get expr :arg-types
+                  .some? $ &map:get expr :return-type
                 <>
                   str
                     if
-                      .some? $ get expr :arg-types
+                      .some? $ &map:get expr :arg-types
                       format-type-display $ [] |args: $ format-type-info
-                        .unwrap $ get expr :arg-types
+                        .unwrap $ &map:get expr :arg-types
                         , |
                       , |
                     if
-                      .some? $ get expr :return-type
+                      .some? $ &map:get expr :return-type
                       str
                         if
-                          .some? $ get expr :arg-types
+                          .some? $ &map:get expr :arg-types
                           , &newline |
                         format-type-display $ [] |return: $ format-type-info
-                          .unwrap $ get expr :return-type
+                          .unwrap $ &map:get expr :return-type
                           , |
                       , |
                   , style-tiny-hint
                 <> |
           :examples $ []
-          :schema $ quote $ Fn Dynamic (-> respo.schema/Component)
+          :schema $ quote $ Fn (Map K V) (-> respo.schema/Component) (:generics K V)
         'comp-raw-code $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-raw-code (label)
             div
@@ -521,10 +539,12 @@
                 {}
                   :style $ merge $ {} (:display :inline-block)
                   :on-click $ fn (e d!)
-                    d! $ app.types/Op :preview $ decode-map-as expr (Map Dynamic Dynamic)
-                <> $ str $ .unwrap-or (get expr :alias) |
+                    d! $ app.types/Op :preview expr
+                <> $ str $ .unwrap-or
+                  .map (&map:get expr :alias) str
+                  , |
           :examples $ []
-          :schema $ quote $ Fn Dynamic (-> respo.schema/Component)
+          :schema $ quote $ Fn (Map K V) (-> respo.schema/Component) (:generics K V)
         'comp-symbol $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-symbol (expr)
             div
@@ -532,14 +552,18 @@
                 :class-name $ str-spaced css/column css-code-symbol
                 :style $ merge $ {} (:display :inline-flex)
                 :on-click $ fn (e d!)
-                  d! $ app.types/Op :preview $ decode-map-as expr (Map Dynamic Dynamic)
-              <> $ str $ .unwrap-or (get expr :val) |
+                  d! $ app.types/Op :preview expr
+              <> $ .unwrap-or
+                .map (&map:get expr :val) str
+                , |
               div ({})
                 <>
-                  str $ .unwrap-or (get expr :ns) |
+                  .unwrap-or
+                    .map (&map:get expr :ns) str
+                    , |
                   , css-code-symbol-ns
           :examples $ []
-          :schema $ quote $ Fn Expr (-> respo.schema/Component) (:generics Expr)
+          :schema $ quote $ Fn (Map K V) (-> respo.schema/Component) (:generics K V)
         'comp-syntax $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-syntax (label)
             div
