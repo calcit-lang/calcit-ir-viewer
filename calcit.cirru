@@ -1294,7 +1294,7 @@
                 Bookmark :bookmark (decode-map-as ns 'String) (decode-map-as name 'String)
               _ $ raise "|Expected a bookmark target"
           :examples $ []
-          :schema $ quote $ Fn AnyEnum (-> Bookmark) (:open :decode)
+          :schema $ quote $ Fn Input (-> Bookmark) (:generics Input)
         'decode-store $ %{} 'CodeEntry
           :doc "|验证存档字段并规范化历史匿名书签，返回具有当前 StoreData/Bookmark 身份的受检值；不承诺保持输入对象身份。"
           :code $ quote $ defn decode-store (data)
