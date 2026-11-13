@@ -221,7 +221,7 @@
                             d! $ app.types/Op :new-bookmark $ app.types/Bookmark :bookmark ns name
                         <> name
           :examples $ []
-          :schema $ quote $ Fn String (Map Tag Dynamic) String (-> respo.schema/Component)
+          :schema $ quote $ Fn String (Map Tag V) String (-> respo.schema/Component) (:generics V)
         'comp-file-entry $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn comp-file-entry (states files)
             let
