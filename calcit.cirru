@@ -314,7 +314,7 @@
                             d! $ app.types/Op :import-failed message
                     div ({}) (<> "|Pick IR file")
           :examples $ []
-          :schema $ quote $ Fn (Map Dynamic Dynamic)
+          :schema $ quote $ Fn respo.schema/States
             Map String $ Map Tag V
             -> respo.schema/Element
             :generics V

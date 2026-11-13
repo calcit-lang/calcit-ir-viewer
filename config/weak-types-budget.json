@@ -1,6 +1,5 @@
 {
   "coverage": {
-    "app.comp.container/comp-file-entry": "partial",
     "app.comp.container/comp-fn": "partial",
     "app.comp.container/comp-local": "partial",
     "app.comp.container/comp-macro": "partial",
@@ -11,9 +10,6 @@
     "app.types/decode-store": "partial"
   },
   "weak": {
-    "app.comp.container/comp-file-entry": {
-      "schema-dynamic": 2
-    },
     "app.comp.container/comp-fn": {
       "schema-dynamic": 1,
       "unresolved": 1
