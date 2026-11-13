@@ -116,6 +116,23 @@ test('bookmark removal clamps pointer and keeps preview unchanged', () => {
   assert.equal(field(next, t.preview), preview);
 });
 
+test('macro bookmarks render names, arguments and code with optional labels', () => {
+  const tags = clt.init_tags(['kind', 'macro', 'ns', 'name', 'args', 'code', 'bookmark']);
+  const declaration = map(tags.kind, tags.macro, tags.args, 'fixture-argument', tags.code, 'fixture-body', 'source-note', 'legacy metadata');
+  const bookmark = clt._PCT__$o__$o_(Bookmark, tags.bookmark, 'app.alpha', 'demo-macro');
+  const render = macro => {
+    const ir = map(t.files, map('app.alpha', map(t.defs, map('demo-macro', macro))));
+    const initial = updater(clt.assoc(store, t.ir, ir), op(t['new-bookmark'], bookmark), 'bookmark', 1);
+    return make_string(comp_container(new_reel(initial), () => {}));
+  };
+  const named = clt.assoc(clt.assoc(declaration, tags.ns, 'app.alpha'), tags.name, 'demo-macro');
+  assert.match(render(named), /Macro name: app\.alpha\/demo-macro/);
+  const unnamed = render(declaration);
+  assert.match(unnamed, /Macro name: \/</);
+  assert.match(unnamed, /fixture-argument/);
+  assert.match(unnamed, /fixture-body/);
+});
+
 test('runtime dispatch preserves mixed-key preview and separates Reel controls', async () => {
   // Match the extension resolution Vite provides for bottom-tip in the browser.
   const hooks = registerHooks({
@@ -128,7 +145,7 @@ test('runtime dispatch preserves mixed-key preview and separates Reel controls',
   const expr = map(clt.newTag('ns'), 'app.alpha', clt.newTag('def'), 'main!', 'source-note', 'legacy metadata');
   eventHandler(comp_import(expr), t.click)(map(), dispatch_$x_);
   assert.equal(clt._$e_(readPreview(), expr), true);
-  for (const kind of ['cirru-quote', 'tuple', 'struct', 'enum', 'record']) {
+  for (const kind of ['cirru-quote', 'tuple', 'struct', 'enum', 'record', 'method', 'registered']) {
     const node = map(clt.newTag('kind'), clt.newTag(kind), 'source-note', 'legacy metadata');
     const click = eventHandler(comp_code(node, false), t.click);
     assert.equal(typeof click, 'function', kind);

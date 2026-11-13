@@ -120,7 +120,7 @@
               (calcit-import? expr) (comp-import expr)
               (calcit-local? expr) (comp-local expr)
               (calcit-registered? expr)
-                comp-registered $ decode-map-as expr $ Map Tag Dynamic
+                comp-registered $ decode-map-as expr $ Map Dynamic Dynamic
               (calcit-symbol? expr) (comp-symbol expr)
               (calcit-proc? expr) (comp-proc expr)
               (calcit-fn? expr)
@@ -130,7 +130,7 @@
               (calcit-syntax? expr)
                 comp-syntax $ str $ .unwrap-or (get expr :name) |
               (calcit-method? expr)
-                comp-method $ decode-map-as expr $ Map Tag Dynamic
+                comp-method $ decode-map-as expr $ Map Dynamic Dynamic
               (calcit-raw-code? expr)
                 comp-raw-code $ str $ .unwrap-or (get expr :code) |
               true $ match (preview-kind expr)
@@ -175,7 +175,7 @@
                             (:ok declaration)
                               if (calcit-fn? declaration) (comp-fn declaration)
                                 if (calcit-macro? declaration)
-                                  comp-macro $ decode-map-as declaration $ Map Tag Dynamic
+                                  comp-macro $ decode-map-as declaration $ Map Dynamic Dynamic
                                   div
                                     {} $ :class-name css-pad8
                                     comp-code declaration false
@@ -445,7 +445,7 @@
                   .unwrap $ get f :code
                   , false
           :examples $ []
-          :schema $ quote $ Fn (Map Tag V) (-> respo.schema/Component) (:generics V)
+          :schema $ quote $ Fn (Map Dynamic V) (-> respo.schema/Component) (:generics V)
         'comp-method $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-method (expr)
             div
@@ -464,7 +464,7 @@
                   , |
                 , style-tiny-hint
           :examples $ []
-          :schema $ quote $ Fn (Map Tag V) (-> respo.schema/Component) (:generics V)
+          :schema $ quote $ Fn (Map Dynamic V) (-> respo.schema/Component) (:generics V)
         'comp-preview $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-preview (data)
             if (non-nil? data)
@@ -535,7 +535,7 @@
                   .map (get expr :alias) str
                   , |
           :examples $ []
-          :schema $ quote $ Fn (Map Tag V) (-> respo.schema/Component) (:generics V)
+          :schema $ quote $ Fn (Map Dynamic V) (-> respo.schema/Component) (:generics V)
         'comp-symbol $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-symbol (expr)
             div
