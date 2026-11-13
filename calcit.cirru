@@ -119,7 +119,8 @@
                       comp-code x $ = (inc idx) size
               (calcit-import? expr) (comp-import expr)
               (calcit-local? expr) (comp-local expr)
-              (calcit-registered? expr) (comp-registered expr)
+              (calcit-registered? expr)
+                comp-registered $ decode-map-as expr $ Map Tag Dynamic
               (calcit-symbol? expr) (comp-symbol expr)
               (calcit-proc? expr) (comp-proc expr)
               (calcit-fn? expr)
@@ -128,7 +129,8 @@
                   , css-code-fn
               (calcit-syntax? expr)
                 comp-syntax $ str $ .unwrap-or (get expr :name) |
-              (calcit-method? expr) (comp-method expr)
+              (calcit-method? expr)
+                comp-method $ decode-map-as expr $ Map Tag Dynamic
               (calcit-raw-code? expr)
                 comp-raw-code $ str $ .unwrap-or (get expr :code) |
               true $ match (preview-kind expr)
@@ -450,15 +452,19 @@
               {} (:class-name css/column)
                 :style $ {} (:display :inline-flex) (:line-height |1.2)
                 :on-click $ fn (e d!)
-                  d! $ app.types/Op :preview $ decode-map-as expr (Map Dynamic Dynamic)
+                  d! $ app.types/Op :preview expr
               <>
-                str |. $ .unwrap-or (get expr :method) |
+                str |. $ .unwrap-or
+                  .map (get expr :method) str
+                  , |
                 , css-code-method
               <>
-                str "|method " $ .unwrap-or (get expr :behavior) |
+                str "|method " $ .unwrap-or
+                  .map (get expr :behavior) str
+                  , |
                 , style-tiny-hint
           :examples $ []
-          :schema $ quote $ Fn Dynamic (-> respo.schema/Component)
+          :schema $ quote $ Fn (Map Tag V) (-> respo.schema/Component) (:generics V)
         'comp-preview $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-preview (data)
             if (non-nil? data)
@@ -524,10 +530,12 @@
                 {}
                   :style $ merge $ {} (:display :inline-block)
                   :on-click $ fn (e d!)
-                    d! $ app.types/Op :preview $ decode-map-as expr (Map Dynamic Dynamic)
-                <> $ str $ .unwrap-or (get expr :alias) |
+                    d! $ app.types/Op :preview expr
+                <> $ str $ .unwrap-or
+                  .map (get expr :alias) str
+                  , |
           :examples $ []
-          :schema $ quote $ Fn Dynamic (-> respo.schema/Component)
+          :schema $ quote $ Fn (Map Tag V) (-> respo.schema/Component) (:generics V)
         'comp-symbol $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-symbol (expr)
             div
