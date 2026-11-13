@@ -8,7 +8,6 @@
     "app.comp.container/comp-macro": "partial",
     "app.comp.container/comp-method": "partial",
     "app.comp.container/comp-preview": "partial",
-    "app.comp.container/comp-proc": "partial",
     "app.comp.container/comp-registered": "partial",
     "app.comp.container/comp-symbol": "partial",
     "app.comp.container/format-type-info": "partial",
@@ -35,10 +34,6 @@
       "unresolved": 1
     },
     "app.comp.container/comp-preview": {
-      "schema-dynamic": 1,
-      "unresolved": 1
-    },
-    "app.comp.container/comp-proc": {
       "schema-dynamic": 1,
       "unresolved": 1
     },

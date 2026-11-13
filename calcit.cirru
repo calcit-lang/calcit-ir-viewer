@@ -122,7 +122,8 @@
               (calcit-registered? expr)
                 comp-registered $ decode-map-as expr $ Map Dynamic Dynamic
               (calcit-symbol? expr) (comp-symbol expr)
-              (calcit-proc? expr) (comp-proc expr)
+              (calcit-proc? expr)
+                comp-proc $ decode-map-as expr $ Map Dynamic Dynamic
               (calcit-fn? expr)
                 <>
                   str $ .unwrap-or (get expr :name) |
@@ -484,35 +485,37 @@
               {} (:class-name css/column)
                 :style $ {} (:display :inline-flex) (:line-height |1.2)
               <>
-                str $ .unwrap-or (get expr :name) |
+                .unwrap-or
+                  .map (&map:get expr :name) str
+                  , |
                 , css-code-proc
               <> |proc style-tiny-hint
               if
                 or
-                  .some? $ get expr :arg-types
-                  .some? $ get expr :return-type
+                  .some? $ &map:get expr :arg-types
+                  .some? $ &map:get expr :return-type
                 <>
                   str
                     if
-                      .some? $ get expr :arg-types
+                      .some? $ &map:get expr :arg-types
                       format-type-display $ [] |args: $ format-type-info
-                        .unwrap $ get expr :arg-types
+                        .unwrap $ &map:get expr :arg-types
                         , |
                       , |
                     if
-                      .some? $ get expr :return-type
+                      .some? $ &map:get expr :return-type
                       str
                         if
-                          .some? $ get expr :arg-types
+                          .some? $ &map:get expr :arg-types
                           , &newline |
                         format-type-display $ [] |return: $ format-type-info
-                          .unwrap $ get expr :return-type
+                          .unwrap $ &map:get expr :return-type
                           , |
                       , |
                   , style-tiny-hint
                 <> |
           :examples $ []
-          :schema $ quote $ Fn Dynamic (-> respo.schema/Component)
+          :schema $ quote $ Fn (Map K V) (-> respo.schema/Component) (:generics K V)
         'comp-raw-code $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-raw-code (label)
             div
