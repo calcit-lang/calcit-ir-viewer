@@ -12,7 +12,7 @@
   },
   "weak": {
     "app.comp.container/comp-file-entry": {
-      "schema-dynamic": 3
+      "schema-dynamic": 2
     },
     "app.comp.container/comp-fn": {
       "schema-dynamic": 1,

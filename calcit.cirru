@@ -315,8 +315,9 @@
                     div ({}) (<> "|Pick IR file")
           :examples $ []
           :schema $ quote $ Fn (Map Dynamic Dynamic)
-            Map String $ Map Tag Dynamic
+            Map String $ Map Tag V
             -> respo.schema/Element
+            :generics V
             :features :js-ffi
         'comp-fn $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-fn (f)
