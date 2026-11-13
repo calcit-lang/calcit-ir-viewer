@@ -117,11 +117,13 @@
                       size $ .len expr
                     map-indexed expr $ fn (idx x)
                       comp-code x $ = (inc idx) size
-              (calcit-import? expr) (comp-import expr)
+              (calcit-import? expr)
+                comp-import $ decode-map-as expr $ Map Dynamic Dynamic
               (calcit-local? expr) (comp-local expr)
               (calcit-registered? expr)
                 comp-registered $ decode-map-as expr $ Map Dynamic Dynamic
-              (calcit-symbol? expr) (comp-symbol expr)
+              (calcit-symbol? expr)
+                comp-symbol $ decode-map-as expr $ Map Dynamic Dynamic
               (calcit-proc? expr)
                 comp-proc $ decode-map-as expr $ Map Dynamic Dynamic
               (calcit-fn? expr)
@@ -347,16 +349,20 @@
                 :class-name $ str-spaced css/column css-code-symbol
                 :style $ merge $ {} (:display :inline-flex)
                 :on-click $ fn (e d!)
-                  d! $ app.types/Op :preview $ decode-map-as expr (Map Dynamic Dynamic)
-              <> $ str $ .unwrap-or (get expr :def) |
+                  d! $ app.types/Op :preview expr
+              <> $ .unwrap-or
+                .map (&map:get expr :def) str
+                , |
               div
                 {} $ :class-name css/row-middle
                 <>
-                  str $ .unwrap-or (get expr :ns) |
+                  .unwrap-or
+                    .map (&map:get expr :ns) str
+                    , |
                   , style-import-ns
-                match (get expr :ns)
+                match (&map:get expr :ns)
                   (:some ns)
-                    match (get expr :def)
+                    match (&map:get expr :def)
                       (:some definition)
                         if
                           and (string? ns) (string? definition)
@@ -369,30 +375,30 @@
                   (:none) None
               if
                 and
-                  .some? $ get expr :info
+                  .some? $ &map:get expr :info
                   .some? $ get
-                    .unwrap $ get expr :info
+                    .unwrap $ &map:get expr :info
                     , :kind
                 Some $ <>
                   str "|import " $ .unwrap-or
                     get
-                      .unwrap $ get expr :info
+                      .unwrap $ &map:get expr :info
                       , :kind
                     , |
                   , style-tiny-hint
                 , None
               if
-                .some? $ get expr :type-hint
+                .some? $ &map:get expr :type-hint
                 Some $ div
                   {} $ :class-name css/row-middle
                   <>
                     str |type: $ let
-                        t $ .unwrap $ get expr :type-hint
+                        t $ .unwrap $ &map:get expr :type-hint
                       format-type-display $ format-type-info t |
                     , style-tiny-hint
                 , None
           :examples $ []
-          :schema $ quote $ Fn Dynamic (-> respo.schema/Component)
+          :schema $ quote $ Fn (Map K V) (-> respo.schema/Component) (:generics K V)
         'comp-ir-kind $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-ir-kind (expr kind)
             div
@@ -546,14 +552,18 @@
                 :class-name $ str-spaced css/column css-code-symbol
                 :style $ merge $ {} (:display :inline-flex)
                 :on-click $ fn (e d!)
-                  d! $ app.types/Op :preview $ decode-map-as expr (Map Dynamic Dynamic)
-              <> $ str $ .unwrap-or (get expr :val) |
+                  d! $ app.types/Op :preview expr
+              <> $ .unwrap-or
+                .map (&map:get expr :val) str
+                , |
               div ({})
                 <>
-                  str $ .unwrap-or (get expr :ns) |
+                  .unwrap-or
+                    .map (&map:get expr :ns) str
+                    , |
                   , css-code-symbol-ns
           :examples $ []
-          :schema $ quote $ Fn Expr (-> respo.schema/Component) (:generics Expr)
+          :schema $ quote $ Fn (Map K V) (-> respo.schema/Component) (:generics K V)
         'comp-syntax $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-syntax (label)
             div
