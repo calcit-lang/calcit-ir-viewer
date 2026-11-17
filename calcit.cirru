@@ -83,13 +83,13 @@
                     comp-close $ Some $ %{} respo-ui.schema/ButtonOptions (:kind None) (:type None) (:disabled None)
                       :on-click $ Some $ fn (e d!)
                         hint-fn $ Fn respo.schema/RespoEvent
-                          Fn app.types/Op $ -> Unit
+                          Fn app.types/Op (-> Unit) (:features :io :state)
                           -> Unit
                         d! $ app.types/Op :remove-bookmark idx
                       :class-name $ Some style-close
                       :style None
           :examples $ []
-          :schema $ quote $ Fn (List app.types/Bookmark) Number (-> respo.schema/Component)
+          :schema $ quote $ Fn (List app.types/Bookmark) Number (-> respo.schema/Component) (:features :io :state)
         'comp-code $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-code (expr last?)
             cond
@@ -197,8 +197,9 @@
                   , None
           :examples $ []
           :schema $ quote $ Fn (reel.typed/State app.types/Op app.types/StoreData)
-            Fn reel.typed/Control $ -> Unit
+            Fn reel.typed/Control (-> Unit) (:features :io :state)
             -> respo.schema/Component
+            :features :io :state
         'comp-file $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-file (ns file selected-def)
             div
@@ -350,20 +351,20 @@
                 :class-name $ str-spaced css/column css-code-symbol
                 :style $ merge $ {} (:display :inline-flex)
                 :on-click $ fn (e d!)
-                  d! $ app.types/Op :preview expr
+                  d! $ app.types/Op :preview $ decode-map-as expr (Map Dynamic Dynamic)
               <> $ .unwrap-or
-                .map (&map:get expr :def) str
+                .map (get expr :def) str
                 , |
               div
                 {} $ :class-name css/row-middle
                 <>
                   .unwrap-or
-                    .map (&map:get expr :ns) str
+                    .map (get expr :ns) str
                     , |
                   , style-import-ns
-                match (&map:get expr :ns)
+                match (get expr :ns)
                   (:some ns)
-                    match (&map:get expr :def)
+                    match (get expr :def)
                       (:some definition)
                         if
                           and (string? ns) (string? definition)
@@ -376,37 +377,37 @@
                   (:none) None
               if
                 and
-                  .some? $ &map:get expr :info
+                  .some? $ get expr :info
                   .some? $ get
-                    .unwrap $ &map:get expr :info
+                    .unwrap $ get expr :info
                     , :kind
                 Some $ <>
                   str "|import " $ .unwrap-or
                     get
-                      .unwrap $ &map:get expr :info
+                      .unwrap $ get expr :info
                       , :kind
                     , |
                   , style-tiny-hint
                 , None
               if
-                .some? $ &map:get expr :type-hint
+                .some? $ get expr :type-hint
                 Some $ div
                   {} $ :class-name css/row-middle
                   <>
                     str |type: $ let
-                        t $ .unwrap $ &map:get expr :type-hint
+                        t $ .unwrap $ get expr :type-hint
                       format-type-display $ format-type-info t |
                     , style-tiny-hint
                 , None
           :examples $ []
-          :schema $ quote $ Fn (Map K V) (-> respo.schema/Component) (:generics K V)
+          :schema $ quote $ Fn Expr (-> respo.schema/Component) (:generics Expr)
         'comp-ir-kind $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-ir-kind (expr kind)
             div
               {} (:class-name css/column)
                 :style $ {} $ :display :inline-flex
                 :on-click $ fn (e d!)
-                  d! $ app.types/Op :preview expr
+                  d! $ app.types/Op :preview $ decode-map-as expr (Map Dynamic Dynamic)
               <> (str "|ir " kind) style-tiny-hint
               <> (to-lispy-string expr) css-code-default
           :examples $ []
@@ -435,44 +436,44 @@
               div ({})
                 <> $ str "|Macro name: "
                   .unwrap-or
-                    .map (&map:get f :ns)
+                    .map (get f :ns)
                       fn (value) (decode-map-as value String)
                     , |
                   , |/ $ .unwrap-or
-                    .map (&map:get f :name)
+                    .map (get f :name)
                       fn (value) (decode-map-as value String)
                     , |
               div ({})
                 <> $ str |Args:
                 comp-code
-                  .unwrap $ &map:get f :args
+                  .unwrap $ get f :args
                   , false
               div ({})
                 <> $ str |Code:
                 comp-code
-                  .unwrap $ &map:get f :code
+                  .unwrap $ get f :code
                   , false
           :examples $ []
-          :schema $ quote $ Fn (Map K V) (-> respo.schema/Component) (:generics K V)
+          :schema $ quote $ Fn Expr (-> respo.schema/Component) (:generics Expr)
         'comp-method $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-method (expr)
             div
               {} (:class-name css/column)
                 :style $ {} (:display :inline-flex) (:line-height |1.2)
                 :on-click $ fn (e d!)
-                  d! $ app.types/Op :preview expr
+                  d! $ app.types/Op :preview $ decode-map-as expr (Map Dynamic Dynamic)
               <>
                 str |. $ .unwrap-or
-                  .map (&map:get expr :method) str
+                  .map (get expr :method) str
                   , |
                 , css-code-method
               <>
                 str "|method " $ .unwrap-or
-                  .map (&map:get expr :behavior) str
+                  .map (get expr :behavior) str
                   , |
                 , style-tiny-hint
           :examples $ []
-          :schema $ quote $ Fn (Map K V) (-> respo.schema/Component) (:generics K V)
+          :schema $ quote $ Fn Expr (-> respo.schema/Component) (:generics Expr)
         'comp-preview $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-preview (data)
             if (non-nil? data)
@@ -493,36 +494,36 @@
                 :style $ {} (:display :inline-flex) (:line-height |1.2)
               <>
                 .unwrap-or
-                  .map (&map:get expr :name) str
+                  .map (get expr :name) str
                   , |
                 , css-code-proc
               <> |proc style-tiny-hint
               if
                 or
-                  .some? $ &map:get expr :arg-types
-                  .some? $ &map:get expr :return-type
+                  .some? $ get expr :arg-types
+                  .some? $ get expr :return-type
                 <>
                   str
                     if
-                      .some? $ &map:get expr :arg-types
+                      .some? $ get expr :arg-types
                       format-type-display $ [] |args: $ format-type-info
-                        .unwrap $ &map:get expr :arg-types
+                        .unwrap $ get expr :arg-types
                         , |
                       , |
                     if
-                      .some? $ &map:get expr :return-type
+                      .some? $ get expr :return-type
                       str
                         if
-                          .some? $ &map:get expr :arg-types
+                          .some? $ get expr :arg-types
                           , &newline |
                         format-type-display $ [] |return: $ format-type-info
-                          .unwrap $ &map:get expr :return-type
+                          .unwrap $ get expr :return-type
                           , |
                       , |
                   , style-tiny-hint
                 <> |
           :examples $ []
-          :schema $ quote $ Fn (Map K V) (-> respo.schema/Component) (:generics K V)
+          :schema $ quote $ Fn Expr (-> respo.schema/Component) (:generics Expr)
         'comp-raw-code $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-raw-code (label)
             div
@@ -540,12 +541,12 @@
                 {}
                   :style $ merge $ {} (:display :inline-block)
                   :on-click $ fn (e d!)
-                    d! $ app.types/Op :preview expr
+                    d! $ app.types/Op :preview $ decode-map-as expr (Map Dynamic Dynamic)
                 <> $ str $ .unwrap-or
-                  .map (&map:get expr :alias) str
+                  .map (get expr :alias) str
                   , |
           :examples $ []
-          :schema $ quote $ Fn (Map K V) (-> respo.schema/Component) (:generics K V)
+          :schema $ quote $ Fn Expr (-> respo.schema/Component) (:generics Expr)
         'comp-symbol $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-symbol (expr)
             div
@@ -553,18 +554,18 @@
                 :class-name $ str-spaced css/column css-code-symbol
                 :style $ merge $ {} (:display :inline-flex)
                 :on-click $ fn (e d!)
-                  d! $ app.types/Op :preview expr
+                  d! $ app.types/Op :preview $ decode-map-as expr (Map Dynamic Dynamic)
               <> $ .unwrap-or
-                .map (&map:get expr :val) str
+                .map (get expr :val) str
                 , |
               div ({})
                 <>
                   .unwrap-or
-                    .map (&map:get expr :ns) str
+                    .map (get expr :ns) str
                     , |
                   , css-code-symbol-ns
           :examples $ []
-          :schema $ quote $ Fn (Map K V) (-> respo.schema/Component) (:generics K V)
+          :schema $ quote $ Fn Expr (-> respo.schema/Component) (:generics Expr)
         'comp-syntax $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-syntax (label)
             div
