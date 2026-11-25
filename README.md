@@ -5,7 +5,7 @@ Demo: http://repo.calcit-lang.org/calcit-ir-viewer/ 。
 
 ### 使用者影响
 
-本项目使用 Calcit 与 `@calcit/procs` 0.44.0，模块图使用正式版本 Reel 0.11.7、UI 0.16.3、Respo 0.19.16。升级后重新安装依赖、生成 JS 并刷新页面，基础样式可能随补丁变化。
+本项目使用 Calcit 与 `@calcit/procs` 0.45.0，模块图使用正式版本 Reel 0.11.8、UI 0.16.4、Respo 0.19.17。升级后重新安装依赖、生成 JS 并刷新页面，基础样式可能随补丁变化。
 
 组件状态游标只接受 Tag、字符串和数字。导入的 IR 与存档仍经原入口解码，IndexedDB 保存完整 IR。类型展示的可选字段使用显式 Option，并保留缺失字段的原占位文本。
 
@@ -25,7 +25,7 @@ Demo: http://repo.calcit-lang.org/calcit-ir-viewer/ 。
 
 ### 开发与验证
 
-Node.js 24、Yarn 4.18.0、Caps 0.1.1。新解析 npm 版本须已发布至少 60 分钟，无单包例外；已有 immutable 锁版本不重新计算年龄。
+Node.js 24、Yarn 4.18.0、Caps 0.1.2。新解析 npm 版本须已发布至少 60 分钟，无单包例外；已有 immutable 锁版本不重新计算年龄。
 
 以下命令在 Bash 中运行。
 
@@ -54,7 +54,7 @@ node --test scripts/ir-viewer-regression.test.mjs
 原测试中的 9 MiB 合成 IR/IndexedDB 回归不代替真实浏览器文件导入与刷新验收。源码仅 calcit.cirru/deps.cirru，js-out/dist 不入库。
 
 本轮保留原门禁，按 0.34.2 实测将 `dispatch!` 的不完整类型上限从 1 收紧到 0，
-Calcit 0.44.0 的现行报告按定义限制弱类型和覆盖率。语法名称与原始 JS 片段的两个渲染组件只接收 String，输入文件仍由原解析入口处理。
+Calcit 0.45.0 的现行报告按定义限制弱类型和覆盖率。语法名称与原始 JS 片段的两个渲染组件只接收 String，输入文件仍由原解析入口处理。
 
 ### 前端部署
 
